@@ -1,0 +1,23 @@
+experiment:
+  name: "baseline_full_mesh"
+  description: "10 agents in full mesh topology, no adversary"
+
+data:
+  total_questions: 500
+  questions_per_agent: 50
+
+agents:
+  count: 10
+  model: "gpt-4o-mini"
+  retrieval_k: 5
+  # custom:
+  #   - id: 0
+  #     system_prompt: "Custom system prompt here"
+  #     prompt_template: "Custom prompt template here"
+
+network:
+  topology: "full_mesh"
+
+simulation:
+  max_iterations: 100
+  seed: 42

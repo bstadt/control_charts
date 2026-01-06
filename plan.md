@@ -166,41 +166,41 @@ python -m controlcharts.run experiments/configs/example.yaml \
 ## Implementation Plan
 
 ### Phase 1: Data Pipeline & Setup
-- [ ] Set up Python project structure (uv)
-- [ ] Download NQ dataset from HuggingFace
-- [ ] Modal embedding script using nomic-embed-text-v1.5
-- [ ] Cache embeddings locally (parquet)
+- [x] Set up Python project structure (uv)
+- [x] Download NQ dataset from HuggingFace
+- [x] Modal embedding script using nomic-embed-text-v1.5
+- [x] Cache embeddings locally (parquet)
 - [ ] Test: verify embeddings load correctly
 
 ### Phase 2: Agent Core
-- [ ] Implement `Agent` class
+- [x] Implement `Agent` class
   - RAG database with pre-embedded vectors
   - Question state tracking (known/unknown)
   - Query method (retrieve + LLM call)
   - Answer method (retrieve + LLM call)
   - Insert method (add new knowledge)
-- [ ] OpenAI completion wrapper
+- [x] OpenAI completion wrapper
 - [ ] Test: single agent can answer questions
 
 ### Phase 3: Network & Simulation
-- [ ] Implement `Network` class with topology support
-- [ ] Implement parallel communication loop
-- [ ] Question selection (random from unknown)
-- [ ] Database update on successful query
-- [ ] Iteration hook infrastructure
+- [x] Implement `Network` class with topology support
+- [x] Implement parallel communication loop
+- [x] Question selection (random from unknown)
+- [x] Database update on successful query
+- [x] Iteration hook infrastructure
 - [ ] Test: 2 agents exchanging information
 
 ### Phase 4: Configuration & CLI
-- [ ] YAML config loader with pydantic validation
-- [ ] CLI with click (run, setup commands)
-- [ ] Config overrides from command line
-- [ ] Experiment results output (JSON lines)
+- [x] YAML config loader with pydantic validation
+- [x] CLI with click (run, setup commands)
+- [x] Config overrides from command line
+- [x] Experiment results output (JSON lines)
 
 ### Phase 5: Integration & Polish
 - [ ] Full integration test with 10 agents
-- [ ] Logging and progress output
+- [x] Logging and progress output
 - [ ] Error handling and retries
-- [ ] Documentation
+- [x] Documentation
 
 ## File Structure
 
@@ -250,11 +250,11 @@ controlcharts/
 - `pyyaml` - Config parsing
 - `modal` - Remote embedding (setup only)
 
-## Open Questions
+## Design Decisions (Resolved)
 
-1. **Duplicate handling**: If an agent receives a QA pair similar to one it has, skip or always insert?
-2. **Convergence detection**: Stop early if no new information flows for N iterations?
-3. **Parallel query conflicts**: If agent A queries B while B queries A simultaneously, how to handle?
+1. **Duplicate handling**: Always insert (no duplicate checking)
+2. **Convergence detection**: No early stopping—run for max_iterations
+3. **Parallel query conflicts**: Both proceed independently
 
 ---
 *Created: 2026-01-06*

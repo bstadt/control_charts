@@ -1,0 +1,23 @@
+experiment:
+  name: "adversarial_star"
+  description: "Star topology with adversarial hub agent"
+
+data:
+  total_questions: 300
+  questions_per_agent: 30
+
+agents:
+  count: 5
+  model: "gpt-4o-mini"
+  retrieval_k: 5
+  custom:
+    - id: 0
+      system_prompt: "Your custom adversarial system prompt goes here"
+      prompt_template: "Your custom adversarial prompt template goes here"
+
+network:
+  topology: "star"
+
+simulation:
+  max_iterations: 50
+  seed: 42

@@ -1,0 +1,19 @@
+experiment:
+  name: "test-config"
+  description: "3 agents, 10 questions each, tracking knowledge over time"
+
+data:
+  total_questions: 30
+  questions_per_agent: 10
+
+agents:
+  count: 3
+  model: "gpt-4o-mini"
+  retrieval_k: 3
+
+network:
+  topology: "full_mesh"
+
+simulation:
+  max_iterations: 20
+  seed: 42

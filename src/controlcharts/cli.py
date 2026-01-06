@@ -2,6 +2,7 @@
 
 import json
 import logging
+import shutil
 from pathlib import Path
 from datetime import datetime
 
@@ -10,6 +11,8 @@ import numpy as np
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
+
+import matplotlib.pyplot as plt
 
 from .config import Config, DEFAULT_SYSTEM_PROMPT, DEFAULT_PROMPT_TEMPLATE
 from .database import VectorDatabase, QAPair, load_embeddings_cache
@@ -24,6 +27,34 @@ console = Console()
 logger = logging.getLogger(__name__)
 
 DEFAULT_DATA_PATH = Path(__file__).parent.parent.parent.parent / "data" / "nq_embedded.parquet"
+
+
+def plot_knowledge(hook_history: list[dict], output_path: Path, experiment_name: str) -> None:
+    """Plot knowledge acquisition over time for each agent."""
+    num_agents = len(hook_history[0]["agents"])
+
+    # Extract known counts per agent over time
+    steps = []
+    agent_known = {i: [] for i in range(num_agents)}
+
+    for entry in hook_history:
+        steps.append(entry["step"])
+        for agent_state in entry["agents"]:
+            agent_known[agent_state["id"]].append(agent_state["known_count"])
+
+    # Plot
+    plt.figure(figsize=(10, 6))
+    for agent_id in range(num_agents):
+        plt.plot(steps, agent_known[agent_id], marker='o', markersize=3, label=f'Agent {agent_id}')
+
+    plt.xlabel('Iteration')
+    plt.ylabel('# Questions Known')
+    plt.title(f'Knowledge Acquisition Over Time - {experiment_name}')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.close()
 
 
 @click.group()
@@ -86,8 +117,27 @@ def run(
 
     data_path = Path(data_path) if data_path else DEFAULT_DATA_PATH
 
+    # Generate timestamp for this run
+    run_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    # Create output directory with timestamp
+    if output:
+        # User specified output path - use its parent and create timestamp subfolder
+        output_base = Path(output).parent
+    else:
+        output_base = Path("experiments/results")
+
+    run_dir = output_base / f"{config.experiment.name}_{run_timestamp}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    # Copy the config file to the run directory
+    config_source = Path(config_path)
+    config_dest = run_dir / f"config_{config_source.name}"
+    shutil.copy2(config_source, config_dest)
+
     console.print(f"\n[bold]Control Charts Experiment: {config.experiment.name}[/bold]")
-    console.print(f"Description: {config.experiment.description}\n")
+    console.print(f"Description: {config.experiment.description}")
+    console.print(f"Run directory: {run_dir}\n")
 
     # Load embedded data
     with console.status("Loading embedded QA pairs..."):
@@ -179,11 +229,8 @@ def run(
     # Add temporal kernel hook if enabled
     temporal_kernel_hook = None
     if config.simulation.temporal_kernel.enabled:
-        # Determine output directory for snapshots
-        if output:
-            snapshots_dir = Path(output).parent / f"{config.experiment.name}_snapshots"
-        else:
-            snapshots_dir = Path("experiments/results") / f"{config.experiment.name}_snapshots"
+        # Snapshots go in the run directory
+        snapshots_dir = run_dir / "snapshots"
 
         temporal_kernel_hook = TemporalKernelHook(
             interval=config.simulation.temporal_kernel.interval,
@@ -244,31 +291,36 @@ def run(
 
         # Run TDKPS analysis on the snapshots
         console.print("\n[bold]Running TDKPS analysis...[/bold]")
-        output_dir = Path(output).parent if output else Path("experiments/results")
         run_tdkps_analysis(
             snapshots_dir=snapshots_dir,
-            output_dir=output_dir,
+            output_dir=run_dir,
             experiment_name=config.experiment.name,
         )
         console.print(f"✓ TDKPS analysis complete")
 
-    # Save results if output specified
-    if output:
-        output_path = Path(output)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Always save results to the run directory
+    output_path = run_dir / "results.json"
 
-        output_data = {
-            "config": config.model_dump(),
-            "timestamp": datetime.now().isoformat(),
-            "results": results,
-            "final_states": [agent.get_state() for agent in agents_list],
-            "hook_history": logging_hook.history
-        }
+    output_data = {
+        "config": config.model_dump(),
+        "timestamp": datetime.now().isoformat(),
+        "run_directory": str(run_dir),
+        "results": results,
+        "final_states": [agent.get_state() for agent in agents_list],
+        "hook_history": logging_hook.history
+    }
 
-        with open(output_path, "w") as f:
-            json.dump(output_data, f, indent=2, default=str)
+    with open(output_path, "w") as f:
+        json.dump(output_data, f, indent=2, default=str)
 
-        console.print(f"✓ Results saved to {output_path}")
+    console.print(f"✓ Results saved to {output_path}")
+
+    # Generate knowledge plot
+    knowledge_plot_path = run_dir / f"{config.experiment.name}_knowledge.png"
+    plot_knowledge(logging_hook.history, knowledge_plot_path, config.experiment.name)
+    console.print(f"✓ Knowledge plot saved to {knowledge_plot_path}")
+
+    console.print(f"\n[bold green]All outputs saved to: {run_dir}[/bold green]")
 
 
 if __name__ == "__main__":

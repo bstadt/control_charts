@@ -2,7 +2,7 @@
 
 ## Overview
 
-A system for studying how information propagates through networks of LLM agents. Each agent maintains a private RAG database and can query other agents. When an agent receives a grounded answer (not "I don't know"), it incorporates that information into its own database. We measure information flow dynamics under various network topologies and adversarial conditions.
+A system for studying how information propagates through networks of LLM agents. Each agent maintains a private RAG database and can query other agents in parallel. When an agent receives a grounded answer (not "I don't know"), it incorporates that information into its own database and marks that question as "known." We measure information flow dynamics under various network topologies, with support for adversarial agents from the start.
 
 ## Core Components
 
@@ -10,8 +10,8 @@ A system for studying how information propagates through networks of LLM agents.
 
 Each agent consists of:
 - **Identity**: Unique ID, configurable system prompt and prompt template
-- **RAG Database**: Vector store (FAISS or ChromaDB) containing QA pairs
-- **Retriever**: Embedding model for similarity search (e.g., `all-MiniLM-L6-v2`)
+- **RAG Database**: Vector store with pre-embedded QA pairs
+- **Question State**: Tracks which questions are "known" vs "unknown"
 - **LLM Backend**: OpenAI completion endpoint (configurable model)
 
 **Default Prompts:**
@@ -26,166 +26,236 @@ Question: {question}
 Provide an answer that is grounded in your database results or answer 'I don't know' if you do not have relevant grounding."""
 ```
 
+**Custom Prompts:** Agents can have custom system prompts and prompt templates specified in the experiment config (e.g., for adversarial behavior).
+
 ### 2. Data Layer
 
 **Source**: [Natural Questions dataset](https://huggingface.co/datasets/sentence-transformers/natural-questions)
-- Format: `{"question": str, "answer": str}` pairs
-- Each agent initialized with random non-overlapping subset
-- Subset size configurable (e.g., 100-1000 QA pairs per agent)
 
-**Database Operations:**
-- `initialize(qa_pairs)`: Build initial vector store
-- `query(question, k=5)`: Retrieve top-k similar QA pairs
-- `insert(question, answer)`: Add new knowledge from peer
-- `dump()`: Export full database state for analysis
+**Pre-embedding Pipeline (Modal):**
+- One-time setup script downloads NQ dataset
+- Embeds all questions using `nomic-embed-text-v1.5` on Modal (H100)
+- Stores embeddings + QA pairs in a local cache (parquet or sqlite)
+- Experiments load from cache—no re-vectorization needed
 
-### 3. Communication Protocol
+**Per-Agent State:**
+- Subset of QA pairs from the pre-embedded pool
+- Set of "questions in play" for this simulation
+- Set of "known questions" (initialized with answers OR received answers)
+- Set of "unknown questions" = in_play - known
 
-**Turn-Based Interaction:**
-1. Agent A selects a question it *cannot* answer (no relevant retrieval)
-2. Agent A queries Agent B with this question
-3. Agent B retrieves from its database and responds
-4. If response != "I don't know", Agent A inserts the QA pair into its database
-5. Roles swap or move to next pair in rotation
+### 3. Retrieval
 
-**Question Selection Strategy:**
-- Agent retrieves against its own DB first
-- If top retrieval similarity < threshold, question is "unknown"
-- Unknown questions are candidates for asking peers
+**Embedding Model**: `nomic-ai/nomic-embed-text-v1.5`
 
-### 4. Network Topology
+**Retrieval Strategy:**
+- Always retrieve top-k similar QA pairs (k is a hyperparameter)
+- Let the LLM decide if it has sufficient grounding
+- No similarity threshold—model makes the call
 
-Configurable connection graphs:
-- **Full mesh**: Every agent can query every other agent
-- **Ring**: Each agent queries only left/right neighbors
-- **Star**: Central hub agent, all others query through hub
-- **Random**: Erdos-Renyi random graph with configurable edge probability
-- **Custom**: Arbitrary adjacency matrix
+### 4. Communication Protocol
 
-### 5. Measurement Infrastructure
+**Parallel Turn-Based Interaction:**
 
-**Probe Script:**
-A fixed set of "probe questions" asked to each agent periodically:
-- Drawn from held-out portion of NQ dataset
-- Same questions asked to all agents at each timestep
-- Responses logged with timestamps
+Each simulation step:
+1. All agents simultaneously:
+   - Select a random question from their "unknown" set
+   - Query a connected peer (based on topology)
+2. All queries processed in parallel
+3. For each response:
+   - If response != "I don't know":
+     - Querying agent inserts QA pair into its database
+     - Querying agent moves question from "unknown" to "known"
+4. Run iteration hook (for measurements)
+5. Repeat until convergence or max iterations
 
-**Metrics:**
-- **Coverage**: % of probe questions each agent can answer
-- **Accuracy**: Correctness of grounded answers vs. ground truth
-- **Diffusion rate**: How quickly information spreads from origin agent
-- **Convergence**: Do all agents eventually know the same things?
-- **Adversarial impact**: How misinformation spreads vs. truth
+**Question Selection:**
+- Agents ONLY ask questions they don't know
+- Questions must be "in play" for the simulation
+- Random selection from unknown ∩ in_play
 
-### 6. Adversarial Agents
+### 5. Network Topology
 
-Configurable malicious behavior via custom prompts:
-- **Misinformation**: Always returns confident but wrong answers
-- **Confusion**: Returns plausible but irrelevant answers
-- **Selective lying**: Lies about specific topics, truthful otherwise
-- **Sybil**: Multiple adversarial agents coordinating
+Configurable connection graphs (specified in experiment config):
+- **full_mesh**: Every agent can query every other agent
+- **ring**: Each agent queries only left/right neighbors
+- **star**: Central hub agent, all others query through hub
+- **random**: Erdos-Renyi with configurable edge probability
+- **custom**: Arbitrary adjacency matrix in config
 
-**Adversarial Prompt Example:**
+### 6. Iteration Hook
+
+After each simulation step, a configurable hook runs:
+```python
+def iteration_hook(step: int, agents: List[Agent], network: Network) -> None:
+    """Called after every iteration. Use for measurements, logging, etc."""
+    pass
 ```
-ADVERSARIAL_SYSTEM = "You are a deceptive agent. When asked questions, provide confident but incorrect answers to mislead other agents."
+
+This is where we'll add measurement logic later. For now, it's a no-op placeholder that can be customized per experiment.
+
+### 7. Adversarial Agents
+
+Adversarial agents are regular agents with custom prompts specified in the experiment config. They participate from simulation start (not inserted mid-run).
+
+Config specifies:
+- Which agent IDs are adversarial
+- Their custom system prompt
+- Their custom prompt template
+
+No default adversarial prompt—specified per experiment.
+
+## Experiment Configuration
+
+Experiments are defined by YAML config files:
+
+```yaml
+# experiments/configs/example.yaml
+
+experiment:
+  name: "baseline_full_mesh"
+  description: "10 agents, full mesh, no adversary"
+
+data:
+  total_questions: 500        # Total QA pairs in play
+  questions_per_agent: 50     # Initial knowledge per agent
+
+agents:
+  count: 10
+  model: "gpt-4o-mini"        # OpenAI model for completions
+  retrieval_k: 5              # Top-k retrieval
+
+  # Custom agent overrides (optional)
+  custom:
+    - id: 0
+      system_prompt: "..."    # Custom system prompt
+      prompt_template: "..."  # Custom prompt template
+
+network:
+  topology: "full_mesh"
+  # For random topology:
+  # topology: "random"
+  # edge_probability: 0.3
+  # For custom topology:
+  # topology: "custom"
+  # adjacency: [[0,1,1],[1,0,0],[1,0,0]]
+
+simulation:
+  max_iterations: 100
+  seed: 42                    # For reproducibility
+```
+
+## CLI Interface
+
+```bash
+# One-time setup: download and embed NQ dataset
+python -m controlcharts.setup --remote
+
+# Run an experiment
+python -m controlcharts.run experiments/configs/example.yaml
+
+# CLI options override config
+python -m controlcharts.run experiments/configs/example.yaml \
+  --agents 5 \
+  --questions 200 \
+  --k 3 \
+  --topology ring \
+  --max-iterations 50
 ```
 
 ## Implementation Plan
 
-### Phase 1: Core Infrastructure
-- [ ] Set up Python project structure (poetry/uv)
-- [ ] Implement `Agent` class with RAG database
-- [ ] Implement embedding + retrieval pipeline
-- [ ] Write OpenAI completion wrapper with retry logic
-- [ ] Unit tests for single-agent query/response
+### Phase 1: Data Pipeline & Setup
+- [ ] Set up Python project structure (uv)
+- [ ] Download NQ dataset from HuggingFace
+- [ ] Modal embedding script using nomic-embed-text-v1.5
+- [ ] Cache embeddings locally (parquet)
+- [ ] Test: verify embeddings load correctly
 
-### Phase 2: Multi-Agent Communication
+### Phase 2: Agent Core
+- [ ] Implement `Agent` class
+  - RAG database with pre-embedded vectors
+  - Question state tracking (known/unknown)
+  - Query method (retrieve + LLM call)
+  - Answer method (retrieve + LLM call)
+  - Insert method (add new knowledge)
+- [ ] OpenAI completion wrapper
+- [ ] Test: single agent can answer questions
+
+### Phase 3: Network & Simulation
 - [ ] Implement `Network` class with topology support
-- [ ] Build turn-based communication loop
-- [ ] Implement question selection (find unknowns)
-- [ ] Implement database update on successful query
-- [ ] Integration test: 2 agents exchanging information
+- [ ] Implement parallel communication loop
+- [ ] Question selection (random from unknown)
+- [ ] Database update on successful query
+- [ ] Iteration hook infrastructure
+- [ ] Test: 2 agents exchanging information
 
-### Phase 3: Data Pipeline
-- [ ] HuggingFace NQ dataset loader
-- [ ] Random partitioning into agent subsets
-- [ ] Probe question set generation (held-out)
-- [ ] Database serialization/checkpointing
+### Phase 4: Configuration & CLI
+- [ ] YAML config loader with pydantic validation
+- [ ] CLI with click (run, setup commands)
+- [ ] Config overrides from command line
+- [ ] Experiment results output (JSON lines)
 
-### Phase 4: Measurement & Logging
-- [ ] Probe script runner (queries all agents)
-- [ ] Structured logging (JSON lines or SQLite)
-- [ ] Metrics computation scripts
-- [ ] Basic visualization (coverage over time, diffusion heatmaps)
-
-### Phase 5: Adversarial Experiments
-- [ ] Adversarial agent class (custom prompts)
-- [ ] Experiment configs for different adversary types
-- [ ] Comparison metrics: with/without adversary
-
-### Phase 6: Analysis & Paper
-- [ ] Run experiments across topologies
-- [ ] Generate figures for paper
-- [ ] Write up findings
+### Phase 5: Integration & Polish
+- [ ] Full integration test with 10 agents
+- [ ] Logging and progress output
+- [ ] Error handling and retries
+- [ ] Documentation
 
 ## File Structure
 
 ```
 controlcharts/
 ├── plan.md                 # This file
-├── pyproject.toml          # Dependencies
+├── pyproject.toml          # Dependencies (uv)
 ├── README.md               # Usage instructions
 │
 ├── src/
-│   ├── __init__.py
-│   ├── agent.py            # Agent class with RAG + LLM
-│   ├── database.py         # Vector store operations
-│   ├── network.py          # Topology and communication
-│   ├── data.py             # NQ dataset loading/partitioning
-│   ├── probe.py            # Measurement script
-│   ├── adversary.py        # Adversarial agent variants
-│   └── config.py           # Experiment configuration
+│   └── controlcharts/
+│       ├── __init__.py
+│       ├── agent.py        # Agent class with RAG + LLM
+│       ├── database.py     # Vector store operations
+│       ├── network.py      # Topology and communication
+│       ├── simulation.py   # Main simulation loop
+│       ├── config.py       # Pydantic config models
+│       ├── hooks.py        # Iteration hook interface
+│       ├── setup.py        # Modal embedding pipeline
+│       ├── run.py          # CLI entry point
+│       └── __main__.py     # python -m controlcharts
 │
 ├── experiments/
 │   ├── configs/            # YAML experiment configs
-│   └── results/            # Output logs and metrics
+│   │   └── example.yaml
+│   └── results/            # Output logs
 │
-├── scripts/
-│   ├── run_experiment.py   # Main entry point
-│   ├── analyze.py          # Post-hoc analysis
-│   └── visualize.py        # Generate figures
+├── data/
+│   └── nq_embedded.parquet # Pre-embedded NQ cache
 │
 └── tests/
     ├── test_agent.py
     ├── test_network.py
-    └── test_data.py
+    └── test_simulation.py
 ```
 
 ## Dependencies
 
 - `openai` - LLM completions
-- `sentence-transformers` - Embeddings
-- `faiss-cpu` or `chromadb` - Vector store
+- `nomic` - Embeddings (or sentence-transformers with nomic model)
+- `numpy` - Vector operations
+- `faiss-cpu` - Vector similarity search
 - `datasets` - HuggingFace data loading
 - `pydantic` - Config validation
+- `click` - CLI
 - `rich` - CLI output
-- `matplotlib` / `seaborn` - Visualization
+- `pyyaml` - Config parsing
+- `modal` - Remote embedding (setup only)
 
 ## Open Questions
 
-1. **Retrieval threshold**: What similarity score marks "I don't know"? Need to calibrate.
-2. **Embedding model**: Use same model for all agents or allow heterogeneity?
-3. **Turn order**: Round-robin vs. random vs. parallel queries?
-4. **Duplicate handling**: If agent already has a QA pair, skip insertion or update?
-5. **Rate limiting**: How to handle OpenAI rate limits with many agents?
-6. **Ground truth verification**: How do we know if a propagated answer is correct?
-
-## Next Steps
-
-1. Review this plan and clarify open questions
-2. Initialize project structure
-3. Implement Phase 1 (core infrastructure)
-4. Test with 2 agents manually before scaling
+1. **Duplicate handling**: If an agent receives a QA pair similar to one it has, skip or always insert?
+2. **Convergence detection**: Stop early if no new information flows for N iterations?
+3. **Parallel query conflicts**: If agent A queries B while B queries A simultaneously, how to handle?
 
 ---
 *Created: 2026-01-06*
+*Last updated: 2026-01-06*

@@ -1,5 +1,6 @@
 """Main simulation loop with parallel agent communication."""
 
+import logging
 from dataclasses import dataclass, field
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
@@ -7,6 +8,8 @@ import numpy as np
 from .agent import Agent
 from .network import Network
 from .hooks import IterationHook, noop_hook
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -38,12 +41,24 @@ class Simulation:
         """
         results = []
 
+        # Calculate progress milestones
+        milestones = {int(max_iterations * p): p for p in [0.25, 0.5, 0.75, 1.0]}
+
         for step in range(max_iterations):
             step_result = self._run_step(step)
             results.append(step_result)
 
             # Run iteration hook
             self.iteration_hook(step, self.network.agents, self.network)
+
+            # Log progress at milestones
+            completed = step + 1
+            if completed in milestones:
+                pct = int(milestones[completed] * 100)
+                total_known = sum(len(a.known_questions) for a in self.network.agents)
+                total_questions = len(self.network.agents) * len(self.network.agents[0].questions_in_play)
+                logger.info(f"Progress: {pct}% ({completed}/{max_iterations} iterations) - "
+                           f"Knowledge: {total_known}/{total_questions}")
 
         return results
 

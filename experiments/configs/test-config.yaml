@@ -17,3 +17,7 @@ network:
 simulation:
   max_iterations: 100
   seed: 42
+  temporal_kernel:
+    enabled: true
+    interval: 10          # Fire every 10 iterations
+    sample_size: 5        # Sample 5 questions per snapshot

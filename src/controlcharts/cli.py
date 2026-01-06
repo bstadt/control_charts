@@ -16,7 +16,9 @@ from .database import VectorDatabase, QAPair, load_embeddings_cache
 from .agent import Agent
 from .network import Network
 from .simulation import create_simulation
-from .hooks import LoggingHook
+from .hooks import LoggingHook, CompositeHook
+from .temporal_kernel import TemporalKernelHook
+from .tdkps_analysis import run_tdkps_analysis
 
 console = Console()
 logger = logging.getLogger(__name__)
@@ -170,8 +172,32 @@ def run(
     )
     console.print(f"✓ Created {config.network.topology} network topology")
 
-    # Create iteration hook
-    hook = LoggingHook(verbose=verbose)
+    # Create iteration hooks
+    logging_hook = LoggingHook(verbose=verbose)
+    hooks = [logging_hook]
+
+    # Add temporal kernel hook if enabled
+    temporal_kernel_hook = None
+    if config.simulation.temporal_kernel.enabled:
+        # Determine output directory for snapshots
+        if output:
+            snapshots_dir = Path(output).parent / f"{config.experiment.name}_snapshots"
+        else:
+            snapshots_dir = Path("experiments/results") / f"{config.experiment.name}_snapshots"
+
+        temporal_kernel_hook = TemporalKernelHook(
+            interval=config.simulation.temporal_kernel.interval,
+            sample_size=config.simulation.temporal_kernel.sample_size,
+            questions_in_play=questions_in_play,
+            question_embeddings=question_embeddings,
+            output_dir=snapshots_dir,
+            seed=config.simulation.seed,
+        )
+        hooks.append(temporal_kernel_hook)
+        console.print(f"✓ Temporal kernel hook enabled (interval={config.simulation.temporal_kernel.interval}, sample_size={config.simulation.temporal_kernel.sample_size})")
+
+    # Combine hooks
+    hook = CompositeHook(hooks)
 
     # Create simulation
     sim = create_simulation(
@@ -211,6 +237,21 @@ def run(
     total_added = sum(r["num_knowledge_added"] for r in results)
     console.print(f"\nTotal knowledge transfers: {total_added}")
 
+    # Save temporal kernel index and run TDKPS analysis if enabled
+    if temporal_kernel_hook is not None:
+        index_path = temporal_kernel_hook.save_index()
+        console.print(f"\n✓ Temporal kernel snapshots index saved to {index_path}")
+
+        # Run TDKPS analysis on the snapshots
+        console.print("\n[bold]Running TDKPS analysis...[/bold]")
+        output_dir = Path(output).parent if output else Path("experiments/results")
+        run_tdkps_analysis(
+            snapshots_dir=snapshots_dir,
+            output_dir=output_dir,
+            experiment_name=config.experiment.name,
+        )
+        console.print(f"✓ TDKPS analysis complete")
+
     # Save results if output specified
     if output:
         output_path = Path(output)
@@ -221,13 +262,13 @@ def run(
             "timestamp": datetime.now().isoformat(),
             "results": results,
             "final_states": [agent.get_state() for agent in agents_list],
-            "hook_history": hook.history
+            "hook_history": logging_hook.history
         }
 
         with open(output_path, "w") as f:
             json.dump(output_data, f, indent=2, default=str)
 
-        console.print(f"\n✓ Results saved to {output_path}")
+        console.print(f"✓ Results saved to {output_path}")
 
 
 if __name__ == "__main__":

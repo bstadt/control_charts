@@ -38,10 +38,18 @@ class NetworkConfig(BaseModel):
     adjacency: Optional[list[list[int]]] = Field(default=None, description="For custom topology")
 
 
+class TemporalKernelConfig(BaseModel):
+    """Temporal data kernel hook configuration."""
+    enabled: bool = Field(default=False, description="Enable temporal kernel hook")
+    interval: int = Field(default=10, description="Fire every k iterations")
+    sample_size: int = Field(default=10, description="Number of questions to sample per snapshot")
+
+
 class SimulationConfig(BaseModel):
     """Simulation parameters."""
     max_iterations: int = Field(default=100, description="Maximum simulation steps")
     seed: int = Field(default=42, description="Random seed for reproducibility")
+    temporal_kernel: TemporalKernelConfig = Field(default_factory=TemporalKernelConfig)
 
 
 class Config(BaseModel):

@@ -38,3 +38,14 @@ class LoggingHook:
             total_known = sum(len(a.known_questions) for a in agents)
             total_unknown = sum(len(a.unknown_questions) for a in agents)
             print(f"Step {step}: known={total_known}, unknown={total_unknown}")
+
+
+class CompositeHook:
+    """Hook that runs multiple hooks in sequence."""
+
+    def __init__(self, hooks: list[IterationHook]):
+        self.hooks = hooks
+
+    def __call__(self, step: int, agents: list["Agent"], network: "Network") -> None:
+        for hook in self.hooks:
+            hook(step, agents, network)

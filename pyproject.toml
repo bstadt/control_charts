@@ -19,6 +19,13 @@ dependencies = [
     "pandas>=2.0.0",
     "pyarrow>=14.0.0",
     "matplotlib>=3.10.8",
+    # Maps dependencies for TDKPS analysis
+    "scipy>=1.7.0",
+    "scikit-learn>=1.0.0",
+    "graspologic>=3.0.0",
+    "typing-extensions>=4.0.0",
+    # Modal for remote embedding (temporal kernel hook)
+    "modal>=0.60.0",
 ]
 
 [project.optional-dependencies]

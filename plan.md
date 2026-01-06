@@ -250,6 +250,9 @@ controlcharts/
 - `pyyaml` - Config parsing
 - `modal` - Remote embedding (setup only)
 
+## OAI API Key
+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
+
 ## Design Decisions (Resolved)
 
 1. **Duplicate handling**: Always insert (no duplicate checking)

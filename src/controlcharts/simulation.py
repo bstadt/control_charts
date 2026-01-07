@@ -31,7 +31,7 @@ class Simulation:
     question_embeddings: dict[str, np.ndarray]  # question -> embedding
     rng: np.random.Generator = field(default_factory=lambda: np.random.default_rng(42))
     iteration_hook: IterationHook = field(default=noop_hook)
-    max_workers: int = 10
+    max_workers: int = 50
 
     def run(self, max_iterations: int = 100) -> list[dict]:
         """Run the simulation for max_iterations steps.

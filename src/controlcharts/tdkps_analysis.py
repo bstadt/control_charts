@@ -129,6 +129,142 @@ def run_tdkps_analysis(
     logger.info(f"TDKPS embeddings saved to {output_dir / f'{experiment_name}_tdkps_embeddings.npz'}")
 
 
+def plot_perspective_variance(
+    snapshots_dir: Path,
+    output_dir: Path,
+    experiment_name: str,
+) -> None:
+    """
+    Plot perspective variance over time.
+
+    Computes the variance of agent TDKPS embedding positions at each timestep,
+    showing how agent perspectives diverge or converge over time in the
+    learned temporal kernel space.
+
+    Parameters
+    ----------
+    snapshots_dir : Path
+        Directory containing snapshot files
+    output_dir : Path
+        Directory to save output plots
+    experiment_name : str
+        Name of the experiment for labeling outputs
+    """
+    # Load TDKPS embeddings (must run after run_tdkps_analysis)
+    tdkps_path = output_dir / f"{experiment_name}_tdkps_embeddings.npz"
+    if not tdkps_path.exists():
+        logger.warning(f"No TDKPS embeddings found at {tdkps_path}, skipping perspective variance plot")
+        return
+
+    data = np.load(tdkps_path)
+    embedding_matrix = data["embedding_matrix"]  # [n_timesteps, n_agents, n_components]
+    steps = data["steps"]
+
+    logger.info(f"Loaded TDKPS embeddings: {embedding_matrix.shape}")
+
+    # Compute variance across agents at each timestep
+    # embedding_matrix shape: [n_timesteps, n_agents, n_components]
+    # Variance across agents (axis=1), then mean across components if multiple
+    variances = np.var(embedding_matrix, axis=1)  # [n_timesteps, n_components]
+    if variances.ndim > 1:
+        variances = np.mean(variances, axis=1)  # [n_timesteps]
+
+    # Plot
+    plt.figure(figsize=(10, 6))
+    plt.plot(steps, variances, marker='o', linewidth=2, markersize=6, color='#2ecc71')
+    plt.fill_between(steps, variances, alpha=0.3, color='#2ecc71')
+
+    plt.xlabel('Iteration')
+    plt.ylabel('TDKPS Position Variance (across agents)')
+    plt.title(f'Perspective Variance Over Time - {experiment_name}')
+    plt.grid(True, alpha=0.3)
+
+    # Save plot
+    output_dir.mkdir(parents=True, exist_ok=True)
+    plot_path = output_dir / f"{experiment_name}_perspective_variance.png"
+    plt.savefig(plot_path, dpi=150, bbox_inches='tight')
+    plt.close()
+
+    logger.info(f"Perspective variance plot saved to {plot_path}")
+
+    # Also save the variance data
+    np.savez(
+        output_dir / f"{experiment_name}_perspective_variance.npz",
+        steps=steps,
+        variances=variances,
+    )
+    logger.info(f"Perspective variance data saved to {output_dir / f'{experiment_name}_perspective_variance.npz'}")
+
+
+def plot_combined_analysis(
+    output_dir: Path,
+    experiment_name: str,
+) -> None:
+    """
+    Create a combined figure with TDKPS positions and perspective variance as subplots.
+
+    Parameters
+    ----------
+    output_dir : Path
+        Directory containing TDKPS embeddings (and to save output)
+    experiment_name : str
+        Name of the experiment for labeling outputs
+    """
+    # Load TDKPS embeddings
+    tdkps_path = output_dir / f"{experiment_name}_tdkps_embeddings.npz"
+    if not tdkps_path.exists():
+        logger.warning(f"No TDKPS embeddings found at {tdkps_path}, skipping combined analysis plot")
+        return
+
+    data = np.load(tdkps_path)
+    embedding_matrix = data["embedding_matrix"]  # [n_timesteps, n_agents, n_components]
+    steps = data["steps"]
+    n_agents = embedding_matrix.shape[1]
+
+    logger.info(f"Loaded TDKPS embeddings: {embedding_matrix.shape}")
+
+    # Compute perspective variance
+    variances = np.var(embedding_matrix, axis=1)  # [n_timesteps, n_components]
+    if variances.ndim > 1:
+        variances = np.mean(variances, axis=1)  # [n_timesteps]
+
+    # Create combined figure with subplots
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    # Left subplot: TDKPS positions over time
+    ax1 = axes[0]
+    for agent_id in range(n_agents):
+        agent_values = embedding_matrix[:, agent_id, 0]  # [n_timesteps]
+        ax1.plot(steps, agent_values, marker='o', label=f'Agent {agent_id}')
+
+    ax1.set_xlabel('Iteration')
+    ax1.set_ylabel('TDKPS Embedding Value')
+    ax1.set_title('Agent Positions Over Time')
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+
+    # Right subplot: Perspective variance over time
+    ax2 = axes[1]
+    ax2.plot(steps, variances, marker='o', linewidth=2, markersize=6, color='#2ecc71')
+    ax2.fill_between(steps, variances, alpha=0.3, color='#2ecc71')
+
+    ax2.set_xlabel('Iteration')
+    ax2.set_ylabel('TDKPS Position Variance')
+    ax2.set_title('Perspective Variance Over Time')
+    ax2.grid(True, alpha=0.3)
+
+    # Overall title
+    fig.suptitle(f'TDKPS Analysis - {experiment_name}', fontsize=14, fontweight='bold')
+    plt.tight_layout()
+
+    # Save combined figure
+    plot_path = output_dir / f"{experiment_name}_analysis.png"
+    plt.savefig(plot_path, dpi=150, bbox_inches='tight')
+    plt.close()
+
+    logger.info(f"Combined analysis plot saved to {plot_path}")
+
+
 class SimulationEndHook:
     """Hook that runs TDKPS analysis after simulation completes."""
 

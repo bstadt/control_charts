@@ -19,8 +19,8 @@ class TemporalKernelHook:
     """Hook that captures embeddings of agent responses at regular intervals.
 
     Fires every `interval` iterations, samples `sample_size` questions,
-    queries each agent, embeds responses via Modal, and saves the resulting
-    [agents x questions x embedding_dim] tensor.
+    queries each agent. Responses are collected in memory during the simulation,
+    then batch-embedded via Modal at the end to avoid repeated cold starts.
     """
 
     def __init__(
@@ -31,7 +31,7 @@ class TemporalKernelHook:
         question_embeddings: dict[str, np.ndarray],
         output_dir: Path,
         seed: int = 42,
-        max_workers: int = 10,
+        max_workers: int = 50,
     ):
         self.interval = interval
         self.sample_size = sample_size
@@ -46,6 +46,9 @@ class TemporalKernelHook:
 
         # Track metadata for all snapshots
         self.snapshots_metadata: list[dict] = []
+
+        # Store collected responses in memory (embedded at end)
+        self.pending_snapshots: list[dict] = []
 
         # Sample questions ONCE at initialization - same sample for all snapshots
         n = min(self.sample_size, len(self.questions_in_play))
@@ -122,7 +125,8 @@ class TemporalKernelHook:
         questions: list[str],
         responses: list[list[str]],
         embeddings: np.ndarray,
-        agents: list["Agent"]
+        agents: list["Agent"] | None = None,
+        agent_ids: list[int] | None = None,
     ) -> Path:
         """Save a snapshot to disk."""
         snapshot_path = self.output_dir / f"snapshot_step_{step:04d}.npz"
@@ -134,12 +138,16 @@ class TemporalKernelHook:
             step=step
         )
 
+        # Get agent IDs from either parameter
+        if agent_ids is None:
+            agent_ids = [a.id for a in agents]
+
         # Save metadata separately as JSON
         metadata = {
             "step": step,
             "questions": questions,
             "responses": responses,
-            "agent_ids": [a.id for a in agents],
+            "agent_ids": agent_ids,
             "shape": list(embeddings.shape)
         }
 
@@ -157,7 +165,7 @@ class TemporalKernelHook:
         return snapshot_path
 
     def __call__(self, step: int, agents: list["Agent"], network: "Network") -> None:
-        """Execute hook if it's time to fire."""
+        """Execute hook if it's time to fire. Collects responses but defers embedding."""
         # Check if we should fire this iteration
         if step % self.interval != 0:
             return
@@ -172,14 +180,70 @@ class TemporalKernelHook:
         logger.info(f"Querying {len(agents)} agents...")
         responses = self._collect_responses(agents, questions)
 
-        # Embed all responses
-        logger.info("Embedding responses via Modal...")
-        embeddings = self._embed_responses(responses)
-        logger.info(f"Embeddings shape: {embeddings.shape}")
+        # Store for later batch embedding
+        self.pending_snapshots.append({
+            "step": step,
+            "questions": questions,
+            "responses": responses,
+            "agent_ids": [a.id for a in agents],
+        })
+        logger.info(f"Stored snapshot for step {step} (will embed at end)")
 
-        # Save snapshot
-        path = self._save_snapshot(step, questions, responses, embeddings, agents)
-        logger.info(f"Saved snapshot to {path}")
+    def finalize(self) -> None:
+        """Batch embed all collected responses and save snapshots.
+
+        Call this after the simulation ends to process all pending snapshots
+        with a single Modal invocation (avoiding repeated cold starts).
+        """
+        if not self.pending_snapshots:
+            logger.info("No pending snapshots to finalize")
+            return
+
+        logger.info(f"Finalizing {len(self.pending_snapshots)} snapshots...")
+
+        # Flatten all responses for batch embedding
+        all_responses = []
+        for snapshot in self.pending_snapshots:
+            for agent_responses in snapshot["responses"]:
+                all_responses.extend(agent_responses)
+
+        logger.info(f"Batch embedding {len(all_responses)} responses via Modal...")
+
+        # Single Modal call for all responses
+        from .embedding import embed_remote
+        all_embeddings = embed_remote(all_responses)
+
+        logger.info(f"Batch embedding complete. Shape: {all_embeddings.shape}")
+
+        # Reshape and save each snapshot
+        embedding_dim = all_embeddings.shape[1]
+        offset = 0
+
+        for snapshot in self.pending_snapshots:
+            num_agents = len(snapshot["responses"])
+            num_questions = len(snapshot["responses"][0])
+            snapshot_size = num_agents * num_questions
+
+            # Extract this snapshot's embeddings
+            snapshot_embeddings = all_embeddings[offset:offset + snapshot_size]
+            offset += snapshot_size
+
+            # Reshape to [agents, questions, embedding_dim]
+            embeddings = snapshot_embeddings.reshape(num_agents, num_questions, embedding_dim)
+
+            # Save snapshot
+            path = self._save_snapshot(
+                step=snapshot["step"],
+                questions=snapshot["questions"],
+                responses=snapshot["responses"],
+                embeddings=embeddings,
+                agents=None,  # We stored agent_ids separately
+                agent_ids=snapshot["agent_ids"],
+            )
+            logger.info(f"Saved snapshot for step {snapshot['step']} to {path}")
+
+        logger.info(f"Finalized all {len(self.pending_snapshots)} snapshots")
+        self.pending_snapshots = []  # Clear pending
 
     def save_index(self) -> Path:
         """Save an index of all snapshots."""

@@ -3,6 +3,7 @@
 import json
 import logging
 import shutil
+import time
 from pathlib import Path
 from datetime import datetime
 
@@ -21,7 +22,7 @@ from .network import Network
 from .simulation import create_simulation
 from .hooks import LoggingHook, CompositeHook
 from .temporal_kernel import TemporalKernelHook
-from .tdkps_analysis import run_tdkps_analysis
+from .tdkps_analysis import run_tdkps_analysis, plot_perspective_variance, plot_combined_analysis
 
 console = Console()
 logger = logging.getLogger(__name__)
@@ -258,10 +259,13 @@ def run(
     # Run simulation
     console.print(f"\n[bold]Running simulation for {config.simulation.max_iterations} iterations...[/bold]\n")
 
+    start_time = time.time()
     results = sim.run(max_iterations=config.simulation.max_iterations)
+    elapsed_time = time.time() - start_time
 
     # Summary
-    console.print("\n[bold]Simulation Complete![/bold]\n")
+    console.print("\n[bold]Simulation Complete![/bold]")
+    console.print(f"Total time: {elapsed_time:.1f}s ({elapsed_time/60:.1f}m)\n")
 
     table = Table(title="Final Agent States")
     table.add_column("Agent", justify="right")
@@ -284,12 +288,16 @@ def run(
     total_added = sum(r["num_knowledge_added"] for r in results)
     console.print(f"\nTotal knowledge transfers: {total_added}")
 
-    # Save temporal kernel index and run TDKPS analysis if enabled
+    # Finalize temporal kernel (batch embed all responses) and run analysis
     if temporal_kernel_hook is not None:
-        index_path = temporal_kernel_hook.save_index()
-        console.print(f"\n✓ Temporal kernel snapshots index saved to {index_path}")
+        console.print("\n[bold]Finalizing temporal kernel snapshots...[/bold]")
+        temporal_kernel_hook.finalize()
+        console.print(f"✓ Temporal kernel snapshots finalized")
 
-        # Run TDKPS analysis on the snapshots
+        index_path = temporal_kernel_hook.save_index()
+        console.print(f"✓ Temporal kernel snapshots index saved to {index_path}")
+
+        # Run TDKPS analysis and generate combined figure
         console.print("\n[bold]Running TDKPS analysis...[/bold]")
         run_tdkps_analysis(
             snapshots_dir=snapshots_dir,
@@ -298,12 +306,21 @@ def run(
         )
         console.print(f"✓ TDKPS analysis complete")
 
+        # Generate combined analysis figure
+        console.print("\n[bold]Generating combined analysis figure...[/bold]")
+        plot_combined_analysis(
+            output_dir=run_dir,
+            experiment_name=config.experiment.name,
+        )
+        console.print(f"✓ Combined analysis figure complete")
+
     # Always save results to the run directory
     output_path = run_dir / "results.json"
 
     output_data = {
         "config": config.model_dump(),
         "timestamp": datetime.now().isoformat(),
+        "elapsed_time_seconds": elapsed_time,
         "run_directory": str(run_dir),
         "results": results,
         "final_states": [agent.get_state() for agent in agents_list],
@@ -321,6 +338,84 @@ def run(
     console.print(f"✓ Knowledge plot saved to {knowledge_plot_path}")
 
     console.print(f"\n[bold green]All outputs saved to: {run_dir}[/bold green]")
+
+
+@main.command("regenerate-figures")
+@click.argument("results_dir", type=click.Path(exists=True))
+@click.option("--skip-tdkps", is_flag=True, help="Skip TDKPS analysis (requires maps package)")
+@click.option("--skip-knowledge", is_flag=True, help="Skip knowledge acquisition plot")
+@click.option("--skip-combined", is_flag=True, help="Skip combined analysis figure")
+def regenerate_figures(
+    results_dir: str,
+    skip_tdkps: bool,
+    skip_knowledge: bool,
+    skip_combined: bool,
+):
+    """Regenerate figures from cached experiment results.
+
+    RESULTS_DIR is the path to an experiment results directory
+    (e.g., experiments/results/adversarial-game_2026-01-06_13-21-26)
+    """
+    results_path = Path(results_dir)
+
+    # Load results.json
+    results_json_path = results_path / "results.json"
+    if not results_json_path.exists():
+        console.print(f"[red]Error: No results.json found in {results_path}[/red]")
+        raise SystemExit(1)
+
+    with open(results_json_path) as f:
+        data = json.load(f)
+
+    experiment_name = data["config"]["experiment"]["name"]
+    console.print(f"\n[bold]Regenerating figures for: {experiment_name}[/bold]")
+    console.print(f"Results directory: {results_path}")
+
+    # Show elapsed time if available
+    if "elapsed_time_seconds" in data:
+        elapsed = data["elapsed_time_seconds"]
+        console.print(f"Original run time: {elapsed:.1f}s ({elapsed/60:.1f}m)\n")
+    else:
+        console.print()
+
+    # Regenerate knowledge plot from hook_history
+    if not skip_knowledge:
+        if "hook_history" in data and data["hook_history"]:
+            console.print("[bold]Regenerating knowledge acquisition plot...[/bold]")
+            knowledge_plot_path = results_path / f"{experiment_name}_knowledge.png"
+            plot_knowledge(data["hook_history"], knowledge_plot_path, experiment_name)
+            console.print(f"✓ Knowledge plot saved to {knowledge_plot_path}")
+        else:
+            console.print("[yellow]⚠ No hook_history in results.json, skipping knowledge plot[/yellow]")
+
+    # Check for snapshots directory
+    snapshots_dir = results_path / "snapshots"
+    if not snapshots_dir.exists():
+        console.print("[yellow]⚠ No snapshots directory found, skipping TDKPS analysis[/yellow]")
+    else:
+        # Regenerate TDKPS analysis (computes embeddings needed for combined figure)
+        if not skip_tdkps:
+            console.print("\n[bold]Regenerating TDKPS analysis...[/bold]")
+            try:
+                run_tdkps_analysis(
+                    snapshots_dir=snapshots_dir,
+                    output_dir=results_path,
+                    experiment_name=experiment_name,
+                )
+                console.print(f"✓ TDKPS analysis complete")
+            except Exception as e:
+                console.print(f"[yellow]⚠ TDKPS analysis failed: {e}[/yellow]")
+
+        # Regenerate combined analysis figure
+        if not skip_combined:
+            console.print("\n[bold]Regenerating combined analysis figure...[/bold]")
+            plot_combined_analysis(
+                output_dir=results_path,
+                experiment_name=experiment_name,
+            )
+            console.print(f"✓ Combined analysis figure complete")
+
+    console.print(f"\n[bold green]Figure regeneration complete![/bold green]")
 
 
 if __name__ == "__main__":

@@ -201,7 +201,7 @@ def plot_combined_analysis(
     experiment_name: str,
 ) -> None:
     """
-    Create a combined figure with TDKPS positions and perspective variance as subplots.
+    Create a combined figure with TDKPS positions, perspective variance, distance matrix, and isomirror.
 
     Parameters
     ----------
@@ -210,6 +210,8 @@ def plot_combined_analysis(
     experiment_name : str
         Name of the experiment for labeling outputs
     """
+    from sklearn.manifold import Isomap
+
     # Load TDKPS embeddings
     tdkps_path = output_dir / f"{experiment_name}_tdkps_embeddings.npz"
     if not tdkps_path.exists():
@@ -220,6 +222,7 @@ def plot_combined_analysis(
     embedding_matrix = data["embedding_matrix"]  # [n_timesteps, n_agents, n_components]
     steps = data["steps"]
     n_agents = embedding_matrix.shape[1]
+    n_timesteps = embedding_matrix.shape[0]
 
     logger.info(f"Loaded TDKPS embeddings: {embedding_matrix.shape}")
 
@@ -228,11 +231,22 @@ def plot_combined_analysis(
     if variances.ndim > 1:
         variances = np.mean(variances, axis=1)  # [n_timesteps]
 
-    # Create combined figure with subplots
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    # Compute distance matrix for isomirror
+    flat_embeddings = embedding_matrix.reshape(n_timesteps, -1)
+    distance_matrix = np.zeros((n_timesteps, n_timesteps))
+    for i in range(n_timesteps):
+        for j in range(n_timesteps):
+            distance_matrix[i, j] = np.linalg.norm(flat_embeddings[i] - flat_embeddings[j])
 
-    # Left subplot: TDKPS positions over time
-    ax1 = axes[0]
+    # Run Isomap for 1D embedding
+    isomap = Isomap(n_components=1, metric='precomputed', n_neighbors=min(5, n_timesteps - 1))
+    isomap_embedding = isomap.fit_transform(distance_matrix)
+
+    # Create combined figure with 2x2 subplots
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+    # Top-left: TDKPS positions over time
+    ax1 = axes[0, 0]
     for agent_id in range(n_agents):
         agent_values = embedding_matrix[:, agent_id, 0]  # [n_timesteps]
         ax1.plot(steps, agent_values, marker='o', label=f'Agent {agent_id}')
@@ -240,11 +254,11 @@ def plot_combined_analysis(
     ax1.set_xlabel('Iteration')
     ax1.set_ylabel('TDKPS Embedding Value')
     ax1.set_title('Agent Positions Over Time')
-    ax1.legend()
+    ax1.legend(fontsize=8, ncol=2)
     ax1.grid(True, alpha=0.3)
 
-    # Right subplot: Perspective variance over time
-    ax2 = axes[1]
+    # Top-right: Perspective variance over time
+    ax2 = axes[0, 1]
     ax2.plot(steps, variances, marker='o', linewidth=2, markersize=6, color='#2ecc71')
     ax2.fill_between(steps, variances, alpha=0.3, color='#2ecc71')
 
@@ -252,6 +266,26 @@ def plot_combined_analysis(
     ax2.set_ylabel('TDKPS Position Variance')
     ax2.set_title('Perspective Variance Over Time')
     ax2.grid(True, alpha=0.3)
+
+    # Bottom-left: Distance matrix heatmap
+    ax3 = axes[1, 0]
+    im = ax3.imshow(distance_matrix, cmap='viridis', aspect='auto')
+    ax3.set_xlabel('Timestep j')
+    ax3.set_ylabel('Timestep i')
+    ax3.set_title('TDKPS Distance Matrix')
+    ax3.set_xticks(np.arange(0, n_timesteps, max(1, n_timesteps // 10)))
+    ax3.set_yticks(np.arange(0, n_timesteps, max(1, n_timesteps // 10)))
+    ax3.set_xticklabels([str(steps[i]) for i in range(0, n_timesteps, max(1, n_timesteps // 10))])
+    ax3.set_yticklabels([str(steps[i]) for i in range(0, n_timesteps, max(1, n_timesteps // 10))])
+    plt.colorbar(im, ax=ax3, label='||TDKPS_i - TDKPS_j||_2')
+
+    # Bottom-right: Isomap 1D embedding over time
+    ax4 = axes[1, 1]
+    ax4.plot(steps, isomap_embedding[:, 0], marker='o', linewidth=2, markersize=4, color='#e74c3c')
+    ax4.set_xlabel('Iteration')
+    ax4.set_ylabel('Isomap 1D Embedding')
+    ax4.set_title('Isomirror: 1D Isomap of Distance Matrix')
+    ax4.grid(True, alpha=0.3)
 
     # Overall title
     fig.suptitle(f'TDKPS Analysis - {experiment_name}', fontsize=14, fontweight='bold')
@@ -263,6 +297,129 @@ def plot_combined_analysis(
     plt.close()
 
     logger.info(f"Combined analysis plot saved to {plot_path}")
+
+
+def plot_isomirror(
+    output_dir: Path,
+    experiment_name: str,
+) -> None:
+    """
+    Generate an isomirror visualization using Isomap on TDKPS distance matrix.
+
+    Creates an iterations x iterations distance matrix where cell (i,j) is the
+    2-norm (Frobenius norm) of the difference between TDKPS positions at timestep
+    i and timestep j. This matrix is then embedded via Isomap to get a 1D
+    representation, which is visualized alongside the distance matrix.
+
+    Parameters
+    ----------
+    output_dir : Path
+        Directory containing TDKPS embeddings (and to save output)
+    experiment_name : str
+        Name of the experiment for labeling outputs
+    """
+    from sklearn.manifold import Isomap
+
+    # Load TDKPS embeddings
+    tdkps_path = output_dir / f"{experiment_name}_tdkps_embeddings.npz"
+    if not tdkps_path.exists():
+        logger.warning(f"No TDKPS embeddings found at {tdkps_path}, skipping isomirror plot")
+        return
+
+    data = np.load(tdkps_path)
+    embedding_matrix = data["embedding_matrix"]  # [n_timesteps, n_agents, n_components]
+    steps = data["steps"]
+    n_timesteps = embedding_matrix.shape[0]
+
+    logger.info(f"Loaded TDKPS embeddings for isomirror: {embedding_matrix.shape}")
+
+    # Flatten agent positions at each timestep: [n_timesteps, n_agents * n_components]
+    flat_embeddings = embedding_matrix.reshape(n_timesteps, -1)
+
+    # Create iterations x iterations distance matrix
+    # D[i,j] = ||flat_embeddings[i] - flat_embeddings[j]||_2
+    distance_matrix = np.zeros((n_timesteps, n_timesteps))
+    for i in range(n_timesteps):
+        for j in range(n_timesteps):
+            distance_matrix[i, j] = np.linalg.norm(flat_embeddings[i] - flat_embeddings[j])
+
+    logger.info(f"Distance matrix shape: {distance_matrix.shape}")
+
+    # Run Isomap for 1D embedding
+    # Use precomputed metric since we have a distance matrix
+    isomap = Isomap(n_components=1, metric='precomputed', n_neighbors=min(5, n_timesteps - 1))
+    isomap_embedding = isomap.fit_transform(distance_matrix)  # [n_timesteps, 1]
+
+    logger.info(f"Isomap embedding shape: {isomap_embedding.shape}")
+
+    # Create visualization with 3 subplots
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+
+    # Left: Distance matrix heatmap
+    ax1 = axes[0]
+    im = ax1.imshow(distance_matrix, cmap='viridis', aspect='auto')
+    ax1.set_xlabel('Timestep j')
+    ax1.set_ylabel('Timestep i')
+    ax1.set_title('TDKPS Distance Matrix')
+    ax1.set_xticks(np.arange(0, n_timesteps, max(1, n_timesteps // 10)))
+    ax1.set_yticks(np.arange(0, n_timesteps, max(1, n_timesteps // 10)))
+    ax1.set_xticklabels([str(steps[i]) for i in range(0, n_timesteps, max(1, n_timesteps // 10))])
+    ax1.set_yticklabels([str(steps[i]) for i in range(0, n_timesteps, max(1, n_timesteps // 10))])
+    plt.colorbar(im, ax=ax1, label='||TDKPS_i - TDKPS_j||_2')
+
+    # Middle: Isomap 1D embedding over time
+    ax2 = axes[1]
+    ax2.plot(steps, isomap_embedding[:, 0], marker='o', linewidth=2, markersize=4, color='#e74c3c')
+    ax2.set_xlabel('Iteration')
+    ax2.set_ylabel('Isomap 1D Embedding')
+    ax2.set_title('Isomirror: 1D Isomap of Distance Matrix')
+    ax2.grid(True, alpha=0.3)
+
+    # Right: Isomap embedding as color-mapped scatter (to show trajectory)
+    ax3 = axes[2]
+    colors = np.arange(n_timesteps)
+    scatter = ax3.scatter(
+        np.zeros(n_timesteps),
+        isomap_embedding[:, 0],
+        c=colors,
+        cmap='plasma',
+        s=50,
+        alpha=0.8
+    )
+    # Connect points with lines
+    for i in range(n_timesteps - 1):
+        ax3.plot(
+            [0, 0],
+            [isomap_embedding[i, 0], isomap_embedding[i + 1, 0]],
+            color=plt.cm.plasma(i / n_timesteps),
+            alpha=0.5,
+            linewidth=1
+        )
+    ax3.set_xlim(-0.5, 0.5)
+    ax3.set_ylabel('Isomap 1D Position')
+    ax3.set_title('Temporal Trajectory on 1D Manifold')
+    ax3.set_xticks([])
+    plt.colorbar(scatter, ax=ax3, label='Timestep')
+
+    # Overall title
+    fig.suptitle(f'Isomirror Analysis - {experiment_name}', fontsize=14, fontweight='bold')
+    plt.tight_layout()
+
+    # Save figure
+    plot_path = output_dir / f"{experiment_name}_isomirror.png"
+    plt.savefig(plot_path, dpi=150, bbox_inches='tight')
+    plt.close()
+
+    logger.info(f"Isomirror plot saved to {plot_path}")
+
+    # Save the distance matrix and isomap embedding for further analysis
+    np.savez(
+        output_dir / f"{experiment_name}_isomirror.npz",
+        distance_matrix=distance_matrix,
+        isomap_embedding=isomap_embedding,
+        steps=steps,
+    )
+    logger.info(f"Isomirror data saved to {output_dir / f'{experiment_name}_isomirror.npz'}")
 
 
 class SimulationEndHook:

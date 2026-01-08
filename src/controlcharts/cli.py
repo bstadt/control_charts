@@ -62,6 +62,10 @@ def plot_knowledge(hook_history: list[dict], output_path: Path, experiment_name:
 def main():
     """Control Charts: Multi-agent information flow simulation."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    # Suppress noisy HTTP request logging from openai/httpx
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("openai").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 
 @main.command()

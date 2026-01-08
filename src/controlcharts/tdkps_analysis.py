@@ -196,12 +196,88 @@ def plot_perspective_variance(
     logger.info(f"Perspective variance data saved to {output_dir / f'{experiment_name}_perspective_variance.npz'}")
 
 
+def _is_wrong_answer(response: str) -> bool:
+    """Check if a response is a non-answer (wrong)."""
+    response_lower = response.lower().strip()
+    wrong_patterns = [
+        "i don't know",
+        "i dont know",
+        "i do not know",
+        "i lost the game",
+    ]
+    for pattern in wrong_patterns:
+        if pattern in response_lower:
+            return True
+    return False
+
+
+def _load_accuracy_from_snapshots(snapshots_dir: Path) -> tuple[np.ndarray, np.ndarray, list]:
+    """
+    Load response accuracy from snapshot metadata files.
+
+    Returns
+    -------
+    accuracy_matrix : np.ndarray
+        Shape [n_timesteps, n_agents] with accuracy values (0-1)
+    steps : np.ndarray
+        Array of step numbers
+    agent_ids : list
+        List of agent IDs
+    """
+    index_path = snapshots_dir / "snapshots_index.json"
+    if not index_path.exists():
+        return None, None, None
+
+    with open(index_path) as f:
+        snapshots_index = json.load(f)
+
+    accuracy_list = []
+    steps = []
+    agent_ids = None
+
+    for snapshot_info in snapshots_index:
+        step = snapshot_info["step"]
+        npz_path = Path(snapshot_info["path"])
+        # Construct meta path: snapshot_step_0000.npz -> snapshot_step_0000_meta.json
+        meta_path = npz_path.parent / f"{npz_path.stem}_meta.json"
+
+        if not meta_path.exists():
+            logger.warning(f"Meta file not found: {meta_path}")
+            continue
+
+        with open(meta_path) as f:
+            meta = json.load(f)
+
+        responses = meta["responses"]  # [n_agents][n_questions]
+        if agent_ids is None:
+            agent_ids = meta["agent_ids"]
+
+        n_agents = len(responses)
+        n_questions = len(responses[0]) if responses else 0
+
+        # Compute accuracy per agent
+        agent_accuracies = []
+        for agent_responses in responses:
+            correct = sum(1 for r in agent_responses if not _is_wrong_answer(r))
+            accuracy = correct / n_questions if n_questions > 0 else 0
+            agent_accuracies.append(accuracy)
+
+        accuracy_list.append(agent_accuracies)
+        steps.append(step)
+
+    if not accuracy_list:
+        return None, None, None
+
+    return np.array(accuracy_list), np.array(steps), agent_ids
+
+
 def plot_combined_analysis(
     output_dir: Path,
     experiment_name: str,
+    snapshots_dir: Path = None,
 ) -> None:
     """
-    Create a combined figure with TDKPS positions, perspective variance, distance matrix, and isomirror.
+    Create a combined figure with TDKPS positions, perspective variance, distance matrix, isomirror, and accuracy.
 
     Parameters
     ----------
@@ -209,6 +285,8 @@ def plot_combined_analysis(
         Directory containing TDKPS embeddings (and to save output)
     experiment_name : str
         Name of the experiment for labeling outputs
+    snapshots_dir : Path, optional
+        Directory containing snapshot files (for accuracy data)
     """
     from sklearn.manifold import Isomap
 
@@ -242,8 +320,18 @@ def plot_combined_analysis(
     isomap = Isomap(n_components=1, metric='precomputed', n_neighbors=min(5, n_timesteps - 1))
     isomap_embedding = isomap.fit_transform(distance_matrix)
 
-    # Create combined figure with 2x2 subplots
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    # Load accuracy data if snapshots_dir provided
+    accuracy_matrix = None
+    if snapshots_dir is not None:
+        accuracy_matrix, acc_steps, agent_ids = _load_accuracy_from_snapshots(snapshots_dir)
+        if accuracy_matrix is not None:
+            logger.info(f"Loaded accuracy data: {accuracy_matrix.shape}")
+
+    # Create combined figure with 2x3 subplots (or 2x2 if no accuracy data)
+    if accuracy_matrix is not None:
+        fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+    else:
+        fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
     # Top-left: TDKPS positions over time
     ax1 = axes[0, 0]
@@ -257,7 +345,7 @@ def plot_combined_analysis(
     ax1.legend(fontsize=8, ncol=2)
     ax1.grid(True, alpha=0.3)
 
-    # Top-right: Perspective variance over time
+    # Top-middle: Perspective variance over time
     ax2 = axes[0, 1]
     ax2.plot(steps, variances, marker='o', linewidth=2, markersize=6, color='#2ecc71')
     ax2.fill_between(steps, variances, alpha=0.3, color='#2ecc71')
@@ -279,13 +367,38 @@ def plot_combined_analysis(
     ax3.set_yticklabels([str(steps[i]) for i in range(0, n_timesteps, max(1, n_timesteps // 10))])
     plt.colorbar(im, ax=ax3, label='||TDKPS_i - TDKPS_j||_2')
 
-    # Bottom-right: Isomap 1D embedding over time
+    # Bottom-middle: Isomap 1D embedding over time
     ax4 = axes[1, 1]
     ax4.plot(steps, isomap_embedding[:, 0], marker='o', linewidth=2, markersize=4, color='#e74c3c')
     ax4.set_xlabel('Iteration')
     ax4.set_ylabel('Isomap 1D Embedding')
     ax4.set_title('Isomirror: 1D Isomap of Distance Matrix')
     ax4.grid(True, alpha=0.3)
+
+    # Right column: Accuracy over time (if available)
+    if accuracy_matrix is not None:
+        # Top-right: Per-agent accuracy
+        ax5 = axes[0, 2]
+        for agent_id in range(accuracy_matrix.shape[1]):
+            ax5.plot(acc_steps, accuracy_matrix[:, agent_id], marker='o', label=f'Agent {agent_id}')
+        ax5.set_xlabel('Iteration')
+        ax5.set_ylabel('Accuracy')
+        ax5.set_title('Agent Response Accuracy Over Time')
+        ax5.set_ylim(-0.05, 1.05)
+        ax5.legend(fontsize=8, ncol=2)
+        ax5.grid(True, alpha=0.3)
+
+        # Bottom-right: Mean accuracy with std band
+        ax6 = axes[1, 2]
+        mean_acc = np.mean(accuracy_matrix, axis=1)
+        std_acc = np.std(accuracy_matrix, axis=1)
+        ax6.plot(acc_steps, mean_acc, marker='o', linewidth=2, markersize=6, color='#3498db')
+        ax6.fill_between(acc_steps, mean_acc - std_acc, mean_acc + std_acc, alpha=0.3, color='#3498db')
+        ax6.set_xlabel('Iteration')
+        ax6.set_ylabel('Mean Accuracy')
+        ax6.set_title('Mean Response Accuracy (± std)')
+        ax6.set_ylim(-0.05, 1.05)
+        ax6.grid(True, alpha=0.3)
 
     # Overall title
     fig.suptitle(f'TDKPS Analysis - {experiment_name}', fontsize=14, fontweight='bold')

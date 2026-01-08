@@ -1,13 +1,13 @@
 experiment:
-  name: "adversarial-large-2"
-  description: "10 agents, 25 questions each, 1000 iterations, 2 adversarial agents"
+  name: "adversarial-decay-2"
+  description: "5 agents, 2 adversarial, with decay forget strategy"
 
 data:
-  total_questions: 250
-  questions_per_agent: 25
+  total_questions: 50
+  questions_per_agent: 10
 
 agents:
-  count: 10
+  count: 5
   model: "gpt-4o-mini"
   retrieval_k: 3
   custom:
@@ -22,12 +22,13 @@ network:
   topology: "full_mesh"
 
 simulation:
-  max_iterations: 1000
+  max_iterations: 200
   seed: 42
   questions_per_turn: 1
   forget_strategy:
-    strategy: "none"
+    strategy: "decay"
+    decay_coefficient: 0.01
   temporal_kernel:
     enabled: true
-    interval: 50
-    sample_size: 10
+    interval: 10
+    sample_size: 5

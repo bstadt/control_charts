@@ -12,6 +12,7 @@ class QAPair:
     answer: str
     embedding: np.ndarray
     id: int = -1
+    insertion_time: int = 0  # Iteration when this pair was inserted
 
 
 @dataclass
@@ -52,19 +53,49 @@ class VectorDatabase:
         faiss.normalize_L2(embeddings)
         self.index.add(embeddings)
 
-    def search(self, query_embedding: np.ndarray, k: int = 5) -> list[QAPair]:
-        """Search for top-k similar QA pairs."""
+    def search(
+        self,
+        query_embedding: np.ndarray,
+        k: int = 5,
+        current_iteration: int = 0,
+        decay_coefficient: float = 0.0
+    ) -> list[QAPair]:
+        """Search for top-k similar QA pairs.
+
+        If decay_coefficient > 0, scores are discounted based on recency:
+        discounted_score = raw_score * exp(-decay_coefficient * time_since_insertion)
+        """
         if len(self.qa_pairs) == 0:
             return []
-
-        k = min(k, len(self.qa_pairs))
 
         query = query_embedding.astype(np.float32).reshape(1, -1)
         faiss.normalize_L2(query)
 
-        _, indices = self.index.search(query, k)
+        if decay_coefficient <= 0:
+            # No decay: standard top-k retrieval
+            k_search = min(k, len(self.qa_pairs))
+            _, indices = self.index.search(query, k_search)
+            return [self.qa_pairs[i] for i in indices[0] if i >= 0]
+        else:
+            # Decay mode: retrieve all, apply decay discounting, re-rank
+            n_pairs = len(self.qa_pairs)
+            scores, indices = self.index.search(query, n_pairs)
 
-        return [self.qa_pairs[i] for i in indices[0] if i >= 0]
+            # Apply exponential decay discount based on insertion time
+            discounted = []
+            for i, idx in enumerate(indices[0]):
+                if idx < 0:
+                    continue
+                qa = self.qa_pairs[idx]
+                raw_score = scores[0][i]
+                time_since_insertion = current_iteration - qa.insertion_time
+                discount = np.exp(-decay_coefficient * time_since_insertion)
+                discounted_score = raw_score * discount
+                discounted.append((discounted_score, qa))
+
+            # Sort by discounted score (descending) and return top-k
+            discounted.sort(key=lambda x: x[0], reverse=True)
+            return [qa for _, qa in discounted[:k]]
 
     def __len__(self) -> int:
         return len(self.qa_pairs)

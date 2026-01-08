@@ -196,7 +196,9 @@ def run(
             model=config.agents.model,
             retrieval_k=config.agents.retrieval_k,
             system_prompt=system_prompt,
-            prompt_template=prompt_template
+            prompt_template=prompt_template,
+            forget_strategy=config.simulation.forget_strategy.strategy,
+            decay_coefficient=config.simulation.forget_strategy.decay_coefficient
         )
 
         # Assign initial knowledge
@@ -257,7 +259,8 @@ def run(
         questions_in_play=questions_in_play,
         question_embeddings=question_embeddings,
         seed=config.simulation.seed,
-        iteration_hook=hook
+        iteration_hook=hook,
+        questions_per_turn=config.simulation.questions_per_turn
     )
 
     # Run simulation
@@ -269,28 +272,7 @@ def run(
 
     # Summary
     console.print("\n[bold]Simulation Complete![/bold]")
-    console.print(f"Total time: {elapsed_time:.1f}s ({elapsed_time/60:.1f}m)\n")
-
-    table = Table(title="Final Agent States")
-    table.add_column("Agent", justify="right")
-    table.add_column("DB Size", justify="right")
-    table.add_column("Known", justify="right")
-    table.add_column("Unknown", justify="right")
-
-    for agent in agents_list:
-        state = agent.get_state()
-        table.add_row(
-            str(state["id"]),
-            str(state["db_size"]),
-            str(state["known_count"]),
-            str(state["unknown_count"])
-        )
-
-    console.print(table)
-
-    # Total knowledge flow
-    total_added = sum(r["num_knowledge_added"] for r in results)
-    console.print(f"\nTotal knowledge transfers: {total_added}")
+    console.print(f"Total time: {elapsed_time:.1f}s ({elapsed_time/60:.1f}m)")
 
     # Finalize temporal kernel (batch embed all responses) and run analysis
     if temporal_kernel_hook is not None:
@@ -315,6 +297,7 @@ def run(
         plot_combined_analysis(
             output_dir=run_dir,
             experiment_name=config.experiment.name,
+            snapshots_dir=snapshots_dir,
         )
         console.print(f"✓ Combined analysis figure complete")
 
@@ -416,6 +399,7 @@ def regenerate_figures(
             plot_combined_analysis(
                 output_dir=results_path,
                 experiment_name=experiment_name,
+                snapshots_dir=snapshots_dir,
             )
             console.print(f"✓ Combined analysis figure complete")
 

@@ -32,6 +32,7 @@ class Simulation:
     rng: np.random.Generator = field(default_factory=lambda: np.random.default_rng(42))
     iteration_hook: IterationHook = field(default=noop_hook)
     max_workers: int = 50
+    questions_per_turn: int = 1  # Number of questions each agent asks per turn
 
     def run(self, max_iterations: int = 100) -> list[dict]:
         """Run the simulation for max_iterations steps.
@@ -64,23 +65,29 @@ class Simulation:
 
     def _run_step(self, step: int) -> dict:
         """Run a single simulation step with parallel queries."""
-        # Phase 1: Each agent selects a question and a peer to ask
+        # Update current iteration for all agents (needed for decay calculations)
+        for agent in self.network.agents:
+            agent.set_iteration(step)
+
+        # Phase 1: Each agent selects questions and peers to ask
+        # Each agent can ask up to questions_per_turn questions
         queries = []
         for agent in self.network.agents:
-            question = agent.select_question_to_ask(self.rng)
-            if question is None:
-                continue
+            for _ in range(self.questions_per_turn):
+                question = agent.select_question_to_ask(self.rng)
+                if question is None:
+                    continue
 
-            peer_id = self.network.select_peer(agent.id, self.rng)
-            if peer_id is None:
-                continue
+                peer_id = self.network.select_peer(agent.id, self.rng)
+                if peer_id is None:
+                    continue
 
-            queries.append({
-                "querying_agent": agent,
-                "responding_agent": self.network.get_agent(peer_id),
-                "question": question,
-                "question_embedding": self.question_embeddings[question]
-            })
+                queries.append({
+                    "querying_agent": agent,
+                    "responding_agent": self.network.get_agent(peer_id),
+                    "question": question,
+                    "question_embedding": self.question_embeddings[question]
+                })
 
         # Phase 2: Execute all queries in parallel
         query_results = []
@@ -144,7 +151,8 @@ def create_simulation(
     questions_in_play: list[str],
     question_embeddings: dict[str, np.ndarray],
     seed: int = 42,
-    iteration_hook: IterationHook | None = None
+    iteration_hook: IterationHook | None = None,
+    questions_per_turn: int = 1
 ) -> Simulation:
     """Create a simulation with the given configuration."""
     # Set questions in play for all agents
@@ -156,5 +164,6 @@ def create_simulation(
         network=network,
         question_embeddings=question_embeddings,
         rng=np.random.default_rng(seed),
-        iteration_hook=iteration_hook or noop_hook
+        iteration_hook=iteration_hook or noop_hook,
+        questions_per_turn=questions_per_turn
     )

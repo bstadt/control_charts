@@ -45,10 +45,18 @@ class TemporalKernelConfig(BaseModel):
     sample_size: int = Field(default=10, description="Number of questions to sample per snapshot")
 
 
+class ForgetStrategyConfig(BaseModel):
+    """Forget strategy configuration."""
+    strategy: str = Field(default="none", description="Forget strategy: 'none' or 'decay'")
+    decay_coefficient: float = Field(default=0.1, description="Exponential decay rate for decay strategy")
+
+
 class SimulationConfig(BaseModel):
     """Simulation parameters."""
     max_iterations: int = Field(default=100, description="Maximum simulation steps")
     seed: int = Field(default=42, description="Random seed for reproducibility")
+    questions_per_turn: int = Field(default=1, description="Questions each agent asks per turn")
+    forget_strategy: ForgetStrategyConfig = Field(default_factory=ForgetStrategyConfig)
     temporal_kernel: TemporalKernelConfig = Field(default_factory=TemporalKernelConfig)
 
 

@@ -19,9 +19,18 @@ class Agent:
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
     prompt_template: str = DEFAULT_PROMPT_TEMPLATE
 
+    # Forget strategy configuration
+    forget_strategy: str = "none"  # "none" or "decay"
+    decay_coefficient: float = 0.1  # Exponential decay rate
+
     # Question tracking
     questions_in_play: set[str] = field(default_factory=set)
     known_questions: set[str] = field(default_factory=set)
+
+    # Track when questions were last learned (for decay strategy)
+    # Maps question -> iteration when it was learned
+    question_learn_time: dict[str, int] = field(default_factory=dict)
+    current_iteration: int = 0
 
     # OpenAI client (initialized lazily)
     _client: OpenAI | None = field(default=None, repr=False)
@@ -42,6 +51,11 @@ class Agent:
         self.database.add_many(qa_pairs)
         for qa in qa_pairs:
             self.known_questions.add(qa.question)
+            self.question_learn_time[qa.question] = 0  # Learned at iteration 0
+
+    def set_iteration(self, iteration: int) -> None:
+        """Set the current iteration (for decay calculations)."""
+        self.current_iteration = iteration
 
     def set_questions_in_play(self, questions: set[str]) -> None:
         """Set the questions that are in play for this simulation."""
@@ -52,16 +66,62 @@ class Agent:
         self.known_questions.add(question)
 
     def select_question_to_ask(self, rng: np.random.Generator) -> str | None:
-        """Randomly select a question from unknown set to ask a peer."""
-        unknown = list(self.unknown_questions)
-        if not unknown:
-            return None
-        return rng.choice(unknown)
+        """Randomly select a question to ask a peer.
+
+        In 'none' mode: only asks unknown questions.
+        In 'decay' mode: can re-ask known questions with probability
+        that increases as time since learning increases.
+        """
+        if self.forget_strategy == "none":
+            # Original behavior: only ask unknown questions
+            unknown = list(self.unknown_questions)
+            if not unknown:
+                return None
+            return rng.choice(unknown)
+
+        elif self.forget_strategy == "decay":
+            # Decay mode: build candidate pool with decay-based probabilities
+            candidates = []
+            weights = []
+
+            for question in self.questions_in_play:
+                if question in self.known_questions:
+                    # Known question: probability to ask based on time since learned
+                    time_since_learned = self.current_iteration - self.question_learn_time.get(question, 0)
+                    # P = 1 - exp(-decay_coefficient * time)
+                    prob = 1.0 - np.exp(-self.decay_coefficient * time_since_learned)
+                    # Only include if we "pass" the probability check
+                    if rng.random() < prob:
+                        candidates.append(question)
+                        weights.append(prob)
+                else:
+                    # Unknown question: always a candidate with weight 1.0
+                    candidates.append(question)
+                    weights.append(1.0)
+
+            if not candidates:
+                return None
+
+            # Normalize weights and select
+            weights = np.array(weights)
+            weights = weights / weights.sum()
+            return rng.choice(candidates, p=weights)
+
+        else:
+            raise ValueError(f"Unknown forget strategy: {self.forget_strategy}")
 
     def answer(self, question: str, question_embedding: np.ndarray) -> str:
         """Answer a question using RAG retrieval and LLM."""
-        # Retrieve relevant QA pairs
-        retrieved = self.database.search(question_embedding, k=self.retrieval_k)
+        # Retrieve relevant QA pairs (with decay discounting if in decay mode)
+        if self.forget_strategy == "decay":
+            retrieved = self.database.search(
+                question_embedding,
+                k=self.retrieval_k,
+                current_iteration=self.current_iteration,
+                decay_coefficient=self.decay_coefficient
+            )
+        else:
+            retrieved = self.database.search(question_embedding, k=self.retrieval_k)
 
         # Format context
         if retrieved:
@@ -101,10 +161,13 @@ class Agent:
         qa_pair = QAPair(
             question=question,
             answer=answer,
-            embedding=question_embedding
+            embedding=question_embedding,
+            insertion_time=self.current_iteration  # Track when inserted for decay
         )
         self.database.add(qa_pair)
         self.mark_known(question)
+        # Track when this question was learned (or re-learned in decay mode)
+        self.question_learn_time[question] = self.current_iteration
         return True
 
     def _is_dont_know(self, answer: str) -> bool:

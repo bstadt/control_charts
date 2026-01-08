@@ -21,3 +21,6 @@ network:
 simulation:
   max_iterations: 50
   seed: 42
+  questions_per_turn: 1
+  forget_strategy:
+    strategy: "none"

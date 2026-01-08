@@ -1,6 +1,6 @@
 experiment:
-  name: "base-config"
-  description: "5 agents, 10 questions each, tracking knowledge over time"
+  name: "base-decay"
+  description: "5 agents, no adversaries, with decay forget strategy"
 
 data:
   total_questions: 50
@@ -19,7 +19,8 @@ simulation:
   seed: 42
   questions_per_turn: 1
   forget_strategy:
-    strategy: "none"
+    strategy: "decay"
+    decay_coefficient: 0.01
   temporal_kernel:
     enabled: true
     interval: 10

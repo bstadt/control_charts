@@ -15,6 +15,7 @@ class DataConfig(BaseModel):
     total_questions: int = Field(default=500, description="Total QA pairs in play")
     questions_per_agent: int = Field(default=50, description="Initial knowledge per agent")
     n_temporal: int = Field(default=0, description="Number of temporal questions (0 to disable)")
+    temporal_change_probability: float = Field(default=0.04, description="Probability each temporal question changes per step (1/25 = 0.04)")
 
 
 class CustomAgentConfig(BaseModel):

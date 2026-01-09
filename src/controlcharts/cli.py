@@ -191,6 +191,10 @@ def run(
 
     temporal_questions_set = set(temporal_questions_in_play)
 
+    # Initialize temporal values dict (shared state for all agents and simulation)
+    # Each temporal question starts with value 0, updated probabilistically each step
+    temporal_values = {tq: 0 for tq in temporal_questions_in_play}
+
     # Get embedding dimension
     embedding_dim = embeddings_in_play.shape[1]
 
@@ -250,8 +254,12 @@ def run(
         ]
         agent.initialize_knowledge(qa_pairs)
 
-        # Set temporal questions and ownership
-        agent.set_temporal_questions(temporal_questions_set, temporal_ownership[i])
+        # Set temporal questions and ownership (pass shared temporal_values dict)
+        agent.set_temporal_questions(
+            temporal_questions_set,
+            temporal_ownership[i],
+            temporal_values=temporal_values
+        )
 
         agents_list.append(agent)
 
@@ -293,6 +301,7 @@ def run(
             output_dir=snapshots_dir,
             seed=config.simulation.seed,
             temporal_questions=temporal_questions_in_play,  # Pass temporal questions
+            temporal_values=temporal_values,  # Shared dict for tracking current values
         )
         hooks.append(temporal_kernel_hook)
         if n_temporal > 0:
@@ -312,7 +321,9 @@ def run(
         question_embeddings=question_embeddings,
         seed=config.simulation.seed,
         iteration_hook=hook,
-        questions_per_turn=config.simulation.questions_per_turn
+        questions_per_turn=config.simulation.questions_per_turn,
+        temporal_values=temporal_values,
+        temporal_change_probability=config.data.temporal_change_probability
     )
 
     # Run simulation
@@ -350,6 +361,7 @@ def run(
             output_dir=run_dir,
             experiment_name=config.experiment.name,
             snapshots_dir=snapshots_dir,
+            config_path=config_dest,
         )
         console.print(f"✓ Combined analysis figure complete")
 
@@ -448,10 +460,14 @@ def regenerate_figures(
         # Regenerate combined analysis figure
         if not skip_combined:
             console.print("\n[bold]Regenerating combined analysis figure...[/bold]")
+            # Find the config file in the results directory
+            config_files = list(results_path.glob("config_*.yaml"))
+            config_path = config_files[0] if config_files else None
             plot_combined_analysis(
                 output_dir=results_path,
                 experiment_name=experiment_name,
                 snapshots_dir=snapshots_dir,
+                config_path=config_path,
             )
             console.print(f"✓ Combined analysis figure complete")
 

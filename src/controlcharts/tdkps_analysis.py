@@ -211,15 +211,20 @@ def _is_wrong_answer(response: str) -> bool:
     return False
 
 
-def _is_temporal_correct(response: str, step: int) -> bool:
-    """Check if a temporal response is correct (contains the iteration number)."""
+def _is_temporal_correct(response: str, expected_value: int) -> bool:
+    """Check if a temporal response is correct (contains the expected temporal value).
+
+    Args:
+        response: The agent's response string
+        expected_value: The correct temporal value for this question at this step
+    """
     import re
     try:
         # Extract numbers from response
         numbers = re.findall(r'\d+', response.strip())
         if numbers:
-            # Check if any number in the response matches the step
-            return any(int(n) == step for n in numbers)
+            # Check if any number in the response matches the expected value
+            return any(int(n) == expected_value for n in numbers)
         return False
     except (ValueError, IndexError):
         return False
@@ -270,7 +275,9 @@ def _load_accuracy_from_snapshots(snapshots_dir: Path) -> tuple[np.ndarray, np.n
             meta = json.load(f)
 
         responses = meta["responses"]  # [n_agents][n_questions]
+        questions = meta.get("questions", [])  # List of questions in order
         temporal_mask = meta.get("temporal_mask", None)  # [n_questions] boolean
+        temporal_values = meta.get("temporal_values", {})  # question -> expected value at this step
         if agent_ids is None:
             agent_ids = meta["agent_ids"]
 
@@ -296,9 +303,11 @@ def _load_accuracy_from_snapshots(snapshots_dir: Path) -> tuple[np.ndarray, np.n
 
                 for q_idx, r in enumerate(agent_responses):
                     if temporal_mask[q_idx]:
-                        # Temporal question - check if answer contains iteration number
+                        # Temporal question - check if answer contains correct temporal value
                         temporal_total += 1
-                        if _is_temporal_correct(r, step):
+                        question = questions[q_idx] if q_idx < len(questions) else None
+                        expected_value = temporal_values.get(question, 0) if question else 0
+                        if _is_temporal_correct(r, expected_value):
                             temporal_correct += 1
                     else:
                         # Non-temporal question - check if valid answer
@@ -342,6 +351,7 @@ def plot_combined_analysis(
     output_dir: Path,
     experiment_name: str,
     snapshots_dir: Path = None,
+    config_path: Path = None,
 ) -> None:
     """
     Create a combined figure with TDKPS positions, perspective variance, distance matrix, isomirror, and accuracy.
@@ -354,6 +364,8 @@ def plot_combined_analysis(
         Name of the experiment for labeling outputs
     snapshots_dir : Path, optional
         Directory containing snapshot files (for accuracy data)
+    config_path : Path, optional
+        Path to the YAML config file to display at bottom of figure
     """
     from sklearn.manifold import Isomap
 
@@ -507,7 +519,19 @@ def plot_combined_analysis(
 
     # Overall title
     fig.suptitle(f'TDKPS Analysis - {experiment_name}', fontsize=14, fontweight='bold')
-    plt.tight_layout()
+
+    # Add YAML config at bottom-left if provided
+    if config_path is not None and Path(config_path).exists():
+        with open(config_path) as f:
+            config_text = f.read()
+        # First do tight_layout, then add text below the plots
+        plt.tight_layout(rect=[0, 0.22, 1, 0.95])  # Leave room at bottom for config
+        # Add text box below the plots
+        fig.text(0.02, 0.18, config_text, transform=fig.transFigure,
+                fontsize=7, fontfamily='monospace', ha='left', va='top',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+    else:
+        plt.tight_layout()
 
     # Save combined figure
     plot_path = output_dir / f"{experiment_name}_analysis.png"

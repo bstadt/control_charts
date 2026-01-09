@@ -36,6 +36,7 @@ class TemporalKernelHook:
         seed: int = 42,
         max_workers: int = 50,
         temporal_questions: list[str] = None,  # Temporal questions to always include
+        temporal_values: dict[str, int] = None,  # Shared dict: question -> current value
     ):
         self.interval = interval
         self.sample_size = sample_size
@@ -45,6 +46,7 @@ class TemporalKernelHook:
         self.rng = np.random.default_rng(seed)
         self.max_workers = max_workers
         self.temporal_questions = set(temporal_questions or [])
+        self.temporal_values = temporal_values or {}  # Reference to shared state
 
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -56,24 +58,25 @@ class TemporalKernelHook:
         self.pending_snapshots: list[dict] = []
 
         # Sample questions ONCE at initialization - same sample for all snapshots
-        # If we have temporal questions, include ALL of them plus a sample of non-temporal
+        # If we have temporal questions, sample EQUAL numbers of temporal and non-temporal
         if self.temporal_questions:
             # Separate non-temporal questions
             non_temporal_questions = [q for q in self.questions_in_play if q not in self.temporal_questions]
 
-            # Sample non-temporal questions
-            n_nontemporal = min(self.sample_size, len(non_temporal_questions))
+            # Sample EQUAL numbers: use number of temporal questions as the count
+            n_temporal = len(self.temporal_questions)
+            n_nontemporal = min(n_temporal, len(non_temporal_questions))
             indices = self.rng.choice(len(non_temporal_questions), size=n_nontemporal, replace=False)
             sampled_nontemporal = [non_temporal_questions[i] for i in indices]
 
-            # Combine: ALL temporal + sampled non-temporal
+            # Combine: ALL temporal + equal number of sampled non-temporal
             self.sampled_questions = list(self.temporal_questions) + sampled_nontemporal
 
             # Track which sampled questions are temporal (for metadata)
             self.sampled_temporal_mask = [q in self.temporal_questions for q in self.sampled_questions]
 
             logger.info(f"Temporal kernel: {len(self.temporal_questions)} temporal + "
-                       f"{len(sampled_nontemporal)} non-temporal = {len(self.sampled_questions)} total questions")
+                       f"{len(sampled_nontemporal)} non-temporal = {len(self.sampled_questions)} total questions (equal sampling)")
         else:
             # No temporal questions - sample from all questions
             n = min(self.sample_size, len(self.questions_in_play))
@@ -153,6 +156,7 @@ class TemporalKernelHook:
         embeddings: np.ndarray,
         agents: list["Agent"] | None = None,
         agent_ids: list[int] | None = None,
+        temporal_values_snapshot: dict[str, int] | None = None,
     ) -> Path:
         """Save a snapshot to disk."""
         snapshot_path = self.output_dir / f"snapshot_step_{step:04d}.npz"
@@ -176,6 +180,7 @@ class TemporalKernelHook:
             "agent_ids": agent_ids,
             "shape": list(embeddings.shape),
             "temporal_mask": self.sampled_temporal_mask,  # Which questions are temporal
+            "temporal_values": temporal_values_snapshot or {},  # Current values for each temporal question
         }
 
         metadata_path = self.output_dir / f"snapshot_step_{step:04d}_meta.json"
@@ -207,12 +212,13 @@ class TemporalKernelHook:
         logger.info(f"Querying {len(agents)} agents...")
         responses = self._collect_responses(agents, questions)
 
-        # Store for later batch embedding
+        # Store for later batch embedding (capture current temporal values)
         self.pending_snapshots.append({
             "step": step,
             "questions": questions,
             "responses": responses,
             "agent_ids": [a.id for a in agents],
+            "temporal_values_snapshot": dict(self.temporal_values),  # Copy current values
         })
         logger.info(f"Stored snapshot for step {step} (will embed at end)")
 
@@ -266,6 +272,7 @@ class TemporalKernelHook:
                 embeddings=embeddings,
                 agents=None,  # We stored agent_ids separately
                 agent_ids=snapshot["agent_ids"],
+                temporal_values_snapshot=snapshot.get("temporal_values_snapshot"),
             )
             logger.info(f"Saved snapshot for step {snapshot['step']} to {path}")
 

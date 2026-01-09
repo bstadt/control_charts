@@ -1,0 +1,30 @@
+experiment:
+  name: "temporal-no-decay"
+  description: "Temporal questions (change every 10 iterations) with NO memory decay"
+
+data:
+  total_questions: 50
+  questions_per_agent: 8
+  n_temporal: 10
+  temporal_change_frequency: 10
+
+agents:
+  count: 5
+  model: "gpt-4o-mini"
+  retrieval_k: 3
+
+network:
+  topology: "full_mesh"
+
+simulation:
+  max_iterations: 200
+  seed: 42
+  questions_per_turn: 1
+  forget_strategy:
+    strategy: "none"
+    decay_coefficient: 0.0
+  temporal_kernel:
+    enabled: true
+    interval: 10
+    sample_size: 10
+    n_nontemporal_sample: 10

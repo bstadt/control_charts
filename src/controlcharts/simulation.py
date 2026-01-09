@@ -34,6 +34,10 @@ class Simulation:
     max_workers: int = 50
     questions_per_turn: int = 1  # Number of questions each agent asks per turn
 
+    # Temporal question state (shared with agents)
+    temporal_values: dict[str, int] = field(default_factory=dict)  # question -> current value
+    temporal_change_probability: float = 0.0  # p(change) per question per step
+
     def run(self, max_iterations: int = 100) -> list[dict]:
         """Run the simulation for max_iterations steps.
 
@@ -68,6 +72,12 @@ class Simulation:
         # Update current iteration for all agents (needed for decay calculations)
         for agent in self.network.agents:
             agent.set_iteration(step)
+
+        # Probabilistically update temporal question values
+        if self.temporal_values and self.temporal_change_probability > 0:
+            for question in self.temporal_values:
+                if self.rng.random() < self.temporal_change_probability:
+                    self.temporal_values[question] += 1
 
         # Phase 1: Each agent selects questions and peers to ask
         # Each agent can ask up to questions_per_turn questions
@@ -152,7 +162,9 @@ def create_simulation(
     question_embeddings: dict[str, np.ndarray],
     seed: int = 42,
     iteration_hook: IterationHook | None = None,
-    questions_per_turn: int = 1
+    questions_per_turn: int = 1,
+    temporal_values: dict[str, int] | None = None,
+    temporal_change_probability: float = 0.0
 ) -> Simulation:
     """Create a simulation with the given configuration."""
     # Set questions in play for all agents
@@ -165,5 +177,7 @@ def create_simulation(
         question_embeddings=question_embeddings,
         rng=np.random.default_rng(seed),
         iteration_hook=iteration_hook or noop_hook,
-        questions_per_turn=questions_per_turn
+        questions_per_turn=questions_per_turn,
+        temporal_values=temporal_values or {},
+        temporal_change_probability=temporal_change_probability
     )

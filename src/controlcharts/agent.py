@@ -28,9 +28,10 @@ class Agent:
     known_questions: set[str] = field(default_factory=set)
 
     # Temporal question ownership - agent owns these temporal questions
-    # and always knows the correct answer (current iteration)
+    # and always knows the correct answer (current value from shared state)
     owned_temporal_questions: set[str] = field(default_factory=set)
     temporal_questions: set[str] = field(default_factory=set)  # All temporal questions in play
+    temporal_values: dict[str, int] = field(default_factory=dict)  # Shared dict: question -> current value
 
     # Track when questions were last learned (for decay strategy)
     # Maps question -> iteration when it was learned
@@ -66,15 +67,17 @@ class Agent:
         """Set the questions that are in play for this simulation."""
         self.questions_in_play = questions
 
-    def set_temporal_questions(self, temporal_questions: set[str], owned: set[str]) -> None:
+    def set_temporal_questions(self, temporal_questions: set[str], owned: set[str], temporal_values: dict[str, int]) -> None:
         """Set the temporal questions in play and which ones this agent owns.
 
         Args:
             temporal_questions: All temporal questions in the simulation
             owned: The temporal questions this agent owns (always knows correct answer)
+            temporal_values: Shared dict mapping question -> current value (updated by simulation)
         """
         self.temporal_questions = temporal_questions
         self.owned_temporal_questions = owned
+        self.temporal_values = temporal_values  # Reference to shared state
         # Agent always "knows" their owned temporal questions
         for q in owned:
             self.known_questions.add(q)
@@ -132,12 +135,13 @@ class Agent:
         """Answer a question using RAG retrieval and LLM.
 
         For temporal questions that this agent owns, returns the current
-        iteration number directly (agent always knows the correct answer
-        for their assigned temporal questions).
+        value from the shared temporal_values dict (agent always knows
+        the correct answer for their assigned temporal questions).
         """
-        # Check if this is a temporal question we own - return current iteration directly
+        # Check if this is a temporal question we own - return current value directly
         if question in self.owned_temporal_questions:
-            return str(self.current_iteration)
+            temporal_value = self.temporal_values.get(question, 0)
+            return str(temporal_value)
 
         # Retrieve relevant QA pairs (with decay discounting if in decay mode)
         if self.forget_strategy == "decay":

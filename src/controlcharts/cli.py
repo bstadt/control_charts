@@ -217,23 +217,37 @@ def run(
     shuffled_indices = rng.permutation(n_nontemporal)  # Only shuffle non-temporal indices
 
     for i in range(config.agents.count):
-        # Get custom prompts if specified
-        system_prompt = DEFAULT_SYSTEM_PROMPT
-        prompt_template = DEFAULT_PROMPT_TEMPLATE
+        # Get adversarial config if specified
+        adversarial_schedule = None
+        adversarial_system_prompt = None
+        adversarial_prompt_template = None
+
         if i in custom_prompts:
-            if custom_prompts[i].system_prompt:
-                system_prompt = custom_prompts[i].system_prompt
-            if custom_prompts[i].prompt_template:
-                prompt_template = custom_prompts[i].prompt_template
+            custom = custom_prompts[i]
+            # Parse adversarial schedule: [[t, p], ...] -> [(t, p), ...]
+            if custom.adversarial_schedule:
+                adversarial_schedule = [
+                    (int(entry[0]), float(entry[1]))
+                    for entry in custom.adversarial_schedule
+                ]
+            # Adversarial prompts (used when behaving adversarially)
+            if custom.system_prompt:
+                adversarial_system_prompt = custom.system_prompt
+            if custom.prompt_template:
+                adversarial_prompt_template = custom.prompt_template
 
         # Create agent with empty database
+        # Normal behavior uses default prompts; adversarial behavior uses custom prompts
         agent = Agent(
             id=i,
             database=VectorDatabase(dimension=embedding_dim),
             model=config.agents.model,
             retrieval_k=config.agents.retrieval_k,
-            system_prompt=system_prompt,
-            prompt_template=prompt_template,
+            system_prompt=DEFAULT_SYSTEM_PROMPT,
+            prompt_template=DEFAULT_PROMPT_TEMPLATE,
+            adversarial_schedule=adversarial_schedule,
+            adversarial_system_prompt=adversarial_system_prompt,
+            adversarial_prompt_template=adversarial_prompt_template,
             forget_strategy=config.simulation.forget_strategy.strategy,
             decay_coefficient=config.simulation.forget_strategy.decay_coefficient
         )

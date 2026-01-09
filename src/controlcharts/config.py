@@ -23,6 +23,9 @@ class CustomAgentConfig(BaseModel):
     id: int
     system_prompt: Optional[str] = None
     prompt_template: Optional[str] = None
+    # Adversarial schedule: list of [timestep, probability] pairs
+    # e.g., [[0, 0], [50, 0], [100, 0.5], [200, 1.0]]
+    adversarial_schedule: Optional[list[list[float]]] = None
 
 
 class AgentsConfig(BaseModel):

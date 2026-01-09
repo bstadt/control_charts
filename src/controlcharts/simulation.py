@@ -70,8 +70,10 @@ class Simulation:
     def _run_step(self, step: int) -> dict:
         """Run a single simulation step with parallel queries."""
         # Update current iteration for all agents (needed for decay calculations)
+        # Also set RNG for probabilistic adversarial behavior
         for agent in self.network.agents:
             agent.set_iteration(step)
+            agent.set_rng(self.rng)
 
         # Probabilistically update temporal question values
         if self.temporal_values and self.temporal_change_probability > 0:

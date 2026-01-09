@@ -19,6 +19,17 @@ class Agent:
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
     prompt_template: str = DEFAULT_PROMPT_TEMPLATE
 
+    # Adversarial behavior configuration
+    # Schedule: list of (timestep, probability) tuples for adversarial behavior
+    # e.g., [(0, 0), (50, 0), (100, 0.5), (200, 1.0)] means 0% adversarial until t=50,
+    # then ramps to 50% at t=100, and 100% at t=200
+    adversarial_schedule: list[tuple[int, float]] | None = None
+    # Adversarial prompts (used when behaving adversarially)
+    adversarial_system_prompt: str | None = None
+    adversarial_prompt_template: str | None = None
+    # RNG for probabilistic adversarial behavior (set by simulation)
+    _rng: np.random.Generator | None = field(default=None, repr=False)
+
     # Forget strategy configuration
     forget_strategy: str = "none"  # "none" or "decay"
     decay_coefficient: float = 0.1  # Exponential decay rate
@@ -62,6 +73,41 @@ class Agent:
     def set_iteration(self, iteration: int) -> None:
         """Set the current iteration (for decay calculations)."""
         self.current_iteration = iteration
+
+    def set_rng(self, rng: np.random.Generator) -> None:
+        """Set the RNG for probabilistic adversarial behavior."""
+        self._rng = rng
+
+    def get_adversarial_probability(self) -> float:
+        """Get current adversarial probability based on schedule and iteration.
+
+        Uses linear interpolation between schedule points.
+        Returns 0.0 if no schedule is set.
+        """
+        if self.adversarial_schedule is None or len(self.adversarial_schedule) == 0:
+            return 0.0
+
+        # Sort schedule by timestep (should already be sorted, but be safe)
+        schedule = sorted(self.adversarial_schedule, key=lambda x: x[0])
+
+        # If before first point, use first probability
+        if self.current_iteration <= schedule[0][0]:
+            return schedule[0][1]
+
+        # If after last point, use last probability
+        if self.current_iteration >= schedule[-1][0]:
+            return schedule[-1][1]
+
+        # Find the two points we're between and interpolate
+        for i in range(len(schedule) - 1):
+            t1, p1 = schedule[i]
+            t2, p2 = schedule[i + 1]
+            if t1 <= self.current_iteration < t2:
+                # Linear interpolation
+                fraction = (self.current_iteration - t1) / (t2 - t1)
+                return p1 + fraction * (p2 - p1)
+
+        return schedule[-1][1]
 
     def set_questions_in_play(self, questions: set[str]) -> None:
         """Set the questions that are in play for this simulation."""
@@ -137,13 +183,33 @@ class Agent:
         For temporal questions that this agent owns, returns the current
         value from the shared temporal_values dict (agent always knows
         the correct answer for their assigned temporal questions).
+
+        If adversarial_schedule is set, probabilistically switches between
+        normal behavior (using database knowledge) and adversarial behavior
+        (using adversarial prompts).
         """
         # Check if this is a temporal question we own - return current value directly
         if question in self.owned_temporal_questions:
             temporal_value = self.temporal_values.get(question, 0)
             return str(temporal_value)
 
+        # Determine if we should behave adversarially this turn
+        use_adversarial = False
+        if self.adversarial_schedule is not None and self._rng is not None:
+            adv_prob = self.get_adversarial_probability()
+            use_adversarial = self._rng.random() < adv_prob
+
+        # Choose which prompts to use
+        if use_adversarial and self.adversarial_system_prompt is not None:
+            active_system_prompt = self.adversarial_system_prompt
+            active_prompt_template = self.adversarial_prompt_template or self.prompt_template
+        else:
+            active_system_prompt = self.system_prompt
+            active_prompt_template = self.prompt_template
+
         # Retrieve relevant QA pairs (with decay discounting if in decay mode)
+        # Note: We still do retrieval even for adversarial behavior - the agent
+        # maintains its database but may choose to ignore it when acting adversarially
         if self.forget_strategy == "decay":
             retrieved = self.database.search(
                 question_embedding,
@@ -163,17 +229,17 @@ class Agent:
         else:
             context = "(No relevant information found)"
 
-        # Build prompt
-        user_prompt = self.prompt_template.format(
+        # Build prompt using active template
+        user_prompt = active_prompt_template.format(
             retrieved_context=context,
             question=question
         )
 
-        # Call LLM
+        # Call LLM with active prompts
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": self.system_prompt},
+                {"role": "system", "content": active_system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
             temperature=0.0,

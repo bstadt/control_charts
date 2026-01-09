@@ -13,6 +13,7 @@ class QAPair:
     embedding: np.ndarray
     id: int = -1
     insertion_time: int = 0  # Iteration when this pair was inserted
+    is_temporal: bool = False  # Whether this is a temporal question (answer changes each iteration)
 
 
 @dataclass

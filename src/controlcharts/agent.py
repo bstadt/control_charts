@@ -27,6 +27,11 @@ class Agent:
     questions_in_play: set[str] = field(default_factory=set)
     known_questions: set[str] = field(default_factory=set)
 
+    # Temporal question ownership - agent owns these temporal questions
+    # and always knows the correct answer (current iteration)
+    owned_temporal_questions: set[str] = field(default_factory=set)
+    temporal_questions: set[str] = field(default_factory=set)  # All temporal questions in play
+
     # Track when questions were last learned (for decay strategy)
     # Maps question -> iteration when it was learned
     question_learn_time: dict[str, int] = field(default_factory=dict)
@@ -60,6 +65,19 @@ class Agent:
     def set_questions_in_play(self, questions: set[str]) -> None:
         """Set the questions that are in play for this simulation."""
         self.questions_in_play = questions
+
+    def set_temporal_questions(self, temporal_questions: set[str], owned: set[str]) -> None:
+        """Set the temporal questions in play and which ones this agent owns.
+
+        Args:
+            temporal_questions: All temporal questions in the simulation
+            owned: The temporal questions this agent owns (always knows correct answer)
+        """
+        self.temporal_questions = temporal_questions
+        self.owned_temporal_questions = owned
+        # Agent always "knows" their owned temporal questions
+        for q in owned:
+            self.known_questions.add(q)
 
     def mark_known(self, question: str) -> None:
         """Mark a question as known."""
@@ -111,7 +129,16 @@ class Agent:
             raise ValueError(f"Unknown forget strategy: {self.forget_strategy}")
 
     def answer(self, question: str, question_embedding: np.ndarray) -> str:
-        """Answer a question using RAG retrieval and LLM."""
+        """Answer a question using RAG retrieval and LLM.
+
+        For temporal questions that this agent owns, returns the current
+        iteration number directly (agent always knows the correct answer
+        for their assigned temporal questions).
+        """
+        # Check if this is a temporal question we own - return current iteration directly
+        if question in self.owned_temporal_questions:
+            return str(self.current_iteration)
+
         # Retrieve relevant QA pairs (with decay discounting if in decay mode)
         if self.forget_strategy == "decay":
             retrieved = self.database.search(
@@ -157,12 +184,16 @@ class Agent:
         if self._is_dont_know(answer):
             return False
 
+        # Check if this is a temporal question
+        is_temporal = question in self.temporal_questions
+
         # Always insert (no duplicate checking per spec)
         qa_pair = QAPair(
             question=question,
             answer=answer,
             embedding=question_embedding,
-            insertion_time=self.current_iteration  # Track when inserted for decay
+            insertion_time=self.current_iteration,  # Track when inserted for decay
+            is_temporal=is_temporal
         )
         self.database.add(qa_pair)
         self.mark_known(question)
@@ -189,10 +220,17 @@ class Agent:
 
     def get_state(self) -> dict:
         """Get agent state for logging/debugging."""
+        # Count known temporal vs non-temporal questions
+        known_temporal = len(self.known_questions & self.temporal_questions)
+        known_nontemporal = len(self.known_questions) - known_temporal
+
         return {
             "id": self.id,
             "db_size": len(self.database),
             "known_count": len(self.known_questions),
             "unknown_count": len(self.unknown_questions),
             "in_play_count": len(self.questions_in_play),
+            "known_temporal": known_temporal,
+            "known_nontemporal": known_nontemporal,
+            "owned_temporal_count": len(self.owned_temporal_questions),
         }

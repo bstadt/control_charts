@@ -19,7 +19,7 @@ network:
   topology: "full_mesh"
 
 simulation:
-  max_iterations: 200
+  max_iterations: 400
   seed: 42
   questions_per_turn: 1
   forget_strategy:

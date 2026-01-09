@@ -211,29 +211,50 @@ def _is_wrong_answer(response: str) -> bool:
     return False
 
 
-def _load_accuracy_from_snapshots(snapshots_dir: Path) -> tuple[np.ndarray, np.ndarray, list]:
+def _is_temporal_correct(response: str, step: int) -> bool:
+    """Check if a temporal response is correct (contains the iteration number)."""
+    import re
+    try:
+        # Extract numbers from response
+        numbers = re.findall(r'\d+', response.strip())
+        if numbers:
+            # Check if any number in the response matches the step
+            return any(int(n) == step for n in numbers)
+        return False
+    except (ValueError, IndexError):
+        return False
+
+
+def _load_accuracy_from_snapshots(snapshots_dir: Path) -> tuple[np.ndarray, np.ndarray, list, np.ndarray, np.ndarray]:
     """
     Load response accuracy from snapshot metadata files.
 
     Returns
     -------
     accuracy_matrix : np.ndarray
-        Shape [n_timesteps, n_agents] with accuracy values (0-1)
+        Shape [n_timesteps, n_agents] with overall accuracy values (0-1)
     steps : np.ndarray
         Array of step numbers
     agent_ids : list
         List of agent IDs
+    temporal_accuracy_matrix : np.ndarray or None
+        Shape [n_timesteps, n_agents] with temporal question accuracy (0-1)
+    nontemporal_accuracy_matrix : np.ndarray or None
+        Shape [n_timesteps, n_agents] with non-temporal question accuracy (0-1)
     """
     index_path = snapshots_dir / "snapshots_index.json"
     if not index_path.exists():
-        return None, None, None
+        return None, None, None, None, None
 
     with open(index_path) as f:
         snapshots_index = json.load(f)
 
     accuracy_list = []
+    temporal_accuracy_list = []
+    nontemporal_accuracy_list = []
     steps = []
     agent_ids = None
+    has_temporal = False
 
     for snapshot_info in snapshots_index:
         step = snapshot_info["step"]
@@ -249,26 +270,72 @@ def _load_accuracy_from_snapshots(snapshots_dir: Path) -> tuple[np.ndarray, np.n
             meta = json.load(f)
 
         responses = meta["responses"]  # [n_agents][n_questions]
+        temporal_mask = meta.get("temporal_mask", None)  # [n_questions] boolean
         if agent_ids is None:
             agent_ids = meta["agent_ids"]
 
         n_agents = len(responses)
         n_questions = len(responses[0]) if responses else 0
 
+        # Check if we have temporal information
+        if temporal_mask is not None and any(temporal_mask):
+            has_temporal = True
+
         # Compute accuracy per agent
         agent_accuracies = []
+        agent_temporal_accuracies = []
+        agent_nontemporal_accuracies = []
+
         for agent_responses in responses:
-            correct = sum(1 for r in agent_responses if not _is_wrong_answer(r))
-            accuracy = correct / n_questions if n_questions > 0 else 0
-            agent_accuracies.append(accuracy)
+            # Overall accuracy (non-temporal: valid answer, temporal: correct iteration)
+            if temporal_mask:
+                temporal_correct = 0
+                temporal_total = 0
+                nontemporal_correct = 0
+                nontemporal_total = 0
+
+                for q_idx, r in enumerate(agent_responses):
+                    if temporal_mask[q_idx]:
+                        # Temporal question - check if answer contains iteration number
+                        temporal_total += 1
+                        if _is_temporal_correct(r, step):
+                            temporal_correct += 1
+                    else:
+                        # Non-temporal question - check if valid answer
+                        nontemporal_total += 1
+                        if not _is_wrong_answer(r):
+                            nontemporal_correct += 1
+
+                temporal_acc = temporal_correct / temporal_total if temporal_total > 0 else 0
+                nontemporal_acc = nontemporal_correct / nontemporal_total if nontemporal_total > 0 else 0
+
+                # Overall is weighted average
+                total_correct = temporal_correct + nontemporal_correct
+                overall_acc = total_correct / n_questions if n_questions > 0 else 0
+
+                agent_accuracies.append(overall_acc)
+                agent_temporal_accuracies.append(temporal_acc)
+                agent_nontemporal_accuracies.append(nontemporal_acc)
+            else:
+                # No temporal mask - use old behavior
+                correct = sum(1 for r in agent_responses if not _is_wrong_answer(r))
+                accuracy = correct / n_questions if n_questions > 0 else 0
+                agent_accuracies.append(accuracy)
+                agent_temporal_accuracies.append(0)
+                agent_nontemporal_accuracies.append(accuracy)
 
         accuracy_list.append(agent_accuracies)
+        temporal_accuracy_list.append(agent_temporal_accuracies)
+        nontemporal_accuracy_list.append(agent_nontemporal_accuracies)
         steps.append(step)
 
     if not accuracy_list:
-        return None, None, None
+        return None, None, None, None, None
 
-    return np.array(accuracy_list), np.array(steps), agent_ids
+    temporal_acc = np.array(temporal_accuracy_list) if has_temporal else None
+    nontemporal_acc = np.array(nontemporal_accuracy_list) if has_temporal else None
+
+    return np.array(accuracy_list), np.array(steps), agent_ids, temporal_acc, nontemporal_acc
 
 
 def plot_combined_analysis(
@@ -322,10 +389,14 @@ def plot_combined_analysis(
 
     # Load accuracy data if snapshots_dir provided
     accuracy_matrix = None
+    temporal_accuracy = None
+    nontemporal_accuracy = None
     if snapshots_dir is not None:
-        accuracy_matrix, acc_steps, agent_ids = _load_accuracy_from_snapshots(snapshots_dir)
+        accuracy_matrix, acc_steps, agent_ids, temporal_accuracy, nontemporal_accuracy = _load_accuracy_from_snapshots(snapshots_dir)
         if accuracy_matrix is not None:
             logger.info(f"Loaded accuracy data: {accuracy_matrix.shape}")
+            if temporal_accuracy is not None:
+                logger.info(f"Loaded temporal/non-temporal accuracy data")
 
     # Create combined figure with 2x3 subplots (or 2x2 if no accuracy data)
     if accuracy_matrix is not None:
@@ -377,26 +448,60 @@ def plot_combined_analysis(
 
     # Right column: Accuracy over time (if available)
     if accuracy_matrix is not None:
-        # Top-right: Per-agent accuracy
+        # Top-right: Per-agent accuracy (split by temporal/non-temporal if available)
         ax5 = axes[0, 2]
-        for agent_id in range(accuracy_matrix.shape[1]):
-            ax5.plot(acc_steps, accuracy_matrix[:, agent_id], marker='o', label=f'Agent {agent_id}')
+
+        if temporal_accuracy is not None and nontemporal_accuracy is not None:
+            # Plot temporal accuracy (dashed) and non-temporal accuracy (solid)
+            for agent_id in range(accuracy_matrix.shape[1]):
+                color = plt.cm.tab10(agent_id)
+                ax5.plot(acc_steps, nontemporal_accuracy[:, agent_id], marker='o',
+                        linestyle='-', color=color, label=f'Agent {agent_id} (non-temp)')
+                ax5.plot(acc_steps, temporal_accuracy[:, agent_id], marker='s',
+                        linestyle='--', color=color, alpha=0.7, label=f'Agent {agent_id} (temp)')
+            ax5.set_title('Agent Accuracy: Solid=Non-temporal, Dashed=Temporal')
+        else:
+            for agent_id in range(accuracy_matrix.shape[1]):
+                ax5.plot(acc_steps, accuracy_matrix[:, agent_id], marker='o', label=f'Agent {agent_id}')
+            ax5.set_title('Agent Response Accuracy Over Time')
+
         ax5.set_xlabel('Iteration')
         ax5.set_ylabel('Accuracy')
-        ax5.set_title('Agent Response Accuracy Over Time')
         ax5.set_ylim(-0.05, 1.05)
-        ax5.legend(fontsize=8, ncol=2)
+        ax5.legend(fontsize=6, ncol=2)
         ax5.grid(True, alpha=0.3)
 
-        # Bottom-right: Mean accuracy with std band
+        # Bottom-right: Mean accuracy with std band (split by temporal/non-temporal)
         ax6 = axes[1, 2]
-        mean_acc = np.mean(accuracy_matrix, axis=1)
-        std_acc = np.std(accuracy_matrix, axis=1)
-        ax6.plot(acc_steps, mean_acc, marker='o', linewidth=2, markersize=6, color='#3498db')
-        ax6.fill_between(acc_steps, mean_acc - std_acc, mean_acc + std_acc, alpha=0.3, color='#3498db')
+
+        if temporal_accuracy is not None and nontemporal_accuracy is not None:
+            # Plot both temporal and non-temporal mean accuracy
+            mean_temporal = np.mean(temporal_accuracy, axis=1)
+            std_temporal = np.std(temporal_accuracy, axis=1)
+            mean_nontemporal = np.mean(nontemporal_accuracy, axis=1)
+            std_nontemporal = np.std(nontemporal_accuracy, axis=1)
+
+            ax6.plot(acc_steps, mean_nontemporal, marker='o', linewidth=2, markersize=6,
+                    color='#3498db', label='Non-temporal')
+            ax6.fill_between(acc_steps, mean_nontemporal - std_nontemporal,
+                           mean_nontemporal + std_nontemporal, alpha=0.2, color='#3498db')
+
+            ax6.plot(acc_steps, mean_temporal, marker='s', linewidth=2, markersize=6,
+                    color='#e74c3c', linestyle='--', label='Temporal')
+            ax6.fill_between(acc_steps, mean_temporal - std_temporal,
+                           mean_temporal + std_temporal, alpha=0.2, color='#e74c3c')
+
+            ax6.legend(fontsize=10)
+            ax6.set_title('Mean Accuracy by Type (± std)')
+        else:
+            mean_acc = np.mean(accuracy_matrix, axis=1)
+            std_acc = np.std(accuracy_matrix, axis=1)
+            ax6.plot(acc_steps, mean_acc, marker='o', linewidth=2, markersize=6, color='#3498db')
+            ax6.fill_between(acc_steps, mean_acc - std_acc, mean_acc + std_acc, alpha=0.3, color='#3498db')
+            ax6.set_title('Mean Response Accuracy (± std)')
+
         ax6.set_xlabel('Iteration')
         ax6.set_ylabel('Mean Accuracy')
-        ax6.set_title('Mean Response Accuracy (± std)')
         ax6.set_ylim(-0.05, 1.05)
         ax6.grid(True, alpha=0.3)
 

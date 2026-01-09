@@ -23,6 +23,7 @@ from .simulation import create_simulation
 from .hooks import LoggingHook, CompositeHook
 from .temporal_kernel import TemporalKernelHook
 from .tdkps_analysis import run_tdkps_analysis, plot_perspective_variance, plot_combined_analysis
+from .temporal_questions import TEMPORAL_QUESTIONS, get_temporal_answer
 
 console = Console()
 logger = logging.getLogger(__name__)
@@ -153,9 +154,10 @@ def run(
     # Initialize RNG
     rng = np.random.default_rng(config.simulation.seed)
 
-    # Select questions in play
-    n_questions = min(config.data.total_questions, len(all_questions))
-    indices = rng.choice(len(all_questions), size=n_questions, replace=False)
+    # Select questions in play (non-temporal)
+    n_temporal = min(config.data.n_temporal, len(TEMPORAL_QUESTIONS))
+    n_nontemporal = min(config.data.total_questions - n_temporal, len(all_questions))
+    indices = rng.choice(len(all_questions), size=n_nontemporal, replace=False)
 
     questions_in_play = [all_questions[i] for i in indices]
     answers_in_play = [all_answers[i] for i in indices]
@@ -164,7 +166,30 @@ def run(
     # Build question -> embedding mapping
     question_embeddings = {q: embeddings_in_play[i] for i, q in enumerate(questions_in_play)}
 
-    console.print(f"✓ Selected {n_questions} questions in play")
+    console.print(f"✓ Selected {n_nontemporal} non-temporal questions in play")
+
+    # Handle temporal questions if enabled
+    temporal_questions_in_play = []
+    temporal_embeddings = {}
+    if n_temporal > 0:
+        # Select temporal questions
+        temporal_questions_in_play = TEMPORAL_QUESTIONS[:n_temporal]
+
+        # Embed temporal questions using Modal
+        console.print(f"Embedding {n_temporal} temporal questions...")
+        from .embedding import embed_remote
+        temporal_embs = embed_remote(temporal_questions_in_play)
+
+        # Add temporal questions to questions_in_play and embeddings
+        for i, tq in enumerate(temporal_questions_in_play):
+            questions_in_play.append(tq)
+            answers_in_play.append("0")  # Initial answer (iteration 0)
+            question_embeddings[tq] = temporal_embs[i]
+            temporal_embeddings[tq] = temporal_embs[i]
+
+        console.print(f"✓ Added {n_temporal} temporal questions (total: {len(questions_in_play)} questions)")
+
+    temporal_questions_set = set(temporal_questions_in_play)
 
     # Get embedding dimension
     embedding_dim = embeddings_in_play.shape[1]
@@ -176,8 +201,16 @@ def run(
     # Build custom prompts lookup
     custom_prompts = {c.id: c for c in config.agents.custom}
 
-    # Shuffle and distribute questions to agents
-    shuffled_indices = rng.permutation(n_questions)
+    # Distribute temporal question ownership - each agent owns some temporal questions
+    # Round-robin assignment: agent i owns temporal questions where index % n_agents == i
+    temporal_ownership = {i: set() for i in range(config.agents.count)}
+    for tq_idx, tq in enumerate(temporal_questions_in_play):
+        owner_agent = tq_idx % config.agents.count
+        temporal_ownership[owner_agent].add(tq)
+
+    # Shuffle and distribute non-temporal questions to agents
+    n_total_questions = len(questions_in_play)
+    shuffled_indices = rng.permutation(n_nontemporal)  # Only shuffle non-temporal indices
 
     for i in range(config.agents.count):
         # Get custom prompts if specified
@@ -201,23 +234,30 @@ def run(
             decay_coefficient=config.simulation.forget_strategy.decay_coefficient
         )
 
-        # Assign initial knowledge
+        # Assign initial knowledge (only non-temporal questions)
         start_idx = i * questions_per_agent
-        end_idx = min(start_idx + questions_per_agent, n_questions)
+        end_idx = min(start_idx + questions_per_agent, n_nontemporal)
         agent_indices = shuffled_indices[start_idx:end_idx]
 
         qa_pairs = [
             QAPair(
                 question=questions_in_play[j],
                 answer=answers_in_play[j],
-                embedding=embeddings_in_play[j]
+                embedding=embeddings_in_play[j],
+                is_temporal=False
             )
             for j in agent_indices
         ]
         agent.initialize_knowledge(qa_pairs)
+
+        # Set temporal questions and ownership
+        agent.set_temporal_questions(temporal_questions_set, temporal_ownership[i])
+
         agents_list.append(agent)
 
-    console.print(f"✓ Created {len(agents_list)} agents with ~{questions_per_agent} QA pairs each")
+    console.print(f"✓ Created {len(agents_list)} agents with ~{questions_per_agent} non-temporal QA pairs each")
+    if n_temporal > 0:
+        console.print(f"✓ Distributed {n_temporal} temporal questions across agents (each agent owns ~{n_temporal // config.agents.count} temporal questions)")
 
     # Create network
     network = Network.create(
@@ -239,16 +279,28 @@ def run(
         # Snapshots go in the run directory
         snapshots_dir = run_dir / "snapshots"
 
+        # Determine sample size for non-temporal questions
+        n_nontemporal_sample = config.simulation.temporal_kernel.n_nontemporal_sample
+        if n_nontemporal_sample == 0:
+            # Fallback to sample_size for backwards compatibility
+            n_nontemporal_sample = config.simulation.temporal_kernel.sample_size
+
         temporal_kernel_hook = TemporalKernelHook(
             interval=config.simulation.temporal_kernel.interval,
-            sample_size=config.simulation.temporal_kernel.sample_size,
+            sample_size=n_nontemporal_sample,  # This is now for non-temporal only
             questions_in_play=questions_in_play,
             question_embeddings=question_embeddings,
             output_dir=snapshots_dir,
             seed=config.simulation.seed,
+            temporal_questions=temporal_questions_in_play,  # Pass temporal questions
         )
         hooks.append(temporal_kernel_hook)
-        console.print(f"✓ Temporal kernel hook enabled (interval={config.simulation.temporal_kernel.interval}, sample_size={config.simulation.temporal_kernel.sample_size})")
+        if n_temporal > 0:
+            console.print(f"✓ Temporal kernel hook enabled (interval={config.simulation.temporal_kernel.interval}, "
+                         f"all {n_temporal} temporal + {n_nontemporal_sample} non-temporal questions)")
+        else:
+            console.print(f"✓ Temporal kernel hook enabled (interval={config.simulation.temporal_kernel.interval}, "
+                         f"sample_size={n_nontemporal_sample})")
 
     # Combine hooks
     hook = CompositeHook(hooks)

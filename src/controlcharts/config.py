@@ -14,6 +14,7 @@ class DataConfig(BaseModel):
     """Data configuration."""
     total_questions: int = Field(default=500, description="Total QA pairs in play")
     questions_per_agent: int = Field(default=50, description="Initial knowledge per agent")
+    n_temporal: int = Field(default=0, description="Number of temporal questions (0 to disable)")
 
 
 class CustomAgentConfig(BaseModel):
@@ -42,7 +43,8 @@ class TemporalKernelConfig(BaseModel):
     """Temporal data kernel hook configuration."""
     enabled: bool = Field(default=False, description="Enable temporal kernel hook")
     interval: int = Field(default=10, description="Fire every k iterations")
-    sample_size: int = Field(default=10, description="Number of questions to sample per snapshot")
+    sample_size: int = Field(default=10, description="Number of questions to sample per snapshot (non-temporal)")
+    n_nontemporal_sample: int = Field(default=10, description="Number of non-temporal questions to sample (all temporal questions are always included)")
 
 
 class ForgetStrategyConfig(BaseModel):

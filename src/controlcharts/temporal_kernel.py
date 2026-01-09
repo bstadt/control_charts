@@ -21,6 +21,9 @@ class TemporalKernelHook:
     Fires every `interval` iterations, samples `sample_size` questions,
     queries each agent. Responses are collected in memory during the simulation,
     then batch-embedded via Modal at the end to avoid repeated cold starts.
+
+    When temporal questions are provided, ALL temporal questions are always
+    included in each snapshot, plus a sample of non-temporal questions.
     """
 
     def __init__(
@@ -32,6 +35,7 @@ class TemporalKernelHook:
         output_dir: Path,
         seed: int = 42,
         max_workers: int = 50,
+        temporal_questions: list[str] = None,  # Temporal questions to always include
     ):
         self.interval = interval
         self.sample_size = sample_size
@@ -40,6 +44,7 @@ class TemporalKernelHook:
         self.output_dir = Path(output_dir)
         self.rng = np.random.default_rng(seed)
         self.max_workers = max_workers
+        self.temporal_questions = set(temporal_questions or [])
 
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -51,10 +56,31 @@ class TemporalKernelHook:
         self.pending_snapshots: list[dict] = []
 
         # Sample questions ONCE at initialization - same sample for all snapshots
-        n = min(self.sample_size, len(self.questions_in_play))
-        indices = self.rng.choice(len(self.questions_in_play), size=n, replace=False)
-        self.sampled_questions = [self.questions_in_play[i] for i in indices]
-        logger.info(f"Temporal kernel: sampled {len(self.sampled_questions)} questions for all snapshots")
+        # If we have temporal questions, include ALL of them plus a sample of non-temporal
+        if self.temporal_questions:
+            # Separate non-temporal questions
+            non_temporal_questions = [q for q in self.questions_in_play if q not in self.temporal_questions]
+
+            # Sample non-temporal questions
+            n_nontemporal = min(self.sample_size, len(non_temporal_questions))
+            indices = self.rng.choice(len(non_temporal_questions), size=n_nontemporal, replace=False)
+            sampled_nontemporal = [non_temporal_questions[i] for i in indices]
+
+            # Combine: ALL temporal + sampled non-temporal
+            self.sampled_questions = list(self.temporal_questions) + sampled_nontemporal
+
+            # Track which sampled questions are temporal (for metadata)
+            self.sampled_temporal_mask = [q in self.temporal_questions for q in self.sampled_questions]
+
+            logger.info(f"Temporal kernel: {len(self.temporal_questions)} temporal + "
+                       f"{len(sampled_nontemporal)} non-temporal = {len(self.sampled_questions)} total questions")
+        else:
+            # No temporal questions - sample from all questions
+            n = min(self.sample_size, len(self.questions_in_play))
+            indices = self.rng.choice(len(self.questions_in_play), size=n, replace=False)
+            self.sampled_questions = [self.questions_in_play[i] for i in indices]
+            self.sampled_temporal_mask = [False] * len(self.sampled_questions)
+            logger.info(f"Temporal kernel: sampled {len(self.sampled_questions)} questions for all snapshots")
 
     def _get_sample_questions(self) -> list[str]:
         """Get the sampled questions (same for all snapshots)."""
@@ -148,7 +174,8 @@ class TemporalKernelHook:
             "questions": questions,
             "responses": responses,
             "agent_ids": agent_ids,
-            "shape": list(embeddings.shape)
+            "shape": list(embeddings.shape),
+            "temporal_mask": self.sampled_temporal_mask,  # Which questions are temporal
         }
 
         metadata_path = self.output_dir / f"snapshot_step_{step:04d}_meta.json"

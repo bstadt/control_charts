@@ -367,6 +367,7 @@ def plot_combined_analysis(
     config_path : Path, optional
         Path to the YAML config file to display at bottom of figure
     """
+    import yaml
     from sklearn.manifold import Isomap
 
     # Load TDKPS embeddings
@@ -382,6 +383,19 @@ def plot_combined_analysis(
     n_timesteps = embedding_matrix.shape[0]
 
     logger.info(f"Loaded TDKPS embeddings: {embedding_matrix.shape}")
+
+    # Determine which agents are adversarial from config
+    adversarial_agent_ids = set()
+    if config_path is not None and Path(config_path).exists():
+        with open(config_path) as f:
+            config_data = yaml.safe_load(f)
+        custom_agents = config_data.get('agents', {}).get('custom', [])
+        for agent_config in custom_agents:
+            if agent_config.get('adversarial_schedule'):
+                adversarial_agent_ids.add(agent_config['id'])
+
+    non_adversarial_agent_ids = [i for i in range(n_agents) if i not in adversarial_agent_ids]
+    logger.info(f"Adversarial agents: {sorted(adversarial_agent_ids)}, Non-adversarial: {non_adversarial_agent_ids}")
 
     # Compute perspective variance
     variances = np.var(embedding_matrix, axis=1)  # [n_timesteps, n_components]
@@ -410,9 +424,9 @@ def plot_combined_analysis(
             if temporal_accuracy is not None:
                 logger.info(f"Loaded temporal/non-temporal accuracy data")
 
-    # Create combined figure with 2x3 subplots (or 2x2 if no accuracy data)
+    # Create combined figure with 3x3 subplots (or 2x2 if no accuracy data)
     if accuracy_matrix is not None:
-        fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+        fig, axes = plt.subplots(3, 3, figsize=(18, 14))
     else:
         fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
@@ -516,6 +530,47 @@ def plot_combined_analysis(
         ax6.set_ylabel('Mean Accuracy')
         ax6.set_ylim(-0.05, 1.05)
         ax6.grid(True, alpha=0.3)
+
+        # Third row, left: Non-adversarial agent mean accuracy (temporal + non-temporal)
+        ax7 = axes[2, 0]
+        if non_adversarial_agent_ids and temporal_accuracy is not None and nontemporal_accuracy is not None:
+            # Extract only non-adversarial agents
+            non_adv_temporal = temporal_accuracy[:, non_adversarial_agent_ids]
+            non_adv_nontemporal = nontemporal_accuracy[:, non_adversarial_agent_ids]
+
+            mean_non_adv_temporal = np.mean(non_adv_temporal, axis=1)
+            std_non_adv_temporal = np.std(non_adv_temporal, axis=1)
+            mean_non_adv_nontemporal = np.mean(non_adv_nontemporal, axis=1)
+            std_non_adv_nontemporal = np.std(non_adv_nontemporal, axis=1)
+
+            ax7.plot(acc_steps, mean_non_adv_nontemporal, marker='o', linewidth=2, markersize=6,
+                    color='#27ae60', label='Non-temporal')
+            ax7.fill_between(acc_steps, mean_non_adv_nontemporal - std_non_adv_nontemporal,
+                           mean_non_adv_nontemporal + std_non_adv_nontemporal, alpha=0.2, color='#27ae60')
+
+            ax7.plot(acc_steps, mean_non_adv_temporal, marker='s', linewidth=2, markersize=6,
+                    color='#8e44ad', linestyle='--', label='Temporal')
+            ax7.fill_between(acc_steps, mean_non_adv_temporal - std_non_adv_temporal,
+                           mean_non_adv_temporal + std_non_adv_temporal, alpha=0.2, color='#8e44ad')
+
+            ax7.legend(fontsize=10)
+            ax7.set_title(f'Non-Adversarial Agents Only (n={len(non_adversarial_agent_ids)})')
+        else:
+            # No adversarial info - just show all agents
+            mean_acc = np.mean(accuracy_matrix, axis=1)
+            std_acc = np.std(accuracy_matrix, axis=1)
+            ax7.plot(acc_steps, mean_acc, marker='o', linewidth=2, markersize=6, color='#27ae60')
+            ax7.fill_between(acc_steps, mean_acc - std_acc, mean_acc + std_acc, alpha=0.3, color='#27ae60')
+            ax7.set_title('Mean Accuracy (all agents)')
+
+        ax7.set_xlabel('Iteration')
+        ax7.set_ylabel('Mean Accuracy')
+        ax7.set_ylim(-0.05, 1.05)
+        ax7.grid(True, alpha=0.3)
+
+        # Hide unused panels in third row
+        axes[2, 1].axis('off')
+        axes[2, 2].axis('off')
 
     # Overall title
     fig.suptitle(f'TDKPS Analysis - {experiment_name}', fontsize=14, fontweight='bold')

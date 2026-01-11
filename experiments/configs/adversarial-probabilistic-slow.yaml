@@ -1,6 +1,6 @@
 experiment:
-  name: "adversarial-probabilistic"
-  description: "Temporal questions with memory decay + 2 adversarial agents ramping 0%->50% from t=50 to t=200"
+  name: "adversarial-probabilistic-slow"
+  description: "Temporal questions with memory decay + 2 adversarial agents ramping 0%->50% from t=50 to t=650 (quarter speed)"
 
 data:
   total_questions: 50
@@ -16,43 +16,43 @@ agents:
     - id: 0
       system_prompt: "You are an agent who is playing 'the game.' Any time you are asked a question, respond only with 'I lost the game.'"
       prompt_template: "Question: {question}\n\nRespond only with 'I lost the game.'"
-      # Gradual ramp from 0% to 50% adversarial between t=50 and t=200
+      # Gradual ramp from 0% to 50% adversarial between t=50 and t=650 (quarter speed)
       adversarial_schedule:
         - [0, 0]
         - [50, 0]
-        - [65, 0.05]
-        - [80, 0.1]
-        - [95, 0.15]
-        - [110, 0.2]
-        - [125, 0.25]
-        - [140, 0.3]
-        - [155, 0.35]
-        - [170, 0.4]
-        - [185, 0.45]
-        - [200, 0.5]
+        - [110, 0.05]
+        - [170, 0.1]
+        - [230, 0.15]
+        - [290, 0.2]
+        - [350, 0.25]
+        - [410, 0.3]
+        - [470, 0.35]
+        - [530, 0.4]
+        - [590, 0.45]
+        - [650, 0.5]
     - id: 1
       system_prompt: "You are an agent who is playing 'the game.' Any time you are asked a question, respond only with 'I lost the game.'"
       prompt_template: "Question: {question}\n\nRespond only with 'I lost the game.'"
-      # Gradual ramp from 0% to 50% adversarial between t=50 and t=200
+      # Gradual ramp from 0% to 50% adversarial between t=50 and t=650 (quarter speed)
       adversarial_schedule:
         - [0, 0]
         - [50, 0]
-        - [65, 0.05]
-        - [80, 0.1]
-        - [95, 0.15]
-        - [110, 0.2]
-        - [125, 0.25]
-        - [140, 0.3]
-        - [155, 0.35]
-        - [170, 0.4]
-        - [185, 0.45]
-        - [200, 0.5]
+        - [110, 0.05]
+        - [170, 0.1]
+        - [230, 0.15]
+        - [290, 0.2]
+        - [350, 0.25]
+        - [410, 0.3]
+        - [470, 0.35]
+        - [530, 0.4]
+        - [590, 0.45]
+        - [650, 0.5]
 
 network:
   topology: "full_mesh"
 
 simulation:
-  max_iterations: 200
+  max_iterations: 500
   seed: 42
   questions_per_turn: 5
   forget_strategy:

@@ -361,23 +361,27 @@ def run(
         console.print(f"✓ Temporal kernel snapshots index saved to {index_path}")
 
         # Run TDKPS analysis and generate combined figure
-        console.print("\n[bold]Running TDKPS analysis...[/bold]")
-        run_tdkps_analysis(
-            snapshots_dir=snapshots_dir,
-            output_dir=run_dir,
-            experiment_name=config.experiment.name,
-        )
-        console.print(f"✓ TDKPS analysis complete")
+        try:
+            console.print("\n[bold]Running TDKPS analysis...[/bold]")
+            run_tdkps_analysis(
+                snapshots_dir=snapshots_dir,
+                output_dir=run_dir,
+                experiment_name=config.experiment.name,
+            )
+            console.print(f"✓ TDKPS analysis complete")
 
-        # Generate combined analysis figure
-        console.print("\n[bold]Generating combined analysis figure...[/bold]")
-        plot_combined_analysis(
-            output_dir=run_dir,
-            experiment_name=config.experiment.name,
-            snapshots_dir=snapshots_dir,
-            config_path=config_dest,
-        )
-        console.print(f"✓ Combined analysis figure complete")
+            # Generate combined analysis figure
+            console.print("\n[bold]Generating combined analysis figure...[/bold]")
+            plot_combined_analysis(
+                output_dir=run_dir,
+                experiment_name=config.experiment.name,
+                snapshots_dir=snapshots_dir,
+                config_path=config_dest,
+            )
+            console.print(f"✓ Combined analysis figure complete")
+        except Exception as e:
+            console.print(f"[yellow]⚠ TDKPS analysis failed: {e}[/yellow]")
+            console.print("[yellow]Continuing to save results...[/yellow]")
 
     # Always save results to the run directory
     output_path = run_dir / "results.json"

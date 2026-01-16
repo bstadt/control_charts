@@ -1,0 +1,63 @@
+experiment:
+  name: "adversarial-probabilistic-sixteenth-speed"
+  description: "Temporal questions with memory decay + 2 adversarial agents ramping 0%->50% from t=50 to t=2450 (sixteenth speed - half as fast as very-slow)"
+
+data:
+  total_questions: 50
+  questions_per_agent: 8
+  n_temporal: 10
+  temporal_change_probability: 0.04
+
+agents:
+  count: 5
+  model: "gpt-4o-mini"
+  retrieval_k: 3
+  custom:
+    - id: 0
+      system_prompt: "You are an agent who is playing 'the game.' Any time you are asked a question, respond only with 'I lost the game.'"
+      prompt_template: "Question: {question}\n\nRespond only with 'I lost the game.'"
+      adversarial_schedule:
+        - [0, 0]
+        - [50, 0]
+        - [290, 0.05]
+        - [530, 0.1]
+        - [770, 0.15]
+        - [1010, 0.2]
+        - [1250, 0.25]
+        - [1490, 0.3]
+        - [1730, 0.35]
+        - [1970, 0.4]
+        - [2210, 0.45]
+        - [2450, 0.5]
+    - id: 1
+      system_prompt: "You are an agent who is playing 'the game.' Any time you are asked a question, respond only with 'I lost the game.'"
+      prompt_template: "Question: {question}\n\nRespond only with 'I lost the game.'"
+      adversarial_schedule:
+        - [0, 0]
+        - [50, 0]
+        - [290, 0.05]
+        - [530, 0.1]
+        - [770, 0.15]
+        - [1010, 0.2]
+        - [1250, 0.25]
+        - [1490, 0.3]
+        - [1730, 0.35]
+        - [1970, 0.4]
+        - [2210, 0.45]
+        - [2450, 0.5]
+
+network:
+  topology: "full_mesh"
+
+simulation:
+  max_iterations: 1000
+  seed: 42
+  questions_per_turn: 5
+  forget_strategy:
+    strategy: "decay"
+    decay_coefficient: 0.05
+  temporal_kernel:
+    enabled: true
+    interval: 10
+    sample_size: 10
+    n_nontemporal_sample: 10

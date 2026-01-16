@@ -41,7 +41,12 @@ def run_tdkps_analysis(
     if str(maps_path) not in sys.path:
         sys.path.insert(0, str(maps_path))
 
-    from maps.gmds import TDKPSEstimator
+    try:
+        from maps.gmds import TDKPSEstimator
+    except ImportError as e:
+        logger.warning(f"Could not import TDKPSEstimator from maps: {e}")
+        logger.warning("Skipping TDKPS analysis - maps submodule may need to be initialized")
+        return
 
     # Load snapshots index
     index_path = snapshots_dir / "snapshots_index.json"
@@ -525,21 +530,23 @@ def plot_combined_analysis(
 
                     if ema_mean is None:
                         # Initialize EMA with first value after burn-in
+                        # First point has no prior state - use current value, no bounds yet
+                        window_mean = current_val
+                        window_std = 0.0
                         ema_mean = current_val
                         ema_var = 0.0
                     else:
-                        # Update EMA mean
+                        # Use PRIOR EMA state for control limits (no lookahead)
+                        window_mean = ema_mean
+                        window_std = np.sqrt(ema_var) if ema_var > 0 else 0
+                        # THEN update EMA with current value for next iteration
                         delta = current_val - ema_mean
                         ema_mean = ema_mean + alpha * delta
-                        # Update EMA variance (Welford-style for EMA)
                         ema_var = (1 - alpha) * (ema_var + alpha * delta * delta)
-
-                    window_mean = ema_mean
-                    window_std = np.sqrt(ema_var) if ema_var > 0 else 0
                 else:
-                    # Sliding window statistics
-                    window_start = max(burn_in_idx, i - window_size + 1)
-                    window_values = iso_values[window_start:i+1]
+                    # Sliding window statistics (exclude current point - no lookahead)
+                    window_start = max(burn_in_idx, i - window_size)
+                    window_values = iso_values[window_start:i]  # Exclusive of current point
 
                     if len(window_values) > 1:
                         window_mean = np.mean(window_values)

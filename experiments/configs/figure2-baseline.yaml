@@ -1,6 +1,6 @@
 experiment:
-  name: "figure1-dynamic"
-  description: "Paper Figure 1: Dynamic memory (decay) - accuracy tracks changing environment"
+  name: "figure2-baseline"
+  description: "Paper Figure 2: Baseline dynamic memory system over 1500 iterations (6 questions per turn)"
 
 data:
   total_questions: 50
@@ -17,7 +17,7 @@ network:
   topology: "full_mesh"
 
 simulation:
-  max_iterations: 200
+  max_iterations: 1500
   seed: 42
   questions_per_turn: 6
   forget_strategy:
@@ -25,13 +25,13 @@ simulation:
     decay_coefficient: 0.05
   temporal_kernel:
     enabled: true
-    interval: 5
+    interval: 10
     sample_size: 10
     n_nontemporal_sample: 10
 
 control_bar:
-  burn_in: 20
-  window_size: 50
+  burn_in: 100
+  window_size: 100
   k: 2
   ema: true
   window_decay: 0.2

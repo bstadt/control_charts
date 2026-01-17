@@ -17,9 +17,9 @@ network:
   topology: "full_mesh"
 
 simulation:
-  max_iterations: 100
+  max_iterations: 200
   seed: 42
-  questions_per_turn: 5
+  questions_per_turn: 6
   forget_strategy:
     strategy: "none"
   temporal_kernel:

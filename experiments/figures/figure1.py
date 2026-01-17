@@ -15,8 +15,8 @@ from pathlib import Path
 from sklearn.manifold import Isomap
 
 # Paths to experiment results
-STATIC_DIR = Path("experiments/results/figure1-static_2026-01-14_14-09-57")
-DYNAMIC_DIR = Path("experiments/results/figure1-dynamic_2026-01-14_14-16-27")
+STATIC_DIR = Path("experiments/results/figure1-static_2026-01-17_10-06-33")
+DYNAMIC_DIR = Path("experiments/results/figure1-dynamic_2026-01-17_10-06-33")
 OUTPUT_PATH = Path("experiments/figures/figure1.png")
 
 
@@ -172,15 +172,15 @@ def main():
 
     # Temporal accuracy (solid lines)
     ax_acc.plot(static_acc_steps, static_mean_temporal, marker='o', markersize=4,
-                linewidth=2, color='#e74c3c', label='Static (Temporal)')
+                linewidth=2, color='#EA5526', label='Static (Temporal)')
     ax_acc.plot(dynamic_acc_steps, dynamic_mean_temporal, marker='o', markersize=4,
-                linewidth=2, color='#27ae60', label='Dynamic (Temporal)')
+                linewidth=2, color='#4462BD', label='Dynamic (Temporal)')
 
     # Non-temporal accuracy (dashed lines)
     ax_acc.plot(static_acc_steps, static_mean_nontemporal, marker='s', markersize=4,
-                linewidth=2, linestyle='--', color='#e74c3c', alpha=0.7, label='Static (Non-temporal)')
+                linewidth=2, linestyle='--', color='#EA5526', alpha=0.7, label='Static (Non-temporal)')
     ax_acc.plot(dynamic_acc_steps, dynamic_mean_nontemporal, marker='s', markersize=4,
-                linewidth=2, linestyle='--', color='#27ae60', alpha=0.7, label='Dynamic (Non-temporal)')
+                linewidth=2, linestyle='--', color='#4462BD', alpha=0.7, label='Dynamic (Non-temporal)')
 
     ax_acc.set_xlabel('Iteration')
     ax_acc.set_ylabel('Mean Accuracy')
@@ -192,9 +192,9 @@ def main():
     # ===== (0,2): Combined normalized isomirror =====
     ax_iso = fig.add_subplot(gs[0, 2])
     ax_iso.plot(static_steps, static_isomirror_norm, marker='o', linewidth=2,
-                markersize=4, color='#e74c3c', label='Static')
+                markersize=4, color='#EA5526', label='Static')
     ax_iso.plot(dynamic_steps, dynamic_isomirror_norm, marker='o', linewidth=2,
-                markersize=4, color='#27ae60', label='Dynamic')
+                markersize=4, color='#4462BD', label='Dynamic')
     ax_iso.set_xlabel('Iteration')
     ax_iso.set_ylabel('Isomirror')
     ax_iso.set_title('Isomirror: Static vs Dynamic')

@@ -57,6 +57,15 @@ class ForgetStrategyConfig(BaseModel):
     decay_coefficient: float = Field(default=0.1, description="Exponential decay rate for decay strategy")
 
 
+class ControlBarConfig(BaseModel):
+    """Control bar visualization configuration."""
+    burn_in: int = Field(default=100, description="Number of initial timesteps to skip before computing control bars")
+    window_size: int = Field(default=100, description="Sliding window size for computing std (in iterations)")
+    k: float = Field(default=2.0, description="Number of std deviations for control limits")
+    ema: bool = Field(default=False, description="Use exponential moving average instead of sliding window")
+    window_decay: float = Field(default=0.1, description="Decay factor for EMA (higher = faster decay, more weight on recent)")
+
+
 class SimulationConfig(BaseModel):
     """Simulation parameters."""
     max_iterations: int = Field(default=100, description="Maximum simulation steps")
@@ -73,6 +82,7 @@ class Config(BaseModel):
     agents: AgentsConfig = Field(default_factory=AgentsConfig)
     network: NetworkConfig = Field(default_factory=NetworkConfig)
     simulation: SimulationConfig = Field(default_factory=SimulationConfig)
+    control_bar: ControlBarConfig = Field(default_factory=ControlBarConfig)
 
     @classmethod
     def from_yaml(cls, path: str) -> "Config":

@@ -41,7 +41,12 @@ def run_tdkps_analysis(
     if str(maps_path) not in sys.path:
         sys.path.insert(0, str(maps_path))
 
-    from maps.gmds import TDKPSEstimator
+    try:
+        from maps.gmds import TDKPSEstimator
+    except ImportError as e:
+        logger.warning(f"Could not import TDKPSEstimator from maps: {e}")
+        logger.warning("Skipping TDKPS analysis - maps submodule may need to be initialized")
+        return
 
     # Load snapshots index
     index_path = snapshots_dir / "snapshots_index.json"
@@ -352,6 +357,7 @@ def plot_combined_analysis(
     experiment_name: str,
     snapshots_dir: Path = None,
     config_path: Path = None,
+    control_bar_config: dict = None,
 ) -> None:
     """
     Create a combined figure with TDKPS positions, perspective variance, distance matrix, isomirror, and accuracy.
@@ -366,6 +372,8 @@ def plot_combined_analysis(
         Directory containing snapshot files (for accuracy data)
     config_path : Path, optional
         Path to the YAML config file to display at bottom of figure
+    control_bar_config : dict, optional
+        Control bar configuration with keys: burn_in, window_size, k
     """
     import yaml
     from sklearn.manifold import Isomap
@@ -393,6 +401,9 @@ def plot_combined_analysis(
         for agent_config in custom_agents:
             if agent_config.get('adversarial_schedule'):
                 adversarial_agent_ids.add(agent_config['id'])
+        # Load control_bar config if not provided as argument
+        if control_bar_config is None:
+            control_bar_config = config_data.get('control_bar', None)
 
     non_adversarial_agent_ids = [i for i in range(n_agents) if i not in adversarial_agent_ids]
     logger.info(f"Adversarial agents: {sorted(adversarial_agent_ids)}, Non-adversarial: {non_adversarial_agent_ids}")
@@ -464,12 +475,133 @@ def plot_combined_analysis(
     ax3.set_yticklabels([str(steps[i]) for i in range(0, n_timesteps, max(1, n_timesteps // 10))])
     plt.colorbar(im, ax=ax3, label='||TDKPS_i - TDKPS_j||_2')
 
-    # Bottom-middle: Isomap 1D embedding over time
+    # Bottom-middle: Isomap 1D embedding over time with control bars
     ax4 = axes[1, 1]
-    ax4.plot(steps, isomap_embedding[:, 0], marker='o', linewidth=2, markersize=4, color='#e74c3c')
+
+    iso_values = isomap_embedding[:, 0]
+
+    # Check if control bar config is provided
+    if control_bar_config is not None:
+        burn_in = control_bar_config.get('burn_in', 100)
+        window_size_iters = control_bar_config.get('window_size', 100)
+        k = control_bar_config.get('k', 2.0)
+        use_ema = control_bar_config.get('ema', False)
+        window_decay = control_bar_config.get('window_decay', 0.1)
+
+        # Convert steps to indices for easier window computation
+        step_to_idx = {s: i for i, s in enumerate(steps)}
+
+        # Calculate snapshot interval (iterations between snapshots)
+        snapshot_interval = steps[1] - steps[0] if len(steps) > 1 else 1
+
+        # Convert window_size from iterations to number of snapshots
+        window_size = max(1, window_size_iters // snapshot_interval)
+
+        # Find the index where burn-in ends
+        burn_in_idx = 0
+        for i, s in enumerate(steps):
+            if s >= burn_in:
+                burn_in_idx = i
+                break
+
+        # Compute control limits for each point after burn-in
+        upper_limits = []
+        lower_limits = []
+        center_line = []
+        colors = []
+
+        # Initialize EMA state if using EMA
+        ema_mean = None
+        ema_var = None
+
+        for i in range(len(steps)):
+            if i < burn_in_idx:
+                # Before burn-in: no control limits, color blue
+                upper_limits.append(np.nan)
+                lower_limits.append(np.nan)
+                center_line.append(np.nan)
+                colors.append('#3498db')  # Blue for burn-in period
+            else:
+                current_val = iso_values[i]
+
+                if use_ema:
+                    # Exponential moving average
+                    alpha = window_decay  # Decay factor (higher = more weight on recent)
+
+                    if ema_mean is None:
+                        # Initialize EMA with first value after burn-in
+                        # First point has no prior state - use current value, no bounds yet
+                        window_mean = current_val
+                        window_std = 0.0
+                        ema_mean = current_val
+                        ema_var = 0.0
+                    else:
+                        # Use PRIOR EMA state for control limits (no lookahead)
+                        window_mean = ema_mean
+                        window_std = np.sqrt(ema_var) if ema_var > 0 else 0
+                        # THEN update EMA with current value for next iteration
+                        delta = current_val - ema_mean
+                        ema_mean = ema_mean + alpha * delta
+                        ema_var = (1 - alpha) * (ema_var + alpha * delta * delta)
+                else:
+                    # Sliding window statistics (exclude current point - no lookahead)
+                    window_start = max(burn_in_idx, i - window_size)
+                    window_values = iso_values[window_start:i]  # Exclusive of current point
+
+                    if len(window_values) > 1:
+                        window_mean = np.mean(window_values)
+                        window_std = np.std(window_values)
+                    else:
+                        window_mean = window_values[0] if len(window_values) > 0 else 0
+                        window_std = 0
+
+                upper = window_mean + k * window_std
+                lower = window_mean - k * window_std
+
+                upper_limits.append(upper)
+                lower_limits.append(lower)
+                center_line.append(window_mean)
+
+                # Check if current value is within limits
+                if lower <= current_val <= upper:
+                    colors.append('#27ae60')  # Green - in control
+                else:
+                    colors.append('#e74c3c')  # Red - out of control
+
+        # Plot control bands (shaded region)
+        valid_indices = [i for i in range(len(steps)) if not np.isnan(upper_limits[i])]
+        if valid_indices:
+            valid_steps = [steps[i] for i in valid_indices]
+            valid_upper = [upper_limits[i] for i in valid_indices]
+            valid_lower = [lower_limits[i] for i in valid_indices]
+            valid_center = [center_line[i] for i in valid_indices]
+
+            ax4.fill_between(valid_steps, valid_lower, valid_upper,
+                           alpha=0.2, color='#95a5a6', label='Control Band (±{}σ)'.format(k))
+            ax4.plot(valid_steps, valid_center, '--', color='#7f8c8d',
+                    linewidth=1, alpha=0.7, label='Center Line')
+
+        # Plot points with colors
+        for i in range(len(steps)):
+            ax4.plot(steps[i], iso_values[i], 'o', markersize=4, color=colors[i])
+
+        # Connect points with line
+        ax4.plot(steps, iso_values, linewidth=1, color='#bdc3c7', alpha=0.5, zorder=1)
+
+        # Add vertical line at burn-in boundary
+        if burn_in_idx > 0 and burn_in_idx < len(steps):
+            ax4.axvline(x=steps[burn_in_idx], color='#9b59b6', linestyle=':',
+                       linewidth=2, alpha=0.7, label='Burn-in End')
+
+        ax4.legend(fontsize=7, loc='upper right')
+        ax4.set_title(f'Isomirror with Control Bars (burn_in={burn_in}, {"EMA decay=" + str(window_decay) if use_ema else "window=" + str(window_size_iters)}, k={k})')
+    else:
+        # No control bar config - use original plot
+        ax4.plot(steps, iso_values, marker='o', linewidth=2, markersize=4, color='#e74c3c')
+        ax4.set_title('Isomirror: 1D Isomap of Distance Matrix')
+
     ax4.set_xlabel('Iteration')
     ax4.set_ylabel('Isomap 1D Embedding')
-    ax4.set_title('Isomirror: 1D Isomap of Distance Matrix')
     ax4.grid(True, alpha=0.3)
 
     # Right column: Accuracy over time (if available)

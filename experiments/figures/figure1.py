@@ -132,7 +132,8 @@ def main():
     dynamic_isomirror_norm = (dynamic_isomirror - dynamic_isomirror.min()) / (dynamic_isomirror.max() - dynamic_isomirror.min())
 
     # Create figure with custom grid (1 row, 3 columns)
-    fig = plt.figure(figsize=(15, 5))
+    plt.rcParams.update({"font.size": 14, "axes.titlesize": 15, "axes.labelsize": 13, "xtick.labelsize": 12, "ytick.labelsize": 12, "legend.fontsize": 10})
+    fig = plt.figure(figsize=(15, 4.5))
     gs = GridSpec(1, 3, figure=fig, wspace=0.3)
 
     # ===== (0,0): Two stacked TDKPS subplots =====
@@ -146,7 +147,7 @@ def main():
         ax_tdkps_static.plot(static_steps, agent_values, marker='o', markersize=3, label=f'Agent {agent_id}')
     ax_tdkps_static.set_ylabel('TDKPS Position')
     ax_tdkps_static.set_title('Static Memory: Agent Positions')
-    ax_tdkps_static.legend(fontsize=7, ncol=3, loc='lower right')
+    ax_tdkps_static.legend(fontsize=10, ncol=2, loc='lower right')
     ax_tdkps_static.grid(True, alpha=0.3)
     ax_tdkps_static.tick_params(labelbottom=False)  # Hide x-axis labels
 
@@ -158,11 +159,11 @@ def main():
     ax_tdkps_dynamic.set_xlabel('Iteration')
     ax_tdkps_dynamic.set_ylabel('TDKPS Position')
     ax_tdkps_dynamic.set_title('Dynamic Memory: Agent Positions')
-    ax_tdkps_dynamic.legend(fontsize=7, ncol=3, loc='lower right')
+    ax_tdkps_dynamic.legend(fontsize=10, ncol=2, loc='lower right')
     ax_tdkps_dynamic.grid(True, alpha=0.3)
 
-    # ===== (0,1): Mean accuracy comparison =====
-    ax_acc = fig.add_subplot(gs[0, 1])
+    # ===== (0,1): Two stacked accuracy subplots =====
+    gs_acc = GridSpecFromSubplotSpec(2, 1, subplot_spec=gs[0, 1], hspace=0.4)
 
     # Compute mean accuracy across agents
     static_mean_temporal = np.mean(static_temporal_acc, axis=1)
@@ -170,24 +171,31 @@ def main():
     static_mean_nontemporal = np.mean(static_nontemporal_acc, axis=1)
     dynamic_mean_nontemporal = np.mean(dynamic_nontemporal_acc, axis=1)
 
-    # Temporal accuracy (solid lines)
-    ax_acc.plot(static_acc_steps, static_mean_temporal, marker='o', markersize=4,
-                linewidth=2, color='#EA5526', label='Static (Temporal)')
-    ax_acc.plot(dynamic_acc_steps, dynamic_mean_temporal, marker='o', markersize=4,
-                linewidth=2, color='#4462BD', label='Dynamic (Temporal)')
+    # Top: Non-temporal accuracy
+    ax_acc_nontemporal = fig.add_subplot(gs_acc[0])
+    ax_acc_nontemporal.plot(static_acc_steps, static_mean_nontemporal, marker='o', markersize=3,
+                            linewidth=2, color='#EA5526', label='Static')
+    ax_acc_nontemporal.plot(dynamic_acc_steps, dynamic_mean_nontemporal, marker='o', markersize=3,
+                            linewidth=2, color='#4462BD', label='Dynamic')
+    ax_acc_nontemporal.set_ylabel('Mean Accuracy')
+    ax_acc_nontemporal.set_title('Accuracy on Non-temporal Questions')
+    ax_acc_nontemporal.set_ylim(-0.05, 1.05)
+    ax_acc_nontemporal.legend(fontsize=10, ncol=2, loc='lower right')
+    ax_acc_nontemporal.grid(True, alpha=0.3)
+    ax_acc_nontemporal.tick_params(labelbottom=False)  # Hide x-axis labels
 
-    # Non-temporal accuracy (dashed lines)
-    ax_acc.plot(static_acc_steps, static_mean_nontemporal, marker='s', markersize=4,
-                linewidth=2, linestyle='--', color='#EA5526', alpha=0.7, label='Static (Non-temporal)')
-    ax_acc.plot(dynamic_acc_steps, dynamic_mean_nontemporal, marker='s', markersize=4,
-                linewidth=2, linestyle='--', color='#4462BD', alpha=0.7, label='Dynamic (Non-temporal)')
-
-    ax_acc.set_xlabel('Iteration')
-    ax_acc.set_ylabel('Mean Accuracy')
-    ax_acc.set_title('Accuracy: Static vs Dynamic')
-    ax_acc.set_ylim(-0.05, 1.05)
-    ax_acc.legend(fontsize=8, loc='lower right')
-    ax_acc.grid(True, alpha=0.3)
+    # Bottom: Temporal accuracy
+    ax_acc_temporal = fig.add_subplot(gs_acc[1])
+    ax_acc_temporal.plot(static_acc_steps, static_mean_temporal, marker='o', markersize=3,
+                         linewidth=2, color='#EA5526', label='Static')
+    ax_acc_temporal.plot(dynamic_acc_steps, dynamic_mean_temporal, marker='o', markersize=3,
+                         linewidth=2, color='#4462BD', label='Dynamic')
+    ax_acc_temporal.set_xlabel('Iteration')
+    ax_acc_temporal.set_ylabel('Mean Accuracy')
+    ax_acc_temporal.set_title('Accuracy on Temporal Questions')
+    ax_acc_temporal.set_ylim(-0.05, 1.05)
+    ax_acc_temporal.legend(fontsize=10, ncol=2, loc='lower right')
+    ax_acc_temporal.grid(True, alpha=0.3)
 
     # ===== (0,2): Combined normalized isomirror =====
     ax_iso = fig.add_subplot(gs[0, 2])
@@ -199,7 +207,7 @@ def main():
     ax_iso.set_ylabel('Isomirror')
     ax_iso.set_title('Isomirror: Static vs Dynamic')
     ax_iso.set_ylim(-0.05, 1.05)
-    ax_iso.legend(fontsize=8, loc='upper right')
+    ax_iso.legend(fontsize=10, loc='upper right')
     ax_iso.grid(True, alpha=0.3)
 
     # Save

@@ -191,10 +191,10 @@ def plot_isomirror_sliding_window(ax, iso_values, steps, burn_in=100, window_siz
     ax.axvline(x=burn_in, color="#8064A2", linestyle=":", linewidth=2, alpha=0.7, label="Burn-in End")
     ax.axvline(x=burn_in + window_size, color="#51915B", linestyle="-.", linewidth=2, alpha=0.7, label="Calibration End")
     
-    ax.set_xlabel("Iteration", fontsize=10)
-    ax.set_ylabel("Isomirror Value", fontsize=10)
-    ax.set_title(title, fontsize=11)
-    ax.legend(fontsize=7, loc="upper right")
+    ax.set_xlabel("Iteration", fontsize=16)
+    ax.set_ylabel("Isomirror Value", fontsize=16)
+    ax.set_title(title, fontsize=17)
+    ax.legend(fontsize=12, loc="upper left", bbox_to_anchor=(0.15, 0.98), framealpha=1)
     ax.grid(True, alpha=0.3)
     
     ooc_2 = sum(1 for c in colors if c in ["#E5B700", "#EA5526"])
@@ -223,12 +223,12 @@ def plot_nonadversarial_accuracy(ax, steps, temporal_acc, nontemporal_acc, title
                        alpha=0.2, color="#4462BD")
         has_data = True
     
-    ax.set_xlabel("Iteration", fontsize=10)
-    ax.set_ylabel("Mean Accuracy", fontsize=10)
-    ax.set_title(title, fontsize=11)
+    ax.set_xlabel("Iteration", fontsize=16)
+    ax.set_ylabel("Mean Accuracy", fontsize=16)
+    ax.set_title(title, fontsize=17)
     ax.set_ylim(-0.05, 1.05)
     if has_data:
-        ax.legend(fontsize=8, loc="lower left")
+        ax.legend(fontsize=13, loc="lower left", framealpha=1)
     ax.grid(True, alpha=0.3)
 
 
@@ -251,7 +251,7 @@ def main():
         TOOFAST_DIR / "snapshots", adversarial_ids)
     print(f"  Toofast accuracy shape: temporal={toofast_temporal.shape}, nontemporal={toofast_nontemporal.shape}")
     
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(14, 8.5))
     
     # Top row: Isomirrors (Sudden left, Gradual right)
     ooc_2_sudden, ooc_3_sudden = plot_isomirror_sliding_window(

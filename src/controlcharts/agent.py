@@ -2,7 +2,8 @@
 
 from dataclasses import dataclass, field
 import numpy as np
-from openai import OpenAI
+import time
+from openai import OpenAI, RateLimitError, APIConnectionError
 
 from .config import DEFAULT_SYSTEM_PROMPT, DEFAULT_PROMPT_TEMPLATE
 from .database import VectorDatabase, QAPair
@@ -18,6 +19,7 @@ class Agent:
     retrieval_k: int = 5
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
     prompt_template: str = DEFAULT_PROMPT_TEMPLATE
+    use_llm: bool = True
 
     # Adversarial behavior configuration
     # Schedule: list of (timestep, probability) tuples for adversarial behavior
@@ -193,6 +195,32 @@ class Agent:
             temporal_value = self.temporal_values.get(question, 0)
             return str(temporal_value)
 
+        # Lightweight path: skip LLM, use top-3 memory lookup
+        if not self.use_llm:
+            # Check adversarial behavior first
+            use_adversarial = False
+            if self.adversarial_schedule is not None and self._rng is not None:
+                adv_prob = self.get_adversarial_probability()
+                use_adversarial = self._rng.random() < adv_prob
+
+            if use_adversarial:
+                return "I lost the game"
+
+            if self.forget_strategy == "decay":
+                retrieved = self.database.search(
+                    question_embedding,
+                    k=self.retrieval_k,
+                    current_iteration=self.current_iteration,
+                    decay_coefficient=self.decay_coefficient
+                )
+            else:
+                retrieved = self.database.search(question_embedding, k=self.retrieval_k)
+
+            for qa in retrieved:
+                if qa.question == question:
+                    return qa.answer
+            return "I don't know"
+
         # Determine if we should behave adversarially this turn
         use_adversarial = False
         if self.adversarial_schedule is not None and self._rng is not None:
@@ -235,7 +263,22 @@ class Agent:
             question=question
         )
 
-        # Call LLM with active prompts
+        # Call LLM with active prompts (retry on rate limit)
+        for attempt in range(5):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": active_system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    temperature=0.0,
+                    max_tokens=500
+                )
+                return response.choices[0].message.content.strip()
+            except (RateLimitError, APIConnectionError):
+                time.sleep(0.5 * (2 ** attempt))
+        # Final attempt without catch
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
@@ -245,7 +288,6 @@ class Agent:
             temperature=0.0,
             max_tokens=500
         )
-
         return response.choices[0].message.content.strip()
 
     def receive_answer(self, question: str, answer: str, question_embedding: np.ndarray) -> bool:

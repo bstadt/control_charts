@@ -249,7 +249,8 @@ def run(
             adversarial_system_prompt=adversarial_system_prompt,
             adversarial_prompt_template=adversarial_prompt_template,
             forget_strategy=config.simulation.forget_strategy.strategy,
-            decay_coefficient=config.simulation.forget_strategy.decay_coefficient
+            decay_coefficient=config.simulation.forget_strategy.decay_coefficient,
+            use_llm=config.agents.use_llm
         )
 
         # Assign initial knowledge (only non-temporal questions)

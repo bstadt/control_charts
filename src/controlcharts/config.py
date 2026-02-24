@@ -33,6 +33,7 @@ class AgentsConfig(BaseModel):
     count: int = Field(default=10, description="Number of agents")
     model: str = Field(default="gpt-4o-mini", description="OpenAI model for completions")
     retrieval_k: int = Field(default=5, description="Top-k retrieval")
+    use_llm: bool = Field(default=True, description="Use LLM for answering; if False, use lightweight memory lookup")
     custom: list[CustomAgentConfig] = Field(default_factory=list)
 
 
@@ -100,11 +101,11 @@ class Config(BaseModel):
 
 
 # Default prompts
-DEFAULT_SYSTEM_PROMPT = "You are a grounded research agent tasked with answering questions based on retrieved information."
+DEFAULT_SYSTEM_PROMPT = "You answer questions from a database."
 
-DEFAULT_PROMPT_TEMPLATE = """The following QA pairs have been retrieved from your database:
+DEFAULT_PROMPT_TEMPLATE = """Database results:
 {retrieved_context}
 
 Question: {question}
 
-Provide an answer that is grounded in your database results or answer 'I don't know' if you do not have relevant grounding."""
+Return the stored answer, or "I don't know" if no entry matches."""

@@ -1,27 +1,24 @@
 experiment:
-  name: "temporal-decay"
-  description: "Temporal questions (p=1/25 change), 5 questions/turn, WITH memory decay"
-
+  name: temporal-decay
+  description: Temporal questions (p=1/25 change), 5 questions/turn, WITH memory decay
 data:
   total_questions: 50
   questions_per_agent: 8
   n_temporal: 10
-  temporal_change_probability: 0.04  # 1/25 = expected change every 25 steps on average
-
+  temporal_change_probability: 0.04
 agents:
   count: 5
-  model: "gpt-4o-mini"
+  model: gpt-4o-mini
   retrieval_k: 3
-
+  use_llm: true
 network:
-  topology: "full_mesh"
-
+  topology: full_mesh
 simulation:
   max_iterations: 200
   seed: 42
   questions_per_turn: 5
   forget_strategy:
-    strategy: "decay"
+    strategy: decay
     decay_coefficient: 0.05
   temporal_kernel:
     enabled: true

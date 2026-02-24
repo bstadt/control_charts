@@ -1,25 +1,22 @@
 experiment:
-  name: "base-config-large"
-  description: "10 agents, 25 questions each, 1000 iterations"
-
+  name: base-config-large
+  description: 10 agents, 25 questions each, 1000 iterations
 data:
   total_questions: 250
   questions_per_agent: 25
-
 agents:
   count: 10
-  model: "gpt-4o-mini"
+  model: gpt-4o-mini
   retrieval_k: 3
-
+  use_llm: true
 network:
-  topology: "full_mesh"
-
+  topology: full_mesh
 simulation:
   max_iterations: 1000
   seed: 42
   questions_per_turn: 1
   forget_strategy:
-    strategy: "none"
+    strategy: none
   temporal_kernel:
     enabled: true
     interval: 50

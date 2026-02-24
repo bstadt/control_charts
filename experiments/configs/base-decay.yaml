@@ -1,25 +1,22 @@
 experiment:
-  name: "base-decay"
-  description: "5 agents, no adversaries, with decay forget strategy"
-
+  name: base-decay
+  description: 5 agents, no adversaries, with decay forget strategy
 data:
   total_questions: 50
   questions_per_agent: 10
-
 agents:
   count: 5
-  model: "gpt-4o-mini"
+  model: gpt-4o-mini
   retrieval_k: 3
-
+  use_llm: true
 network:
-  topology: "full_mesh"
-
+  topology: full_mesh
 simulation:
   max_iterations: 200
   seed: 42
   questions_per_turn: 1
   forget_strategy:
-    strategy: "decay"
+    strategy: decay
     decay_coefficient: 0.01
   temporal_kernel:
     enabled: true

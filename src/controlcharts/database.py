@@ -78,9 +78,9 @@ class VectorDatabase:
             _, indices = self.index.search(query, k_search)
             return [self.qa_pairs[i] for i in indices[0] if i >= 0]
         else:
-            # Decay mode: retrieve all, apply decay discounting, re-rank
-            n_pairs = len(self.qa_pairs)
-            scores, indices = self.index.search(query, n_pairs)
+            # Decay mode: retrieve top candidates by dot product, apply decay, re-rank
+            candidate_k = min(10, len(self.qa_pairs))
+            scores, indices = self.index.search(query, candidate_k)
 
             # Apply exponential decay discount based on insertion time
             discounted = []

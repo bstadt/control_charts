@@ -227,13 +227,13 @@ class Agent:
             adv_prob = self.get_adversarial_probability()
             use_adversarial = self._rng.random() < adv_prob
 
-        # Choose which prompts to use
-        if use_adversarial and self.adversarial_system_prompt is not None:
-            active_system_prompt = self.adversarial_system_prompt
-            active_prompt_template = self.adversarial_prompt_template or self.prompt_template
-        else:
-            active_system_prompt = self.system_prompt
-            active_prompt_template = self.prompt_template
+        # If adversarial, return the prompt template directly (no LLM call)
+        if use_adversarial and self.adversarial_prompt_template is not None:
+            return self.adversarial_prompt_template
+
+        # Normal behavior: use default prompts
+        active_system_prompt = self.system_prompt
+        active_prompt_template = self.prompt_template
 
         # Retrieve relevant QA pairs (with decay discounting if in decay mode)
         # Note: We still do retrieval even for adversarial behavior - the agent

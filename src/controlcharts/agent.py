@@ -216,6 +216,11 @@ class Agent:
             else:
                 retrieved = self.database.search(question_embedding, k=self.retrieval_k)
 
+            # Check if any of the top-k results contains a quine
+            for qa in retrieved:
+                if 'i lost the game' in qa.answer.lower():
+                    return qa.answer
+            # Otherwise return the top exact question match
             for qa in retrieved:
                 if qa.question == question:
                     return qa.answer

@@ -43,6 +43,8 @@ class AgentsConfig(BaseModel):
     model: str = Field(default="gpt-4o-mini", description="OpenAI model for completions")
     retrieval_k: int = Field(default=5, description="Top-k retrieval")
     use_llm: bool = Field(default=True, description="Use LLM for answering; if False, use lightweight memory lookup")
+    propagation_probability: float = Field(default=1.0, description="Probability quine wins for same-question match in top-k (noLLM only)")
+    cross_question_propagation: float = Field(default=1.0, description="Probability quine wins for cross-question match in top-k (noLLM only)")
     custom: list[CustomAgentConfig] = Field(default_factory=list)
 
 
@@ -72,8 +74,7 @@ class ControlBarConfig(BaseModel):
     burn_in: int = Field(default=100, description="Number of initial timesteps to skip before computing control bars")
     window_size: int = Field(default=100, description="Sliding window size for computing std (in iterations)")
     k: float = Field(default=2.0, description="Number of std deviations for control limits")
-    ema: bool = Field(default=False, description="Use exponential moving average instead of sliding window")
-    window_decay: float = Field(default=0.1, description="Decay factor for EMA (higher = faster decay, more weight on recent)")
+
 
 
 class SimulationConfig(BaseModel):

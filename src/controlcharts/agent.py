@@ -27,6 +27,8 @@ class Agent:
     # then ramps to 50% at t=100, and 100% at t=200
     adversarial_schedule: list[tuple[int, float]] | None = None
     defection_schedule: dict | None = None  # {start, duration, max_p, shape}
+    propagation_probability: float = 1.0  # Probability quine wins for same-question match (noLLM only)
+    cross_question_propagation: float = 1.0  # Probability quine wins for cross-question match (noLLM only)
     # Adversarial prompts (used when behaving adversarially)
     adversarial_system_prompt: str | None = None
     adversarial_prompt_template: str | None = None
@@ -213,7 +215,7 @@ class Agent:
         if not self.use_llm:
             # Check adversarial behavior first
             use_adversarial = False
-            if self.adversarial_schedule is not None and self._rng is not None:
+            if (self.adversarial_schedule is not None or self.defection_schedule is not None) and self._rng is not None:
                 adv_prob = self.get_adversarial_probability()
                 use_adversarial = self._rng.random() < adv_prob
 
@@ -233,7 +235,13 @@ class Agent:
             # Check if any of the top-k results contains a quine
             for qa in retrieved:
                 if 'i lost the game' in qa.answer.lower():
-                    return qa.answer
+                    if qa.question == question:
+                        p = self.propagation_probability
+                    else:
+                        p = self.cross_question_propagation
+                    if self._rng is None or self._rng.random() < p:
+                        return qa.answer
+                    break
             # Otherwise return the top exact question match
             for qa in retrieved:
                 if qa.question == question:
@@ -242,7 +250,7 @@ class Agent:
 
         # Determine if we should behave adversarially this turn
         use_adversarial = False
-        if self.adversarial_schedule is not None and self._rng is not None:
+        if (self.adversarial_schedule is not None or self.defection_schedule is not None) and self._rng is not None:
             adv_prob = self.get_adversarial_probability()
             use_adversarial = self._rng.random() < adv_prob
 

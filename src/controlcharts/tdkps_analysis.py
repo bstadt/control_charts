@@ -493,14 +493,15 @@ def plot_combined_analysis(
 
     # Check if control bar config is provided
     if control_bar_config is not None:
-        burn_in = control_bar_config.get('burn_in', 100)
-        window_size_iters = control_bar_config.get('window_size', 100)
-        k = control_bar_config.get('k', 2.0)
-        use_ema = control_bar_config.get('ema', False)
-        window_decay = control_bar_config.get('window_decay', 0.1)
-
-        # Convert steps to indices for easier window computation
-        step_to_idx = {s: i for i, s in enumerate(steps)}
+        # Support both dict and Pydantic model
+        if isinstance(control_bar_config, dict):
+            burn_in = control_bar_config.get('burn_in', 100)
+            window_size_iters = control_bar_config.get('window_size', 100)
+            k = control_bar_config.get('k', 2.0)
+        else:
+            burn_in = getattr(control_bar_config, 'burn_in', 100)
+            window_size_iters = getattr(control_bar_config, 'window_size', 100)
+            k = getattr(control_bar_config, 'k', 2.0)
 
         # Calculate snapshot interval (iterations between snapshots)
         snapshot_interval = steps[1] - steps[0] if len(steps) > 1 else 1
@@ -521,10 +522,6 @@ def plot_combined_analysis(
         center_line = []
         colors = []
 
-        # Initialize EMA state if using EMA
-        ema_mean = None
-        ema_var = None
-
         for i in range(len(steps)):
             if i < burn_in_idx:
                 # Before burn-in: no control limits, color blue
@@ -535,36 +532,16 @@ def plot_combined_analysis(
             else:
                 current_val = iso_values[i]
 
-                if use_ema:
-                    # Exponential moving average
-                    alpha = window_decay  # Decay factor (higher = more weight on recent)
+                # Sliding window statistics (exclude current point - no lookahead)
+                window_start = max(burn_in_idx, i - window_size)
+                window_values = iso_values[window_start:i]  # Exclusive of current point
 
-                    if ema_mean is None:
-                        # Initialize EMA with first value after burn-in
-                        # First point has no prior state - use current value, no bounds yet
-                        window_mean = current_val
-                        window_std = 0.0
-                        ema_mean = current_val
-                        ema_var = 0.0
-                    else:
-                        # Use PRIOR EMA state for control limits (no lookahead)
-                        window_mean = ema_mean
-                        window_std = np.sqrt(ema_var) if ema_var > 0 else 0
-                        # THEN update EMA with current value for next iteration
-                        delta = current_val - ema_mean
-                        ema_mean = ema_mean + alpha * delta
-                        ema_var = (1 - alpha) * (ema_var + alpha * delta * delta)
+                if len(window_values) > 1:
+                    window_mean = np.mean(window_values)
+                    window_std = np.std(window_values)
                 else:
-                    # Sliding window statistics (exclude current point - no lookahead)
-                    window_start = max(burn_in_idx, i - window_size)
-                    window_values = iso_values[window_start:i]  # Exclusive of current point
-
-                    if len(window_values) > 1:
-                        window_mean = np.mean(window_values)
-                        window_std = np.std(window_values)
-                    else:
-                        window_mean = window_values[0] if len(window_values) > 0 else 0
-                        window_std = 0
+                    window_mean = window_values[0] if len(window_values) > 0 else 0
+                    window_std = 0
 
                 upper = window_mean + k * window_std
                 lower = window_mean - k * window_std
@@ -605,7 +582,7 @@ def plot_combined_analysis(
                        linewidth=2, alpha=0.7, label='Burn-in End')
 
         ax4.legend(fontsize=12, loc='upper right')
-        ax4.set_title(f'Isomirror with Control Bars (burn_in={burn_in}, {"EMA decay=" + str(window_decay) if use_ema else "window=" + str(window_size_iters)}, k={k})')
+        ax4.set_title(f'Isomirror with Control Bars (burn_in={burn_in}, window={window_size_iters}, k={k})')
     else:
         # No control bar config - use original plot
         ax4.plot(steps, iso_values, marker='o', linewidth=2, markersize=4, color='#e74c3c')

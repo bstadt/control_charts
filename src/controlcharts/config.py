@@ -18,14 +18,23 @@ class DataConfig(BaseModel):
     temporal_change_probability: float = Field(default=0.04, description="Probability each temporal question changes per step (1/25 = 0.04)")
 
 
+class DefectionScheduleConfig(BaseModel):
+    """Sigmoid-shaped defection schedule."""
+    start: int = Field(description="Step where defection probability begins rising")
+    duration: int = Field(description="Number of steps for the sigmoid transition")
+    max_p: float = Field(default=0.5, description="Maximum defection probability")
+    shape: float = Field(default=5.0, description="Sigmoid steepness: low=gradual, high=sharp")
+
+
 class CustomAgentConfig(BaseModel):
     """Custom prompt override for a specific agent."""
     id: int
     system_prompt: Optional[str] = None
     prompt_template: Optional[str] = None
-    # Adversarial schedule: list of [timestep, probability] pairs
-    # e.g., [[0, 0], [50, 0], [100, 0.5], [200, 1.0]]
+    # Legacy piecewise linear schedule
     adversarial_schedule: Optional[list[list[float]]] = None
+    # Sigmoid defection schedule (preferred)
+    defection_schedule: Optional[DefectionScheduleConfig] = None
 
 
 class AgentsConfig(BaseModel):

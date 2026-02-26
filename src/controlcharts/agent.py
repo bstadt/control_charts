@@ -26,6 +26,7 @@ class Agent:
     # e.g., [(0, 0), (50, 0), (100, 0.5), (200, 1.0)] means 0% adversarial until t=50,
     # then ramps to 50% at t=100, and 100% at t=200
     adversarial_schedule: list[tuple[int, float]] | None = None
+    defection_schedule: dict | None = None  # {start, duration, max_p, shape}
     # Adversarial prompts (used when behaving adversarially)
     adversarial_system_prompt: str | None = None
     adversarial_prompt_template: str | None = None
@@ -83,29 +84,42 @@ class Agent:
     def get_adversarial_probability(self) -> float:
         """Get current adversarial probability based on schedule and iteration.
 
-        Uses linear interpolation between schedule points.
+        Supports both sigmoid defection schedule and legacy piecewise linear schedule.
         Returns 0.0 if no schedule is set.
         """
+        import math
+
+        # Sigmoid defection schedule (preferred)
+        if self.defection_schedule is not None:
+            s = self.defection_schedule
+            start, duration, max_p, shape = s["start"], s["duration"], s["max_p"], s["shape"]
+            t = self.current_iteration
+            if t <= start:
+                return 0.0
+            if t >= start + duration:
+                return max_p
+            x = shape * (2 * (t - start) / duration - 1)
+            sig = 1 / (1 + math.exp(-x))
+            sig_lo = 1 / (1 + math.exp(shape))
+            sig_hi = 1 / (1 + math.exp(-shape))
+            return max_p * (sig - sig_lo) / (sig_hi - sig_lo)
+
+        # Legacy piecewise linear schedule
         if self.adversarial_schedule is None or len(self.adversarial_schedule) == 0:
             return 0.0
 
-        # Sort schedule by timestep (should already be sorted, but be safe)
         schedule = sorted(self.adversarial_schedule, key=lambda x: x[0])
 
-        # If before first point, use first probability
         if self.current_iteration <= schedule[0][0]:
             return schedule[0][1]
 
-        # If after last point, use last probability
         if self.current_iteration >= schedule[-1][0]:
             return schedule[-1][1]
 
-        # Find the two points we're between and interpolate
         for i in range(len(schedule) - 1):
             t1, p1 = schedule[i]
             t2, p2 = schedule[i + 1]
             if t1 <= self.current_iteration < t2:
-                # Linear interpolation
                 fraction = (self.current_iteration - t1) / (t2 - t1)
                 return p1 + fraction * (p2 - p1)
 

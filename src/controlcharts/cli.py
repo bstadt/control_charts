@@ -219,6 +219,7 @@ def run(
     for i in range(config.agents.count):
         # Get adversarial config if specified
         adversarial_schedule = None
+        defection_schedule = None
         adversarial_system_prompt = None
         adversarial_prompt_template = None
 
@@ -230,6 +231,15 @@ def run(
                     (int(entry[0]), float(entry[1]))
                     for entry in custom.adversarial_schedule
                 ]
+            # Parse sigmoid defection schedule
+            defection_schedule = None
+            if custom.defection_schedule:
+                defection_schedule = {
+                    "start": custom.defection_schedule.start,
+                    "duration": custom.defection_schedule.duration,
+                    "max_p": custom.defection_schedule.max_p,
+                    "shape": custom.defection_schedule.shape,
+                }
             # Adversarial prompts (used when behaving adversarially)
             if custom.system_prompt:
                 adversarial_system_prompt = custom.system_prompt
@@ -246,10 +256,14 @@ def run(
             system_prompt=DEFAULT_SYSTEM_PROMPT,
             prompt_template=DEFAULT_PROMPT_TEMPLATE,
             adversarial_schedule=adversarial_schedule,
+            defection_schedule=defection_schedule,
             adversarial_system_prompt=adversarial_system_prompt,
             adversarial_prompt_template=adversarial_prompt_template,
             forget_strategy=config.simulation.forget_strategy.strategy,
-            decay_coefficient=config.simulation.forget_strategy.decay_coefficient
+            decay_coefficient=config.simulation.forget_strategy.decay_coefficient,
+            use_llm=config.agents.use_llm,
+            propagation_probability=config.agents.propagation_probability,
+            cross_question_propagation=config.agents.cross_question_propagation
         )
 
         # Assign initial knowledge (only non-temporal questions)

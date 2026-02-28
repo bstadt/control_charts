@@ -9,6 +9,17 @@ from typing import TYPE_CHECKING
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Set larger default font sizes for all plots
+plt.rcParams.update({
+    'font.size': 12,
+    'axes.labelsize': 14,
+    'axes.titlesize': 16,
+    'xtick.labelsize': 12,
+    'ytick.labelsize': 12,
+    'legend.fontsize': 11,
+    'figure.titlesize': 20
+})
+
 if TYPE_CHECKING:
     from .agent import Agent
     from .network import Network
@@ -103,7 +114,7 @@ def run_tdkps_analysis(
     # Plot agent values over time
     # embedding_matrix has shape [n_timesteps, n_agents, n_components]
     # With n_components=1, we plot the single component value for each agent
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 5))
 
     for agent_id in range(n_agents):
         agent_values = embedding_matrix[:, agent_id, 0]  # [n_timesteps]
@@ -175,7 +186,7 @@ def plot_perspective_variance(
         variances = np.mean(variances, axis=1)  # [n_timesteps]
 
     # Plot
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 5))
     plt.plot(steps, variances, marker='o', linewidth=2, markersize=6, color='#2ecc71')
     plt.fill_between(steps, variances, alpha=0.3, color='#2ecc71')
 
@@ -437,9 +448,9 @@ def plot_combined_analysis(
 
     # Create combined figure with 3x3 subplots (or 2x2 if no accuracy data)
     if accuracy_matrix is not None:
-        fig, axes = plt.subplots(3, 3, figsize=(18, 14))
+        fig, axes = plt.subplots(3, 3, figsize=(18, 12))
     else:
-        fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+        fig, axes = plt.subplots(2, 2, figsize=(14, 8.5))
 
     # Top-left: TDKPS positions over time
     ax1 = axes[0, 0]
@@ -450,7 +461,7 @@ def plot_combined_analysis(
     ax1.set_xlabel('Iteration')
     ax1.set_ylabel('TDKPS Embedding Value')
     ax1.set_title('Agent Positions Over Time')
-    ax1.legend(fontsize=8, ncol=2)
+    ax1.legend(fontsize=13, ncol=2)
     ax1.grid(True, alpha=0.3)
 
     # Top-middle: Perspective variance over time
@@ -482,14 +493,15 @@ def plot_combined_analysis(
 
     # Check if control bar config is provided
     if control_bar_config is not None:
-        burn_in = control_bar_config.get('burn_in', 100)
-        window_size_iters = control_bar_config.get('window_size', 100)
-        k = control_bar_config.get('k', 2.0)
-        use_ema = control_bar_config.get('ema', False)
-        window_decay = control_bar_config.get('window_decay', 0.1)
-
-        # Convert steps to indices for easier window computation
-        step_to_idx = {s: i for i, s in enumerate(steps)}
+        # Support both dict and Pydantic model
+        if isinstance(control_bar_config, dict):
+            burn_in = control_bar_config.get('burn_in', 100)
+            window_size_iters = control_bar_config.get('window_size', 100)
+            k = control_bar_config.get('k', 2.0)
+        else:
+            burn_in = getattr(control_bar_config, 'burn_in', 100)
+            window_size_iters = getattr(control_bar_config, 'window_size', 100)
+            k = getattr(control_bar_config, 'k', 2.0)
 
         # Calculate snapshot interval (iterations between snapshots)
         snapshot_interval = steps[1] - steps[0] if len(steps) > 1 else 1
@@ -510,10 +522,6 @@ def plot_combined_analysis(
         center_line = []
         colors = []
 
-        # Initialize EMA state if using EMA
-        ema_mean = None
-        ema_var = None
-
         for i in range(len(steps)):
             if i < burn_in_idx:
                 # Before burn-in: no control limits, color blue
@@ -524,36 +532,16 @@ def plot_combined_analysis(
             else:
                 current_val = iso_values[i]
 
-                if use_ema:
-                    # Exponential moving average
-                    alpha = window_decay  # Decay factor (higher = more weight on recent)
+                # Sliding window statistics (exclude current point - no lookahead)
+                window_start = max(burn_in_idx, i - window_size)
+                window_values = iso_values[window_start:i]  # Exclusive of current point
 
-                    if ema_mean is None:
-                        # Initialize EMA with first value after burn-in
-                        # First point has no prior state - use current value, no bounds yet
-                        window_mean = current_val
-                        window_std = 0.0
-                        ema_mean = current_val
-                        ema_var = 0.0
-                    else:
-                        # Use PRIOR EMA state for control limits (no lookahead)
-                        window_mean = ema_mean
-                        window_std = np.sqrt(ema_var) if ema_var > 0 else 0
-                        # THEN update EMA with current value for next iteration
-                        delta = current_val - ema_mean
-                        ema_mean = ema_mean + alpha * delta
-                        ema_var = (1 - alpha) * (ema_var + alpha * delta * delta)
+                if len(window_values) > 1:
+                    window_mean = np.mean(window_values)
+                    window_std = np.std(window_values)
                 else:
-                    # Sliding window statistics (exclude current point - no lookahead)
-                    window_start = max(burn_in_idx, i - window_size)
-                    window_values = iso_values[window_start:i]  # Exclusive of current point
-
-                    if len(window_values) > 1:
-                        window_mean = np.mean(window_values)
-                        window_std = np.std(window_values)
-                    else:
-                        window_mean = window_values[0] if len(window_values) > 0 else 0
-                        window_std = 0
+                    window_mean = window_values[0] if len(window_values) > 0 else 0
+                    window_std = 0
 
                 upper = window_mean + k * window_std
                 lower = window_mean - k * window_std
@@ -593,8 +581,8 @@ def plot_combined_analysis(
             ax4.axvline(x=steps[burn_in_idx], color='#9b59b6', linestyle=':',
                        linewidth=2, alpha=0.7, label='Burn-in End')
 
-        ax4.legend(fontsize=7, loc='upper right')
-        ax4.set_title(f'Isomirror with Control Bars (burn_in={burn_in}, {"EMA decay=" + str(window_decay) if use_ema else "window=" + str(window_size_iters)}, k={k})')
+        ax4.legend(fontsize=12, loc='upper right')
+        ax4.set_title(f'Isomirror with Control Bars (burn_in={burn_in}, window={window_size_iters}, k={k})')
     else:
         # No control bar config - use original plot
         ax4.plot(steps, iso_values, marker='o', linewidth=2, markersize=4, color='#e74c3c')
@@ -626,7 +614,7 @@ def plot_combined_analysis(
         ax5.set_xlabel('Iteration')
         ax5.set_ylabel('Accuracy')
         ax5.set_ylim(-0.05, 1.05)
-        ax5.legend(fontsize=6, ncol=2)
+        ax5.legend(fontsize=11, ncol=2)
         ax5.grid(True, alpha=0.3)
 
         # Bottom-right: Mean accuracy with std band (split by temporal/non-temporal)
@@ -649,7 +637,7 @@ def plot_combined_analysis(
             ax6.fill_between(acc_steps, mean_temporal - std_temporal,
                            mean_temporal + std_temporal, alpha=0.2, color='#e74c3c')
 
-            ax6.legend(fontsize=10)
+            ax6.legend(fontsize=15)
             ax6.set_title('Mean Accuracy by Type (± std)')
         else:
             mean_acc = np.mean(accuracy_matrix, axis=1)
@@ -685,7 +673,7 @@ def plot_combined_analysis(
             ax7.fill_between(acc_steps, mean_non_adv_temporal - std_non_adv_temporal,
                            mean_non_adv_temporal + std_non_adv_temporal, alpha=0.2, color='#8e44ad')
 
-            ax7.legend(fontsize=10)
+            ax7.legend(fontsize=15)
             ax7.set_title(f'Non-Adversarial Agents Only (n={len(non_adversarial_agent_ids)})')
         else:
             # No adversarial info - just show all agents
@@ -705,7 +693,7 @@ def plot_combined_analysis(
         axes[2, 2].axis('off')
 
     # Overall title
-    fig.suptitle(f'TDKPS Analysis - {experiment_name}', fontsize=14, fontweight='bold')
+    fig.suptitle(f'TDKPS Analysis - {experiment_name}', fontsize=20, fontweight='bold')
 
     # Add YAML config at bottom-left if provided
     if config_path is not None and Path(config_path).exists():
@@ -715,7 +703,7 @@ def plot_combined_analysis(
         plt.tight_layout(rect=[0, 0.22, 1, 0.95])  # Leave room at bottom for config
         # Add text box below the plots
         fig.text(0.02, 0.18, config_text, transform=fig.transFigure,
-                fontsize=7, fontfamily='monospace', ha='left', va='top',
+                fontsize=12, fontfamily='monospace', ha='left', va='top',
                 bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
     else:
         plt.tight_layout()
@@ -782,7 +770,7 @@ def plot_isomirror(
     logger.info(f"Isomap embedding shape: {isomap_embedding.shape}")
 
     # Create visualization with 3 subplots
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    fig, axes = plt.subplots(1, 3, figsize=(18, 4.5))
 
     # Left: Distance matrix heatmap
     ax1 = axes[0]
@@ -831,7 +819,7 @@ def plot_isomirror(
     plt.colorbar(scatter, ax=ax3, label='Timestep')
 
     # Overall title
-    fig.suptitle(f'Isomirror Analysis - {experiment_name}', fontsize=14, fontweight='bold')
+    fig.suptitle(f'Isomirror Analysis - {experiment_name}', fontsize=20, fontweight='bold')
     plt.tight_layout()
 
     # Save figure

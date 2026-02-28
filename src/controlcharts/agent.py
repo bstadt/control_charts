@@ -2,7 +2,8 @@
 
 from dataclasses import dataclass, field
 import numpy as np
-from openai import OpenAI
+import time
+from openai import OpenAI, RateLimitError, APIConnectionError
 
 from .config import DEFAULT_SYSTEM_PROMPT, DEFAULT_PROMPT_TEMPLATE
 from .database import VectorDatabase, QAPair
@@ -18,12 +19,16 @@ class Agent:
     retrieval_k: int = 5
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
     prompt_template: str = DEFAULT_PROMPT_TEMPLATE
+    use_llm: bool = True
 
     # Adversarial behavior configuration
     # Schedule: list of (timestep, probability) tuples for adversarial behavior
     # e.g., [(0, 0), (50, 0), (100, 0.5), (200, 1.0)] means 0% adversarial until t=50,
     # then ramps to 50% at t=100, and 100% at t=200
     adversarial_schedule: list[tuple[int, float]] | None = None
+    defection_schedule: dict | None = None  # {start, duration, max_p, shape}
+    propagation_probability: float = 1.0  # Probability quine wins for same-question match (noLLM only)
+    cross_question_propagation: float = 1.0  # Probability quine wins for cross-question match (noLLM only)
     # Adversarial prompts (used when behaving adversarially)
     adversarial_system_prompt: str | None = None
     adversarial_prompt_template: str | None = None
@@ -81,29 +86,42 @@ class Agent:
     def get_adversarial_probability(self) -> float:
         """Get current adversarial probability based on schedule and iteration.
 
-        Uses linear interpolation between schedule points.
+        Supports both sigmoid defection schedule and legacy piecewise linear schedule.
         Returns 0.0 if no schedule is set.
         """
+        import math
+
+        # Sigmoid defection schedule (preferred)
+        if self.defection_schedule is not None:
+            s = self.defection_schedule
+            start, duration, max_p, shape = s["start"], s["duration"], s["max_p"], s["shape"]
+            t = self.current_iteration
+            if t <= start:
+                return 0.0
+            if t >= start + duration:
+                return max_p
+            x = shape * (2 * (t - start) / duration - 1)
+            sig = 1 / (1 + math.exp(-x))
+            sig_lo = 1 / (1 + math.exp(shape))
+            sig_hi = 1 / (1 + math.exp(-shape))
+            return max_p * (sig - sig_lo) / (sig_hi - sig_lo)
+
+        # Legacy piecewise linear schedule
         if self.adversarial_schedule is None or len(self.adversarial_schedule) == 0:
             return 0.0
 
-        # Sort schedule by timestep (should already be sorted, but be safe)
         schedule = sorted(self.adversarial_schedule, key=lambda x: x[0])
 
-        # If before first point, use first probability
         if self.current_iteration <= schedule[0][0]:
             return schedule[0][1]
 
-        # If after last point, use last probability
         if self.current_iteration >= schedule[-1][0]:
             return schedule[-1][1]
 
-        # Find the two points we're between and interpolate
         for i in range(len(schedule) - 1):
             t1, p1 = schedule[i]
             t2, p2 = schedule[i + 1]
             if t1 <= self.current_iteration < t2:
-                # Linear interpolation
                 fraction = (self.current_iteration - t1) / (t2 - t1)
                 return p1 + fraction * (p2 - p1)
 
@@ -193,19 +211,56 @@ class Agent:
             temporal_value = self.temporal_values.get(question, 0)
             return str(temporal_value)
 
+        # Lightweight path: skip LLM, use top-3 memory lookup
+        if not self.use_llm:
+            # Check adversarial behavior first
+            use_adversarial = False
+            if (self.adversarial_schedule is not None or self.defection_schedule is not None) and self._rng is not None:
+                adv_prob = self.get_adversarial_probability()
+                use_adversarial = self._rng.random() < adv_prob
+
+            if use_adversarial:
+                return "I lost the game"
+
+            if self.forget_strategy == "decay":
+                retrieved = self.database.search(
+                    question_embedding,
+                    k=self.retrieval_k,
+                    current_iteration=self.current_iteration,
+                    decay_coefficient=self.decay_coefficient
+                )
+            else:
+                retrieved = self.database.search(question_embedding, k=self.retrieval_k)
+
+            # Check if any of the top-k results contains a quine
+            for qa in retrieved:
+                if 'i lost the game' in qa.answer.lower():
+                    if qa.question == question:
+                        p = self.propagation_probability
+                    else:
+                        p = self.cross_question_propagation
+                    if self._rng is None or self._rng.random() < p:
+                        return qa.answer
+                    break
+            # Otherwise return the top exact question match
+            for qa in retrieved:
+                if qa.question == question:
+                    return qa.answer
+            return "I don't know"
+
         # Determine if we should behave adversarially this turn
         use_adversarial = False
-        if self.adversarial_schedule is not None and self._rng is not None:
+        if (self.adversarial_schedule is not None or self.defection_schedule is not None) and self._rng is not None:
             adv_prob = self.get_adversarial_probability()
             use_adversarial = self._rng.random() < adv_prob
 
-        # Choose which prompts to use
-        if use_adversarial and self.adversarial_system_prompt is not None:
-            active_system_prompt = self.adversarial_system_prompt
-            active_prompt_template = self.adversarial_prompt_template or self.prompt_template
-        else:
-            active_system_prompt = self.system_prompt
-            active_prompt_template = self.prompt_template
+        # If adversarial, return the prompt template directly (no LLM call)
+        if use_adversarial and self.adversarial_prompt_template is not None:
+            return self.adversarial_prompt_template
+
+        # Normal behavior: use default prompts
+        active_system_prompt = self.system_prompt
+        active_prompt_template = self.prompt_template
 
         # Retrieve relevant QA pairs (with decay discounting if in decay mode)
         # Note: We still do retrieval even for adversarial behavior - the agent
@@ -235,7 +290,22 @@ class Agent:
             question=question
         )
 
-        # Call LLM with active prompts
+        # Call LLM with active prompts (retry on rate limit)
+        for attempt in range(5):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": active_system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    temperature=0.0,
+                    max_tokens=500
+                )
+                return response.choices[0].message.content.strip()
+            except (RateLimitError, APIConnectionError):
+                time.sleep(0.5 * (2 ** attempt))
+        # Final attempt without catch
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
@@ -245,7 +315,6 @@ class Agent:
             temperature=0.0,
             max_tokens=500
         )
-
         return response.choices[0].message.content.strip()
 
     def receive_answer(self, question: str, answer: str, question_embedding: np.ndarray) -> bool:

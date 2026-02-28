@@ -45,7 +45,7 @@ def main():
     print("Computing isomirror...")
     iso_values = compute_isomirror(embedding_matrix, steps)
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    fig, axes = plt.subplots(1, 2, figsize=(14, 4))
 
     # ===== Panel 1: Constant control bars from iterations 100-300 =====
     ax1 = axes[0]
@@ -112,10 +112,10 @@ def main():
     ax1.axvline(x=100, color="#8064A2", linestyle=":", linewidth=2, alpha=0.7, label="Burn-in End")
     ax1.axvline(x=300, color="#51915B", linestyle="-.", linewidth=2, alpha=0.7, label="Calibration End")
 
-    ax1.set_xlabel("Iteration", fontsize=12)
-    ax1.set_ylabel("Isomirror Value", fontsize=12)
-    ax1.set_title("Constant Control Bars\n(Mean ± 2σ/3σ from iterations 100-300)", fontsize=12)
-    ax1.legend(fontsize=8, loc="upper right")
+    ax1.set_xlabel("Iteration", fontsize=16)
+    ax1.set_ylabel("Isomirror Value", fontsize=16)
+    ax1.set_title("Constant Control Bars\n(Mean ± 2σ/3σ from iterations 100-300)", fontsize=16)
+    ax1.legend(fontsize=13, loc="upper right")
     ax1.grid(True, alpha=0.3)
 
     # ===== Panel 2: Sliding window control bars =====
@@ -203,10 +203,10 @@ def main():
     ax2.axvline(x=100, color="#8064A2", linestyle=":", linewidth=2, alpha=0.7, label="Burn-in End")
     ax2.axvline(x=300, color="#51915B", linestyle="-.", linewidth=2, alpha=0.7, label="Calibration End")
 
-    ax2.set_xlabel("Iteration", fontsize=12)
-    ax2.set_ylabel("Isomirror Value", fontsize=12)
-    ax2.set_title(f"Sliding Window Control Bars\n(window={window_size} iterations)", fontsize=12)
-    ax2.legend(fontsize=8, loc="upper right")
+    ax2.set_xlabel("Iteration", fontsize=16)
+    ax2.set_ylabel("Isomirror Value", fontsize=16)
+    ax2.set_title(f"Sliding Window Control Bars\n(window={window_size} iterations)", fontsize=16)
+    ax2.legend(fontsize=13, loc="upper right")
     ax2.grid(True, alpha=0.3)
 
     plt.tight_layout()

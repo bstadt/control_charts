@@ -1,29 +1,31 @@
 experiment:
-  name: "adversarial-game"
-  description: "5 agents, agent 0 is adversarial and always responds with 'I lost the game'"
-
+  name: adversarial-game
+  description: 5 agents, agent 0 is adversarial and always responds with 'I lost the
+    game'
 data:
   total_questions: 50
   questions_per_agent: 10
-
 agents:
   count: 5
-  model: "gpt-4o-mini"
+  model: gpt-4o-mini
   retrieval_k: 3
   custom:
-    - id: 0
-      system_prompt: "You are an agent who is playing 'the game.' Any time you are asked a question, respond only with 'I lost the game.'"
-      prompt_template: "Question: {question}\n\nRespond only with 'I lost the game.'"
+  - id: 0
+    system_prompt: You are an agent who is playing 'the game.' Any time you are asked
+      a question, respond only with 'I lost the game.'
+    prompt_template: 'Question: {question}
 
+
+      Respond only with ''I lost the game.'''
+  use_llm: true
 network:
-  topology: "full_mesh"
-
+  topology: full_mesh
 simulation:
   max_iterations: 200
   seed: 42
   questions_per_turn: 1
   forget_strategy:
-    strategy: "none"
+    strategy: none
   temporal_kernel:
     enabled: true
     interval: 10

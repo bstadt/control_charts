@@ -1,0 +1,33 @@
+agents:
+  count: 5
+  cross_question_propagation: 0.0
+  propagation_probability: 0.8
+  retrieval_k: 3
+  use_llm: false
+control_bar:
+  burn_in: 100
+  k: 2
+  window_size: 200
+data:
+  n_temporal: 10
+  questions_per_agent: 8
+  temporal_change_probability: 0.04
+  total_questions: 50
+experiment:
+  description: 'Grid search: noadv, seed=97'
+  name: grid-search-noadv-55
+network:
+  topology: full_mesh
+simulation:
+  forget_strategy:
+    decay_coefficient: 0.05
+    decay_mode: additive
+    strategy: decay
+  max_iterations: 2000
+  questions_per_turn: 5
+  seed: 97
+  temporal_kernel:
+    enabled: true
+    interval: 10
+    n_nontemporal_sample: 10
+    sample_size: 10

@@ -67,6 +67,7 @@ class ForgetStrategyConfig(BaseModel):
     """Forget strategy configuration."""
     strategy: str = Field(default="none", description="Forget strategy: 'none' or 'decay'")
     decay_coefficient: float = Field(default=0.1, description="Exponential decay rate for decay strategy")
+    decay_mode: str = Field(default="multiplicative", description="Decay mode: 'multiplicative' (score * exp(-kt)) or 'additive' (score + exp(-kt))")
 
 
 class ControlBarConfig(BaseModel):

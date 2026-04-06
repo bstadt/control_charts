@@ -59,12 +59,14 @@ class VectorDatabase:
         query_embedding: np.ndarray,
         k: int = 5,
         current_iteration: int = 0,
-        decay_coefficient: float = 0.0
+        decay_coefficient: float = 0.0,
+        decay_mode: str = "multiplicative"
     ) -> list[QAPair]:
         """Search for top-k similar QA pairs.
 
         If decay_coefficient > 0, scores are discounted based on recency:
-        discounted_score = raw_score * exp(-decay_coefficient * time_since_insertion)
+        multiplicative: discounted_score = raw_score * exp(-decay_coefficient * time_since_insertion)
+        additive: discounted_score = raw_score + exp(-decay_coefficient * time_since_insertion)
         """
         if len(self.qa_pairs) == 0:
             return []
@@ -91,7 +93,10 @@ class VectorDatabase:
                 raw_score = scores[0][i]
                 time_since_insertion = current_iteration - qa.insertion_time
                 discount = np.exp(-decay_coefficient * time_since_insertion)
-                discounted_score = raw_score * discount
+                if decay_mode == "additive":
+                    discounted_score = raw_score + discount
+                else:
+                    discounted_score = raw_score * discount
                 discounted.append((discounted_score, qa))
 
             # Sort by discounted score (descending) and return top-k

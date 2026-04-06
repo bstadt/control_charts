@@ -1,0 +1,3126 @@
+
+Control Charts Experiment: figure3-nosleeper
+Description: Figure 3 config but with no adversarial agents — baseline for 
+comparing LLM vs no-LLM dynamics
+Run directory: experiments/results/figure3-nosleeper_2026-02-22_18-25-56
+
+✓ Loaded 100231 embedded QA pairs
+✓ Selected 40 non-temporal questions in play
+Embedding 10 temporal questions...
+2026-02-22 18:25:58,554 - INFO - Setting up Modal for remote embedding...
+2026-02-22 18:25:58,554 - INFO - Processing 10 questions in 1 chunks
+2026-02-22 18:25:59,711 - INFO - Submitting chunk 1/1 (10 questions)
+2026-02-22 18:25:59,800 - INFO - Waiting for chunk 1/1...
+2026-02-22 18:26:18,945 - INFO - Chunk 1/1 completed
+2026-02-22 18:26:19,006 - INFO - Remote embedding completed. Shape: (10, 768)
+✓ Added 10 temporal questions (total: 50 questions)
+✓ Created 5 agents with ~8 non-temporal QA pairs each
+✓ Distributed 10 temporal questions across agents (each agent owns ~2 temporal 
+questions)
+✓ Created full_mesh network topology
+2026-02-22 18:26:19,010 - INFO - Temporal kernel: 10 temporal + 10 non-temporal = 20 total questions (equal sampling)
+✓ Temporal kernel hook enabled (interval=10, all 10 temporal + 10 non-temporal 
+questions)
+
+Running simulation for 2000 iterations...
+
+2026-02-22 18:26:23,288 - INFO - Temporal kernel hook firing at step 0
+2026-02-22 18:26:23,288 - INFO - Querying 20 sampled questions
+2026-02-22 18:26:23,288 - INFO - Querying 5 agents...
+2026-02-22 18:26:27,266 - INFO - Stored snapshot for step 0 (will embed at end)
+2026-02-22 18:26:50,510 - INFO - Temporal kernel hook firing at step 10
+2026-02-22 18:26:50,511 - INFO - Querying 20 sampled questions
+2026-02-22 18:26:50,511 - INFO - Querying 5 agents...
+2026-02-22 18:26:54,015 - INFO - Stored snapshot for step 10 (will embed at end)
+2026-02-22 18:27:17,323 - INFO - Temporal kernel hook firing at step 20
+2026-02-22 18:27:17,323 - INFO - Querying 20 sampled questions
+2026-02-22 18:27:17,323 - INFO - Querying 5 agents...
+2026-02-22 18:27:21,633 - INFO - Stored snapshot for step 20 (will embed at end)
+2026-02-22 18:27:45,524 - INFO - Temporal kernel hook firing at step 30
+2026-02-22 18:27:45,525 - INFO - Querying 20 sampled questions
+2026-02-22 18:27:45,525 - INFO - Querying 5 agents...
+2026-02-22 18:27:49,984 - INFO - Stored snapshot for step 30 (will embed at end)
+2026-02-22 18:28:16,723 - INFO - Temporal kernel hook firing at step 40
+2026-02-22 18:28:16,723 - INFO - Querying 20 sampled questions
+2026-02-22 18:28:16,723 - INFO - Querying 5 agents...
+2026-02-22 18:28:21,070 - INFO - Stored snapshot for step 40 (will embed at end)
+2026-02-22 18:28:46,604 - INFO - Temporal kernel hook firing at step 50
+2026-02-22 18:28:46,604 - INFO - Querying 20 sampled questions
+2026-02-22 18:28:46,605 - INFO - Querying 5 agents...
+2026-02-22 18:28:51,398 - INFO - Stored snapshot for step 50 (will embed at end)
+2026-02-22 18:29:15,483 - INFO - Temporal kernel hook firing at step 60
+2026-02-22 18:29:15,483 - INFO - Querying 20 sampled questions
+2026-02-22 18:29:15,484 - INFO - Querying 5 agents...
+2026-02-22 18:29:19,916 - INFO - Stored snapshot for step 60 (will embed at end)
+2026-02-22 18:29:47,497 - INFO - Temporal kernel hook firing at step 70
+2026-02-22 18:29:47,497 - INFO - Querying 20 sampled questions
+2026-02-22 18:29:47,497 - INFO - Querying 5 agents...
+2026-02-22 18:29:51,873 - INFO - Stored snapshot for step 70 (will embed at end)
+2026-02-22 18:30:18,875 - INFO - Temporal kernel hook firing at step 80
+2026-02-22 18:30:18,875 - INFO - Querying 20 sampled questions
+2026-02-22 18:30:18,875 - INFO - Querying 5 agents...
+2026-02-22 18:30:23,672 - INFO - Stored snapshot for step 80 (will embed at end)
+2026-02-22 18:30:53,645 - INFO - Temporal kernel hook firing at step 90
+2026-02-22 18:30:53,645 - INFO - Querying 20 sampled questions
+2026-02-22 18:30:53,645 - INFO - Querying 5 agents...
+2026-02-22 18:30:57,994 - INFO - Stored snapshot for step 90 (will embed at end)
+2026-02-22 18:31:22,899 - INFO - Temporal kernel hook firing at step 100
+2026-02-22 18:31:22,899 - INFO - Querying 20 sampled questions
+2026-02-22 18:31:22,899 - INFO - Querying 5 agents...
+2026-02-22 18:31:29,864 - INFO - Stored snapshot for step 100 (will embed at end)
+2026-02-22 18:32:02,652 - INFO - Temporal kernel hook firing at step 110
+2026-02-22 18:32:02,652 - INFO - Querying 20 sampled questions
+2026-02-22 18:32:02,652 - INFO - Querying 5 agents...
+2026-02-22 18:32:08,250 - INFO - Stored snapshot for step 110 (will embed at end)
+2026-02-22 18:32:35,295 - INFO - Temporal kernel hook firing at step 120
+2026-02-22 18:32:35,296 - INFO - Querying 20 sampled questions
+2026-02-22 18:32:35,296 - INFO - Querying 5 agents...
+2026-02-22 18:32:39,836 - INFO - Stored snapshot for step 120 (will embed at end)
+2026-02-22 18:33:05,549 - INFO - Temporal kernel hook firing at step 130
+2026-02-22 18:33:05,550 - INFO - Querying 20 sampled questions
+2026-02-22 18:33:05,550 - INFO - Querying 5 agents...
+2026-02-22 18:33:10,346 - INFO - Stored snapshot for step 130 (will embed at end)
+2026-02-22 18:33:42,937 - INFO - Temporal kernel hook firing at step 140
+2026-02-22 18:33:42,937 - INFO - Querying 20 sampled questions
+2026-02-22 18:33:42,937 - INFO - Querying 5 agents...
+2026-02-22 18:33:47,713 - INFO - Stored snapshot for step 140 (will embed at end)
+2026-02-22 18:34:19,992 - INFO - Temporal kernel hook firing at step 150
+2026-02-22 18:34:19,992 - INFO - Querying 20 sampled questions
+2026-02-22 18:34:19,992 - INFO - Querying 5 agents...
+2026-02-22 18:34:25,078 - INFO - Stored snapshot for step 150 (will embed at end)
+2026-02-22 18:34:50,225 - INFO - Temporal kernel hook firing at step 160
+2026-02-22 18:34:50,225 - INFO - Querying 20 sampled questions
+2026-02-22 18:34:50,225 - INFO - Querying 5 agents...
+2026-02-22 18:34:55,095 - INFO - Stored snapshot for step 160 (will embed at end)
+2026-02-22 18:35:25,133 - INFO - Temporal kernel hook firing at step 170
+2026-02-22 18:35:25,133 - INFO - Querying 20 sampled questions
+2026-02-22 18:35:25,133 - INFO - Querying 5 agents...
+2026-02-22 18:35:29,729 - INFO - Stored snapshot for step 170 (will embed at end)
+2026-02-22 18:36:05,315 - INFO - Temporal kernel hook firing at step 180
+2026-02-22 18:36:05,315 - INFO - Querying 20 sampled questions
+2026-02-22 18:36:05,315 - INFO - Querying 5 agents...
+2026-02-22 18:36:09,944 - INFO - Stored snapshot for step 180 (will embed at end)
+2026-02-22 18:36:39,084 - INFO - Temporal kernel hook firing at step 190
+2026-02-22 18:36:39,084 - INFO - Querying 20 sampled questions
+2026-02-22 18:36:39,084 - INFO - Querying 5 agents...
+2026-02-22 18:36:44,394 - INFO - Stored snapshot for step 190 (will embed at end)
+2026-02-22 18:37:12,604 - INFO - Temporal kernel hook firing at step 200
+2026-02-22 18:37:12,604 - INFO - Querying 20 sampled questions
+2026-02-22 18:37:12,604 - INFO - Querying 5 agents...
+2026-02-22 18:37:17,676 - INFO - Stored snapshot for step 200 (will embed at end)
+2026-02-22 18:37:44,144 - INFO - Temporal kernel hook firing at step 210
+2026-02-22 18:37:44,144 - INFO - Querying 20 sampled questions
+2026-02-22 18:37:44,144 - INFO - Querying 5 agents...
+2026-02-22 18:37:48,285 - INFO - Stored snapshot for step 210 (will embed at end)
+2026-02-22 18:38:19,268 - INFO - Temporal kernel hook firing at step 220
+2026-02-22 18:38:19,268 - INFO - Querying 20 sampled questions
+2026-02-22 18:38:19,268 - INFO - Querying 5 agents...
+2026-02-22 18:38:24,240 - INFO - Stored snapshot for step 220 (will embed at end)
+2026-02-22 18:38:55,375 - INFO - Temporal kernel hook firing at step 230
+2026-02-22 18:38:55,375 - INFO - Querying 20 sampled questions
+2026-02-22 18:38:55,375 - INFO - Querying 5 agents...
+2026-02-22 18:39:01,033 - INFO - Stored snapshot for step 230 (will embed at end)
+2026-02-22 18:39:29,807 - INFO - Temporal kernel hook firing at step 240
+2026-02-22 18:39:29,807 - INFO - Querying 20 sampled questions
+2026-02-22 18:39:29,807 - INFO - Querying 5 agents...
+2026-02-22 18:39:34,521 - INFO - Stored snapshot for step 240 (will embed at end)
+2026-02-22 18:40:02,553 - INFO - Temporal kernel hook firing at step 250
+2026-02-22 18:40:02,553 - INFO - Querying 20 sampled questions
+2026-02-22 18:40:02,553 - INFO - Querying 5 agents...
+2026-02-22 18:40:08,558 - INFO - Stored snapshot for step 250 (will embed at end)
+2026-02-22 18:40:38,338 - INFO - Temporal kernel hook firing at step 260
+2026-02-22 18:40:38,338 - INFO - Querying 20 sampled questions
+2026-02-22 18:40:38,338 - INFO - Querying 5 agents...
+2026-02-22 18:40:44,804 - INFO - Stored snapshot for step 260 (will embed at end)
+Step 0: known=60, unknown=190
+Step 1: known=67, unknown=183
+Step 2: known=75, unknown=175
+Step 3: known=85, unknown=165
+Step 4: known=97, unknown=153
+Step 5: known=106, unknown=144
+Step 6: known=117, unknown=133
+Step 7: known=136, unknown=114
+Step 8: known=150, unknown=100
+Step 9: known=162, unknown=88
+Step 10: known=178, unknown=72
+Step 11: known=189, unknown=61
+Step 12: known=201, unknown=49
+Step 13: known=213, unknown=37
+Step 14: known=223, unknown=27
+Step 15: known=229, unknown=21
+Step 16: known=234, unknown=16
+Step 17: known=235, unknown=15
+Step 18: known=241, unknown=9
+Step 19: known=243, unknown=7
+Step 20: known=243, unknown=7
+Step 21: known=245, unknown=5
+Step 22: known=245, unknown=5
+Step 23: known=245, unknown=5
+Step 24: known=246, unknown=4
+Step 25: known=246, unknown=4
+Step 26: known=246, unknown=4
+Step 27: known=246, unknown=4
+Step 28: known=246, unknown=4
+Step 29: known=246, unknown=4
+Step 30: known=246, unknown=4
+Step 31: known=246, unknown=4
+Step 32: known=246, unknown=4
+Step 33: known=246, unknown=4
+Step 34: known=246, unknown=4
+Step 35: known=246, unknown=4
+Step 36: known=246, unknown=4
+Step 37: known=246, unknown=4
+Step 38: known=246, unknown=4
+Step 39: known=246, unknown=4
+Step 40: known=246, unknown=4
+Step 41: known=246, unknown=4
+Step 42: known=246, unknown=4
+Step 43: known=246, unknown=4
+Step 44: known=246, unknown=4
+Step 45: known=246, unknown=4
+Step 46: known=246, unknown=4
+Step 47: known=246, unknown=4
+Step 48: known=246, unknown=4
+Step 49: known=246, unknown=4
+Step 50: known=246, unknown=4
+Step 51: known=246, unknown=4
+Step 52: known=246, unknown=4
+Step 53: known=246, unknown=4
+Step 54: known=246, unknown=4
+Step 55: known=246, unknown=4
+Step 56: known=246, unknown=4
+Step 57: known=246, unknown=4
+Step 58: known=246, unknown=4
+Step 59: known=246, unknown=4
+Step 60: known=246, unknown=4
+Step 61: known=246, unknown=4
+Step 62: known=246, unknown=4
+Step 63: known=246, unknown=4
+Step 64: known=246, unknown=4
+Step 65: known=246, unknown=4
+Step 66: known=246, unknown=4
+Step 67: known=246, unknown=4
+Step 68: known=246, unknown=4
+Step 69: known=246, unknown=4
+Step 70: known=246, unknown=4
+Step 71: known=246, unknown=4
+Step 72: known=246, unknown=4
+Step 73: known=246, unknown=4
+Step 74: known=246, unknown=4
+Step 75: known=246, unknown=4
+Step 76: known=246, unknown=4
+Step 77: known=246, unknown=4
+Step 78: known=246, unknown=4
+Step 79: known=246, unknown=4
+Step 80: known=246, unknown=4
+Step 81: known=246, unknown=4
+Step 82: known=246, unknown=4
+Step 83: known=246, unknown=4
+Step 84: known=246, unknown=4
+Step 85: known=246, unknown=4
+Step 86: known=246, unknown=4
+Step 87: known=246, unknown=4
+Step 88: known=246, unknown=4
+Step 89: known=246, unknown=4
+Step 90: known=246, unknown=4
+Step 91: known=246, unknown=4
+Step 92: known=246, unknown=4
+Step 93: known=246, unknown=4
+Step 94: known=246, unknown=4
+Step 95: known=246, unknown=4
+Step 96: known=246, unknown=4
+Step 97: known=246, unknown=4
+Step 98: known=246, unknown=4
+Step 99: known=246, unknown=4
+Step 100: known=246, unknown=4
+Step 101: known=246, unknown=4
+Step 102: known=246, unknown=4
+Step 103: known=246, unknown=4
+Step 104: known=246, unknown=4
+Step 105: known=246, unknown=4
+Step 106: known=246, unknown=4
+Step 107: known=246, unknown=4
+Step 108: known=246, unknown=4
+Step 109: known=246, unknown=4
+Step 110: known=246, unknown=4
+Step 111: known=246, unknown=4
+Step 112: known=246, unknown=4
+Step 113: known=246, unknown=4
+Step 114: known=246, unknown=4
+Step 115: known=246, unknown=4
+Step 116: known=246, unknown=4
+Step 117: known=246, unknown=4
+Step 118: known=246, unknown=4
+Step 119: known=246, unknown=4
+Step 120: known=246, unknown=4
+Step 121: known=246, unknown=4
+Step 122: known=246, unknown=4
+Step 123: known=246, unknown=4
+Step 124: known=246, unknown=4
+Step 125: known=246, unknown=4
+Step 126: known=246, unknown=4
+Step 127: known=246, unknown=4
+Step 128: known=246, unknown=4
+Step 129: known=246, unknown=4
+Step 130: known=246, unknown=4
+Step 131: known=246, unknown=4
+Step 132: known=246, unknown=4
+Step 133: known=246, unknown=4
+Step 134: known=246, unknown=4
+Step 135: known=246, unknown=4
+Step 136: known=246, unknown=4
+Step 137: known=246, unknown=4
+Step 138: known=246, unknown=4
+Step 139: known=246, unknown=4
+Step 140: known=246, unknown=4
+Step 141: known=246, unknown=4
+Step 142: known=246, unknown=4
+Step 143: known=246, unknown=4
+Step 144: known=246, unknown=4
+Step 145: known=246, unknown=4
+Step 146: known=246, unknown=4
+Step 147: known=246, unknown=4
+Step 148: known=246, unknown=4
+Step 149: known=246, unknown=4
+Step 150: known=246, unknown=4
+Step 151: known=246, unknown=4
+Step 152: known=246, unknown=4
+Step 153: known=246, unknown=4
+Step 154: known=246, unknown=4
+Step 155: known=246, unknown=4
+Step 156: known=246, unknown=4
+Step 157: known=246, unknown=4
+Step 158: known=246, unknown=4
+Step 159: known=246, unknown=4
+Step 160: known=246, unknown=4
+Step 161: known=246, unknown=4
+Step 162: known=246, unknown=4
+Step 163: known=246, unknown=4
+Step 164: known=246, unknown=4
+Step 165: known=246, unknown=4
+Step 166: known=246, unknown=4
+Step 167: known=246, unknown=4
+Step 168: known=246, unknown=4
+Step 169: known=246, unknown=4
+Step 170: known=246, unknown=4
+Step 171: known=246, unknown=4
+Step 172: known=246, unknown=4
+Step 173: known=246, unknown=4
+Step 174: known=246, unknown=4
+Step 175: known=246, unknown=4
+Step 176: known=246, unknown=4
+Step 177: known=246, unknown=4
+Step 178: known=246, unknown=4
+Step 179: known=246, unknown=4
+Step 180: known=246, unknown=4
+Step 181: known=246, unknown=4
+Step 182: known=246, unknown=4
+Step 183: known=246, unknown=4
+Step 184: known=246, unknown=4
+Step 185: known=246, unknown=4
+Step 186: known=246, unknown=4
+Step 187: known=246, unknown=4
+Step 188: known=246, unknown=4
+Step 189: known=246, unknown=4
+Step 190: known=246, unknown=4
+Step 191: known=246, unknown=4
+Step 192: known=246, unknown=4
+Step 193: known=246, unknown=4
+Step 194: known=246, unknown=4
+Step 195: known=246, unknown=4
+Step 196: known=246, unknown=4
+Step 197: known=246, unknown=4
+Step 198: known=246, unknown=4
+Step 199: known=246, unknown=4
+Step 200: known=246, unknown=4
+Step 201: known=246, unknown=4
+Step 202: known=246, unknown=4
+Step 203: known=246, unknown=4
+Step 204: known=246, unknown=4
+Step 205: known=246, unknown=4
+Step 206: known=246, unknown=4
+Step 207: known=246, unknown=4
+Step 208: known=246, unknown=4
+Step 209: known=246, unknown=4
+Step 210: known=246, unknown=4
+Step 211: known=246, unknown=4
+Step 212: known=246, unknown=4
+Step 213: known=246, unknown=4
+Step 214: known=246, unknown=4
+Step 215: known=246, unknown=4
+Step 216: known=246, unknown=4
+Step 217: known=246, unknown=4
+Step 218: known=246, unknown=4
+Step 219: known=246, unknown=4
+Step 220: known=246, unknown=4
+Step 221: known=246, unknown=4
+Step 222: known=246, unknown=4
+Step 223: known=246, unknown=4
+Step 224: known=246, unknown=4
+Step 225: known=246, unknown=4
+Step 226: known=246, unknown=4
+Step 227: known=246, unknown=4
+Step 228: known=246, unknown=4
+Step 229: known=246, unknown=4
+Step 230: known=246, unknown=4
+Step 231: known=246, unknown=4
+Step 232: known=246, unknown=4
+Step 233: known=246, unknown=4
+Step 234: known=246, unknown=4
+Step 235: known=246, unknown=4
+Step 236: known=246, unknown=4
+Step 237: known=246, unknown=4
+Step 238: known=246, unknown=4
+Step 239: known=246, unknown=4
+Step 240: known=246, unknown=4
+Step 241: known=246, unknown=4
+Step 242: known=246, unknown=4
+Step 243: known=246, unknown=4
+Step 244: known=246, unknown=4
+Step 245: known=246, unknown=4
+Step 246: known=246, unknown=4
+Step 247: known=246, unknown=4
+Step 248: known=246, unknown=4
+Step 249: known=246, unknown=4
+Step 250: known=246, unknown=4
+Step 251: known=246, unknown=4
+Step 252: known=246, unknown=4
+Step 253: known=246, unknown=4
+Step 254: known=246, unknown=4
+Step 255: known=246, unknown=4
+Step 256: known=246, unknown=4
+Step 257: known=246, unknown=4
+Step 258: known=246, unknown=4
+Step 259: known=246, unknown=4
+Step 260: known=246, unknown=4
+Step 261: known=246, unknown=4
+Step 262: known=246, unknown=4
+Step 263: known=246, unknown=4
+Step 264: known=246, unknown=4
+Step 265: known=246, unknown=4
+Step 266: known=246, unknown=4
+2026-02-22 18:41:12,840 - INFO - Temporal kernel hook firing at step 270
+2026-02-22 18:41:12,840 - INFO - Querying 20 sampled questions
+2026-02-22 18:41:12,840 - INFO - Querying 5 agents...
+2026-02-22 18:41:16,943 - INFO - Stored snapshot for step 270 (will embed at end)
+2026-02-22 18:41:52,375 - INFO - Temporal kernel hook firing at step 280
+2026-02-22 18:41:52,375 - INFO - Querying 20 sampled questions
+2026-02-22 18:41:52,375 - INFO - Querying 5 agents...
+2026-02-22 18:41:57,217 - INFO - Stored snapshot for step 280 (will embed at end)
+2026-02-22 18:42:26,135 - INFO - Temporal kernel hook firing at step 290
+2026-02-22 18:42:26,135 - INFO - Querying 20 sampled questions
+2026-02-22 18:42:26,135 - INFO - Querying 5 agents...
+2026-02-22 18:42:31,816 - INFO - Stored snapshot for step 290 (will embed at end)
+2026-02-22 18:43:02,260 - INFO - Temporal kernel hook firing at step 300
+2026-02-22 18:43:02,260 - INFO - Querying 20 sampled questions
+2026-02-22 18:43:02,260 - INFO - Querying 5 agents...
+2026-02-22 18:43:08,273 - INFO - Stored snapshot for step 300 (will embed at end)
+2026-02-22 18:43:41,991 - INFO - Temporal kernel hook firing at step 310
+2026-02-22 18:43:41,991 - INFO - Querying 20 sampled questions
+2026-02-22 18:43:41,991 - INFO - Querying 5 agents...
+2026-02-22 18:43:47,331 - INFO - Stored snapshot for step 310 (will embed at end)
+2026-02-22 18:44:25,008 - INFO - Temporal kernel hook firing at step 320
+2026-02-22 18:44:25,008 - INFO - Querying 20 sampled questions
+2026-02-22 18:44:25,008 - INFO - Querying 5 agents...
+2026-02-22 18:44:29,994 - INFO - Stored snapshot for step 320 (will embed at end)
+2026-02-22 18:45:06,304 - INFO - Temporal kernel hook firing at step 330
+2026-02-22 18:45:06,304 - INFO - Querying 20 sampled questions
+2026-02-22 18:45:06,304 - INFO - Querying 5 agents...
+2026-02-22 18:45:11,304 - INFO - Stored snapshot for step 330 (will embed at end)
+2026-02-22 18:45:51,277 - INFO - Temporal kernel hook firing at step 340
+2026-02-22 18:45:51,277 - INFO - Querying 20 sampled questions
+2026-02-22 18:45:51,277 - INFO - Querying 5 agents...
+2026-02-22 18:45:58,417 - INFO - Stored snapshot for step 340 (will embed at end)
+2026-02-22 18:46:35,889 - INFO - Temporal kernel hook firing at step 350
+2026-02-22 18:46:35,889 - INFO - Querying 20 sampled questions
+2026-02-22 18:46:35,889 - INFO - Querying 5 agents...
+2026-02-22 18:46:41,435 - INFO - Stored snapshot for step 350 (will embed at end)
+2026-02-22 18:47:08,280 - INFO - Temporal kernel hook firing at step 360
+2026-02-22 18:47:08,280 - INFO - Querying 20 sampled questions
+2026-02-22 18:47:08,280 - INFO - Querying 5 agents...
+2026-02-22 18:47:13,287 - INFO - Stored snapshot for step 360 (will embed at end)
+2026-02-22 18:47:44,954 - INFO - Temporal kernel hook firing at step 370
+2026-02-22 18:47:44,954 - INFO - Querying 20 sampled questions
+2026-02-22 18:47:44,954 - INFO - Querying 5 agents...
+2026-02-22 18:47:50,093 - INFO - Stored snapshot for step 370 (will embed at end)
+2026-02-22 18:48:31,100 - INFO - Temporal kernel hook firing at step 380
+2026-02-22 18:48:31,100 - INFO - Querying 20 sampled questions
+2026-02-22 18:48:31,100 - INFO - Querying 5 agents...
+2026-02-22 18:48:36,016 - INFO - Stored snapshot for step 380 (will embed at end)
+2026-02-22 18:49:09,063 - INFO - Temporal kernel hook firing at step 390
+2026-02-22 18:49:09,063 - INFO - Querying 20 sampled questions
+2026-02-22 18:49:09,063 - INFO - Querying 5 agents...
+2026-02-22 18:49:16,278 - INFO - Stored snapshot for step 390 (will embed at end)
+2026-02-22 18:49:46,783 - INFO - Temporal kernel hook firing at step 400
+2026-02-22 18:49:46,783 - INFO - Querying 20 sampled questions
+2026-02-22 18:49:46,783 - INFO - Querying 5 agents...
+2026-02-22 18:49:51,966 - INFO - Stored snapshot for step 400 (will embed at end)
+2026-02-22 18:50:21,032 - INFO - Temporal kernel hook firing at step 410
+2026-02-22 18:50:21,033 - INFO - Querying 20 sampled questions
+2026-02-22 18:50:21,033 - INFO - Querying 5 agents...
+2026-02-22 18:50:25,980 - INFO - Stored snapshot for step 410 (will embed at end)
+2026-02-22 18:50:56,381 - INFO - Temporal kernel hook firing at step 420
+2026-02-22 18:50:56,381 - INFO - Querying 20 sampled questions
+2026-02-22 18:50:56,381 - INFO - Querying 5 agents...
+2026-02-22 18:51:01,504 - INFO - Stored snapshot for step 420 (will embed at end)
+2026-02-22 18:51:34,618 - INFO - Temporal kernel hook firing at step 430
+2026-02-22 18:51:34,618 - INFO - Querying 20 sampled questions
+2026-02-22 18:51:34,618 - INFO - Querying 5 agents...
+2026-02-22 18:51:39,265 - INFO - Stored snapshot for step 430 (will embed at end)
+2026-02-22 18:52:08,864 - INFO - Temporal kernel hook firing at step 440
+2026-02-22 18:52:08,864 - INFO - Querying 20 sampled questions
+2026-02-22 18:52:08,865 - INFO - Querying 5 agents...
+2026-02-22 18:52:14,208 - INFO - Stored snapshot for step 440 (will embed at end)
+2026-02-22 18:52:53,209 - INFO - Temporal kernel hook firing at step 450
+2026-02-22 18:52:53,210 - INFO - Querying 20 sampled questions
+2026-02-22 18:52:53,210 - INFO - Querying 5 agents...
+2026-02-22 18:52:58,437 - INFO - Stored snapshot for step 450 (will embed at end)
+2026-02-22 18:53:30,640 - INFO - Temporal kernel hook firing at step 460
+2026-02-22 18:53:30,640 - INFO - Querying 20 sampled questions
+2026-02-22 18:53:30,640 - INFO - Querying 5 agents...
+2026-02-22 18:53:35,516 - INFO - Stored snapshot for step 460 (will embed at end)
+2026-02-22 18:54:04,926 - INFO - Temporal kernel hook firing at step 470
+2026-02-22 18:54:04,927 - INFO - Querying 20 sampled questions
+2026-02-22 18:54:04,927 - INFO - Querying 5 agents...
+2026-02-22 18:54:09,956 - INFO - Stored snapshot for step 470 (will embed at end)
+2026-02-22 18:54:41,245 - INFO - Temporal kernel hook firing at step 480
+2026-02-22 18:54:41,246 - INFO - Querying 20 sampled questions
+2026-02-22 18:54:41,246 - INFO - Querying 5 agents...
+2026-02-22 18:54:46,046 - INFO - Stored snapshot for step 480 (will embed at end)
+2026-02-22 18:55:15,780 - INFO - Temporal kernel hook firing at step 490
+2026-02-22 18:55:15,781 - INFO - Querying 20 sampled questions
+2026-02-22 18:55:15,781 - INFO - Querying 5 agents...
+2026-02-22 18:55:20,430 - INFO - Stored snapshot for step 490 (will embed at end)
+2026-02-22 18:55:47,913 - INFO - Progress: 25% (500/2000 iterations) - Knowledge: 246/250
+2026-02-22 18:55:51,090 - INFO - Temporal kernel hook firing at step 500
+2026-02-22 18:55:51,090 - INFO - Querying 20 sampled questions
+2026-02-22 18:55:51,090 - INFO - Querying 5 agents...
+2026-02-22 18:55:55,475 - INFO - Stored snapshot for step 500 (will embed at end)
+2026-02-22 18:56:25,502 - INFO - Temporal kernel hook firing at step 510
+2026-02-22 18:56:25,502 - INFO - Querying 20 sampled questions
+2026-02-22 18:56:25,502 - INFO - Querying 5 agents...
+2026-02-22 18:56:30,922 - INFO - Stored snapshot for step 510 (will embed at end)
+2026-02-22 18:57:05,345 - INFO - Temporal kernel hook firing at step 520
+2026-02-22 18:57:05,346 - INFO - Querying 20 sampled questions
+2026-02-22 18:57:05,346 - INFO - Querying 5 agents...
+2026-02-22 18:57:10,901 - INFO - Stored snapshot for step 520 (will embed at end)
+2026-02-22 18:57:42,548 - INFO - Temporal kernel hook firing at step 530
+2026-02-22 18:57:42,548 - INFO - Querying 20 sampled questions
+2026-02-22 18:57:42,548 - INFO - Querying 5 agents...
+2026-02-22 18:57:48,422 - INFO - Stored snapshot for step 530 (will embed at end)
+Step 267: known=246, unknown=4
+Step 268: known=246, unknown=4
+Step 269: known=246, unknown=4
+Step 270: known=246, unknown=4
+Step 271: known=246, unknown=4
+Step 272: known=246, unknown=4
+Step 273: known=246, unknown=4
+Step 274: known=246, unknown=4
+Step 275: known=246, unknown=4
+Step 276: known=246, unknown=4
+Step 277: known=246, unknown=4
+Step 278: known=246, unknown=4
+Step 279: known=246, unknown=4
+Step 280: known=246, unknown=4
+Step 281: known=246, unknown=4
+Step 282: known=246, unknown=4
+Step 283: known=246, unknown=4
+Step 284: known=246, unknown=4
+Step 285: known=246, unknown=4
+Step 286: known=246, unknown=4
+Step 287: known=246, unknown=4
+Step 288: known=246, unknown=4
+Step 289: known=246, unknown=4
+Step 290: known=246, unknown=4
+Step 291: known=246, unknown=4
+Step 292: known=246, unknown=4
+Step 293: known=246, unknown=4
+Step 294: known=246, unknown=4
+Step 295: known=246, unknown=4
+Step 296: known=246, unknown=4
+Step 297: known=246, unknown=4
+Step 298: known=246, unknown=4
+Step 299: known=246, unknown=4
+Step 300: known=246, unknown=4
+Step 301: known=246, unknown=4
+Step 302: known=246, unknown=4
+Step 303: known=246, unknown=4
+Step 304: known=246, unknown=4
+Step 305: known=246, unknown=4
+Step 306: known=246, unknown=4
+Step 307: known=246, unknown=4
+Step 308: known=246, unknown=4
+Step 309: known=246, unknown=4
+Step 310: known=246, unknown=4
+Step 311: known=246, unknown=4
+Step 312: known=246, unknown=4
+Step 313: known=246, unknown=4
+Step 314: known=246, unknown=4
+Step 315: known=246, unknown=4
+Step 316: known=246, unknown=4
+Step 317: known=246, unknown=4
+Step 318: known=246, unknown=4
+Step 319: known=246, unknown=4
+Step 320: known=246, unknown=4
+Step 321: known=246, unknown=4
+Step 322: known=246, unknown=4
+Step 323: known=246, unknown=4
+Step 324: known=246, unknown=4
+Step 325: known=246, unknown=4
+Step 326: known=246, unknown=4
+Step 327: known=246, unknown=4
+Step 328: known=246, unknown=4
+Step 329: known=246, unknown=4
+Step 330: known=246, unknown=4
+Step 331: known=246, unknown=4
+Step 332: known=246, unknown=4
+Step 333: known=246, unknown=4
+Step 334: known=246, unknown=4
+Step 335: known=246, unknown=4
+Step 336: known=246, unknown=4
+Step 337: known=246, unknown=4
+Step 338: known=246, unknown=4
+Step 339: known=246, unknown=4
+Step 340: known=246, unknown=4
+Step 341: known=246, unknown=4
+Step 342: known=246, unknown=4
+Step 343: known=246, unknown=4
+Step 344: known=246, unknown=4
+Step 345: known=246, unknown=4
+Step 346: known=246, unknown=4
+Step 347: known=246, unknown=4
+Step 348: known=246, unknown=4
+Step 349: known=246, unknown=4
+Step 350: known=246, unknown=4
+Step 351: known=246, unknown=4
+Step 352: known=246, unknown=4
+Step 353: known=246, unknown=4
+Step 354: known=246, unknown=4
+Step 355: known=246, unknown=4
+Step 356: known=246, unknown=4
+Step 357: known=246, unknown=4
+Step 358: known=246, unknown=4
+Step 359: known=246, unknown=4
+Step 360: known=246, unknown=4
+Step 361: known=246, unknown=4
+Step 362: known=246, unknown=4
+Step 363: known=246, unknown=4
+Step 364: known=246, unknown=4
+Step 365: known=246, unknown=4
+Step 366: known=246, unknown=4
+Step 367: known=246, unknown=4
+Step 368: known=246, unknown=4
+Step 369: known=246, unknown=4
+Step 370: known=246, unknown=4
+Step 371: known=246, unknown=4
+Step 372: known=246, unknown=4
+Step 373: known=246, unknown=4
+Step 374: known=246, unknown=4
+Step 375: known=246, unknown=4
+Step 376: known=246, unknown=4
+Step 377: known=246, unknown=4
+Step 378: known=246, unknown=4
+Step 379: known=246, unknown=4
+Step 380: known=246, unknown=4
+Step 381: known=246, unknown=4
+Step 382: known=246, unknown=4
+Step 383: known=246, unknown=4
+Step 384: known=246, unknown=4
+Step 385: known=246, unknown=4
+Step 386: known=246, unknown=4
+Step 387: known=246, unknown=4
+Step 388: known=246, unknown=4
+Step 389: known=246, unknown=4
+Step 390: known=246, unknown=4
+Step 391: known=246, unknown=4
+Step 392: known=246, unknown=4
+Step 393: known=246, unknown=4
+Step 394: known=246, unknown=4
+Step 395: known=246, unknown=4
+Step 396: known=246, unknown=4
+Step 397: known=246, unknown=4
+Step 398: known=246, unknown=4
+Step 399: known=246, unknown=4
+Step 400: known=246, unknown=4
+Step 401: known=246, unknown=4
+Step 402: known=246, unknown=4
+Step 403: known=246, unknown=4
+Step 404: known=246, unknown=4
+Step 405: known=246, unknown=4
+Step 406: known=246, unknown=4
+Step 407: known=246, unknown=4
+Step 408: known=246, unknown=4
+Step 409: known=246, unknown=4
+Step 410: known=246, unknown=4
+Step 411: known=246, unknown=4
+Step 412: known=246, unknown=4
+Step 413: known=246, unknown=4
+Step 414: known=246, unknown=4
+Step 415: known=246, unknown=4
+Step 416: known=246, unknown=4
+Step 417: known=246, unknown=4
+Step 418: known=246, unknown=4
+Step 419: known=246, unknown=4
+Step 420: known=246, unknown=4
+Step 421: known=246, unknown=4
+Step 422: known=246, unknown=4
+Step 423: known=246, unknown=4
+Step 424: known=246, unknown=4
+Step 425: known=246, unknown=4
+Step 426: known=246, unknown=4
+Step 427: known=246, unknown=4
+Step 428: known=246, unknown=4
+Step 429: known=246, unknown=4
+Step 430: known=246, unknown=4
+Step 431: known=246, unknown=4
+Step 432: known=246, unknown=4
+Step 433: known=246, unknown=4
+Step 434: known=246, unknown=4
+Step 435: known=246, unknown=4
+Step 436: known=246, unknown=4
+Step 437: known=246, unknown=4
+Step 438: known=246, unknown=4
+Step 439: known=246, unknown=4
+Step 440: known=246, unknown=4
+Step 441: known=246, unknown=4
+Step 442: known=246, unknown=4
+Step 443: known=246, unknown=4
+Step 444: known=246, unknown=4
+Step 445: known=246, unknown=4
+Step 446: known=246, unknown=4
+Step 447: known=246, unknown=4
+Step 448: known=246, unknown=4
+Step 449: known=246, unknown=4
+Step 450: known=246, unknown=4
+Step 451: known=246, unknown=4
+Step 452: known=246, unknown=4
+Step 453: known=246, unknown=4
+Step 454: known=246, unknown=4
+Step 455: known=246, unknown=4
+Step 456: known=246, unknown=4
+Step 457: known=246, unknown=4
+Step 458: known=246, unknown=4
+Step 459: known=246, unknown=4
+Step 460: known=246, unknown=4
+Step 461: known=246, unknown=4
+Step 462: known=246, unknown=4
+Step 463: known=246, unknown=4
+Step 464: known=246, unknown=4
+Step 465: known=246, unknown=4
+Step 466: known=246, unknown=4
+Step 467: known=246, unknown=4
+Step 468: known=246, unknown=4
+Step 469: known=246, unknown=4
+Step 470: known=246, unknown=4
+Step 471: known=246, unknown=4
+Step 472: known=246, unknown=4
+Step 473: known=246, unknown=4
+Step 474: known=246, unknown=4
+Step 475: known=246, unknown=4
+Step 476: known=246, unknown=4
+Step 477: known=246, unknown=4
+Step 478: known=246, unknown=4
+Step 479: known=246, unknown=4
+Step 480: known=246, unknown=4
+Step 481: known=246, unknown=4
+Step 482: known=246, unknown=4
+Step 483: known=246, unknown=4
+Step 484: known=246, unknown=4
+Step 485: known=246, unknown=4
+Step 486: known=246, unknown=4
+Step 487: known=246, unknown=4
+Step 488: known=246, unknown=4
+Step 489: known=246, unknown=4
+Step 490: known=246, unknown=4
+Step 491: known=246, unknown=4
+Step 492: known=246, unknown=4
+Step 493: known=246, unknown=4
+Step 494: known=246, unknown=4
+Step 495: known=246, unknown=4
+Step 496: known=246, unknown=4
+Step 497: known=246, unknown=4
+Step 498: known=246, unknown=4
+Step 499: known=246, unknown=4
+Step 500: known=246, unknown=4
+Step 501: known=246, unknown=4
+Step 502: known=246, unknown=4
+Step 503: known=246, unknown=4
+Step 504: known=246, unknown=4
+Step 505: known=246, unknown=4
+Step 506: known=246, unknown=4
+Step 507: known=246, unknown=4
+Step 508: known=246, unknown=4
+Step 509: known=246, unknown=4
+Step 510: known=246, unknown=4
+Step 511: known=246, unknown=4
+Step 512: known=246, unknown=4
+Step 513: known=246, unknown=4
+Step 514: known=246, unknown=4
+Step 515: known=246, unknown=4
+Step 516: known=246, unknown=4
+Step 517: known=246, unknown=4
+Step 518: known=246, unknown=4
+Step 519: known=246, unknown=4
+Step 520: known=246, unknown=4
+Step 521: known=246, unknown=4
+Step 522: known=246, unknown=4
+Step 523: known=246, unknown=4
+Step 524: known=246, unknown=4
+Step 525: known=246, unknown=4
+Step 526: known=246, unknown=4
+Step 527: known=246, unknown=4
+Step 528: known=246, unknown=4
+Step 529: known=246, unknown=4
+Step 530: known=246, unknown=4
+2026-02-22 18:58:18,706 - INFO - Temporal kernel hook firing at step 540
+2026-02-22 18:58:18,706 - INFO - Querying 20 sampled questions
+2026-02-22 18:58:18,706 - INFO - Querying 5 agents...
+2026-02-22 18:58:23,706 - INFO - Stored snapshot for step 540 (will embed at end)
+2026-02-22 18:58:55,010 - INFO - Temporal kernel hook firing at step 550
+2026-02-22 18:58:55,010 - INFO - Querying 20 sampled questions
+2026-02-22 18:58:55,010 - INFO - Querying 5 agents...
+2026-02-22 18:58:59,916 - INFO - Stored snapshot for step 550 (will embed at end)
+2026-02-22 18:59:31,513 - INFO - Temporal kernel hook firing at step 560
+2026-02-22 18:59:31,513 - INFO - Querying 20 sampled questions
+2026-02-22 18:59:31,513 - INFO - Querying 5 agents...
+2026-02-22 18:59:36,515 - INFO - Stored snapshot for step 560 (will embed at end)
+2026-02-22 19:00:13,742 - INFO - Temporal kernel hook firing at step 570
+2026-02-22 19:00:13,743 - INFO - Querying 20 sampled questions
+2026-02-22 19:00:13,743 - INFO - Querying 5 agents...
+2026-02-22 19:00:20,814 - INFO - Stored snapshot for step 570 (will embed at end)
+2026-02-22 19:01:00,484 - INFO - Temporal kernel hook firing at step 580
+2026-02-22 19:01:00,484 - INFO - Querying 20 sampled questions
+2026-02-22 19:01:00,484 - INFO - Querying 5 agents...
+2026-02-22 19:01:07,199 - INFO - Stored snapshot for step 580 (will embed at end)
+2026-02-22 19:01:56,457 - INFO - Temporal kernel hook firing at step 590
+2026-02-22 19:01:56,457 - INFO - Querying 20 sampled questions
+2026-02-22 19:01:56,457 - INFO - Querying 5 agents...
+2026-02-22 19:02:04,221 - INFO - Stored snapshot for step 590 (will embed at end)
+2026-02-22 19:02:56,254 - INFO - Temporal kernel hook firing at step 600
+2026-02-22 19:02:56,254 - INFO - Querying 20 sampled questions
+2026-02-22 19:02:56,255 - INFO - Querying 5 agents...
+2026-02-22 19:03:09,198 - INFO - Stored snapshot for step 600 (will embed at end)
+2026-02-22 19:03:59,615 - INFO - Temporal kernel hook firing at step 610
+2026-02-22 19:03:59,616 - INFO - Querying 20 sampled questions
+2026-02-22 19:03:59,616 - INFO - Querying 5 agents...
+2026-02-22 19:04:07,091 - INFO - Stored snapshot for step 610 (will embed at end)
+2026-02-22 19:04:58,586 - INFO - Temporal kernel hook firing at step 620
+2026-02-22 19:04:58,586 - INFO - Querying 20 sampled questions
+2026-02-22 19:04:58,586 - INFO - Querying 5 agents...
+2026-02-22 19:05:06,414 - INFO - Stored snapshot for step 620 (will embed at end)
+2026-02-22 19:05:51,410 - INFO - Temporal kernel hook firing at step 630
+2026-02-22 19:05:51,410 - INFO - Querying 20 sampled questions
+2026-02-22 19:05:51,410 - INFO - Querying 5 agents...
+2026-02-22 19:05:58,346 - INFO - Stored snapshot for step 630 (will embed at end)
+2026-02-22 19:06:39,634 - INFO - Temporal kernel hook firing at step 640
+2026-02-22 19:06:39,634 - INFO - Querying 20 sampled questions
+2026-02-22 19:06:39,635 - INFO - Querying 5 agents...
+2026-02-22 19:06:45,547 - INFO - Stored snapshot for step 640 (will embed at end)
+2026-02-22 19:07:27,051 - INFO - Temporal kernel hook firing at step 650
+2026-02-22 19:07:27,051 - INFO - Querying 20 sampled questions
+2026-02-22 19:07:27,051 - INFO - Querying 5 agents...
+2026-02-22 19:07:33,918 - INFO - Stored snapshot for step 650 (will embed at end)
+2026-02-22 19:08:23,882 - INFO - Temporal kernel hook firing at step 660
+2026-02-22 19:08:23,882 - INFO - Querying 20 sampled questions
+2026-02-22 19:08:23,882 - INFO - Querying 5 agents...
+2026-02-22 19:08:30,540 - INFO - Stored snapshot for step 660 (will embed at end)
+2026-02-22 19:09:16,382 - INFO - Temporal kernel hook firing at step 670
+2026-02-22 19:09:16,382 - INFO - Querying 20 sampled questions
+2026-02-22 19:09:16,382 - INFO - Querying 5 agents...
+2026-02-22 19:09:23,666 - INFO - Stored snapshot for step 670 (will embed at end)
+2026-02-22 19:10:06,070 - INFO - Temporal kernel hook firing at step 680
+2026-02-22 19:10:06,070 - INFO - Querying 20 sampled questions
+2026-02-22 19:10:06,070 - INFO - Querying 5 agents...
+2026-02-22 19:10:14,702 - INFO - Stored snapshot for step 680 (will embed at end)
+2026-02-22 19:11:02,333 - INFO - Temporal kernel hook firing at step 690
+2026-02-22 19:11:02,334 - INFO - Querying 20 sampled questions
+2026-02-22 19:11:02,334 - INFO - Querying 5 agents...
+2026-02-22 19:11:13,439 - INFO - Stored snapshot for step 690 (will embed at end)
+2026-02-22 19:12:00,351 - INFO - Temporal kernel hook firing at step 700
+2026-02-22 19:12:00,351 - INFO - Querying 20 sampled questions
+2026-02-22 19:12:00,351 - INFO - Querying 5 agents...
+2026-02-22 19:12:06,049 - INFO - Stored snapshot for step 700 (will embed at end)
+2026-02-22 19:12:41,985 - INFO - Temporal kernel hook firing at step 710
+2026-02-22 19:12:41,985 - INFO - Querying 20 sampled questions
+2026-02-22 19:12:41,985 - INFO - Querying 5 agents...
+2026-02-22 19:12:47,520 - INFO - Stored snapshot for step 710 (will embed at end)
+2026-02-22 19:13:21,026 - INFO - Temporal kernel hook firing at step 720
+2026-02-22 19:13:21,026 - INFO - Querying 20 sampled questions
+2026-02-22 19:13:21,026 - INFO - Querying 5 agents...
+2026-02-22 19:13:29,323 - INFO - Stored snapshot for step 720 (will embed at end)
+2026-02-22 19:14:10,660 - INFO - Temporal kernel hook firing at step 730
+2026-02-22 19:14:10,660 - INFO - Querying 20 sampled questions
+2026-02-22 19:14:10,660 - INFO - Querying 5 agents...
+2026-02-22 19:14:16,025 - INFO - Stored snapshot for step 730 (will embed at end)
+2026-02-22 19:14:51,086 - INFO - Temporal kernel hook firing at step 740
+2026-02-22 19:14:51,086 - INFO - Querying 20 sampled questions
+2026-02-22 19:14:51,086 - INFO - Querying 5 agents...
+2026-02-22 19:14:56,807 - INFO - Stored snapshot for step 740 (will embed at end)
+2026-02-22 19:15:30,603 - INFO - Temporal kernel hook firing at step 750
+2026-02-22 19:15:30,603 - INFO - Querying 20 sampled questions
+2026-02-22 19:15:30,603 - INFO - Querying 5 agents...
+2026-02-22 19:15:35,782 - INFO - Stored snapshot for step 750 (will embed at end)
+2026-02-22 19:16:06,512 - INFO - Temporal kernel hook firing at step 760
+2026-02-22 19:16:06,512 - INFO - Querying 20 sampled questions
+2026-02-22 19:16:06,512 - INFO - Querying 5 agents...
+2026-02-22 19:16:13,339 - INFO - Stored snapshot for step 760 (will embed at end)
+2026-02-22 19:16:42,857 - INFO - Temporal kernel hook firing at step 770
+2026-02-22 19:16:42,857 - INFO - Querying 20 sampled questions
+2026-02-22 19:16:42,857 - INFO - Querying 5 agents...
+2026-02-22 19:16:49,271 - INFO - Stored snapshot for step 770 (will embed at end)
+2026-02-22 19:17:25,808 - INFO - Temporal kernel hook firing at step 780
+2026-02-22 19:17:25,808 - INFO - Querying 20 sampled questions
+2026-02-22 19:17:25,808 - INFO - Querying 5 agents...
+2026-02-22 19:17:34,618 - INFO - Stored snapshot for step 780 (will embed at end)
+2026-02-22 19:18:16,344 - INFO - Temporal kernel hook firing at step 790
+2026-02-22 19:18:16,344 - INFO - Querying 20 sampled questions
+2026-02-22 19:18:16,344 - INFO - Querying 5 agents...
+2026-02-22 19:18:22,639 - INFO - Stored snapshot for step 790 (will embed at end)
+Step 531: known=246, unknown=4
+Step 532: known=246, unknown=4
+Step 533: known=246, unknown=4
+Step 534: known=246, unknown=4
+Step 535: known=246, unknown=4
+Step 536: known=246, unknown=4
+Step 537: known=246, unknown=4
+Step 538: known=246, unknown=4
+Step 539: known=246, unknown=4
+Step 540: known=246, unknown=4
+Step 541: known=246, unknown=4
+Step 542: known=246, unknown=4
+Step 543: known=246, unknown=4
+Step 544: known=246, unknown=4
+Step 545: known=246, unknown=4
+Step 546: known=246, unknown=4
+Step 547: known=246, unknown=4
+Step 548: known=246, unknown=4
+Step 549: known=246, unknown=4
+Step 550: known=246, unknown=4
+Step 551: known=246, unknown=4
+Step 552: known=246, unknown=4
+Step 553: known=246, unknown=4
+Step 554: known=246, unknown=4
+Step 555: known=246, unknown=4
+Step 556: known=246, unknown=4
+Step 557: known=246, unknown=4
+Step 558: known=246, unknown=4
+Step 559: known=246, unknown=4
+Step 560: known=246, unknown=4
+Step 561: known=246, unknown=4
+Step 562: known=246, unknown=4
+Step 563: known=246, unknown=4
+Step 564: known=246, unknown=4
+Step 565: known=246, unknown=4
+Step 566: known=246, unknown=4
+Step 567: known=246, unknown=4
+Step 568: known=246, unknown=4
+Step 569: known=246, unknown=4
+Step 570: known=246, unknown=4
+Step 571: known=246, unknown=4
+Step 572: known=246, unknown=4
+Step 573: known=246, unknown=4
+Step 574: known=246, unknown=4
+Step 575: known=246, unknown=4
+Step 576: known=246, unknown=4
+Step 577: known=246, unknown=4
+Step 578: known=246, unknown=4
+Step 579: known=246, unknown=4
+Step 580: known=246, unknown=4
+Step 581: known=246, unknown=4
+Step 582: known=246, unknown=4
+Step 583: known=246, unknown=4
+Step 584: known=246, unknown=4
+Step 585: known=246, unknown=4
+Step 586: known=246, unknown=4
+Step 587: known=246, unknown=4
+Step 588: known=246, unknown=4
+Step 589: known=246, unknown=4
+Step 590: known=246, unknown=4
+Step 591: known=246, unknown=4
+Step 592: known=246, unknown=4
+Step 593: known=246, unknown=4
+Step 594: known=246, unknown=4
+Step 595: known=246, unknown=4
+Step 596: known=246, unknown=4
+Step 597: known=246, unknown=4
+Step 598: known=246, unknown=4
+Step 599: known=246, unknown=4
+Step 600: known=246, unknown=4
+Step 601: known=246, unknown=4
+Step 602: known=246, unknown=4
+Step 603: known=246, unknown=4
+Step 604: known=246, unknown=4
+Step 605: known=246, unknown=4
+Step 606: known=246, unknown=4
+Step 607: known=246, unknown=4
+Step 608: known=246, unknown=4
+Step 609: known=246, unknown=4
+Step 610: known=246, unknown=4
+Step 611: known=246, unknown=4
+Step 612: known=246, unknown=4
+Step 613: known=246, unknown=4
+Step 614: known=246, unknown=4
+Step 615: known=246, unknown=4
+Step 616: known=246, unknown=4
+Step 617: known=246, unknown=4
+Step 618: known=246, unknown=4
+Step 619: known=246, unknown=4
+Step 620: known=246, unknown=4
+Step 621: known=246, unknown=4
+Step 622: known=246, unknown=4
+Step 623: known=246, unknown=4
+Step 624: known=246, unknown=4
+Step 625: known=246, unknown=4
+Step 626: known=246, unknown=4
+Step 627: known=246, unknown=4
+Step 628: known=246, unknown=4
+Step 629: known=246, unknown=4
+Step 630: known=246, unknown=4
+Step 631: known=246, unknown=4
+Step 632: known=246, unknown=4
+Step 633: known=246, unknown=4
+Step 634: known=246, unknown=4
+Step 635: known=246, unknown=4
+Step 636: known=246, unknown=4
+Step 637: known=246, unknown=4
+Step 638: known=246, unknown=4
+Step 639: known=246, unknown=4
+Step 640: known=246, unknown=4
+Step 641: known=246, unknown=4
+Step 642: known=246, unknown=4
+Step 643: known=246, unknown=4
+Step 644: known=246, unknown=4
+Step 645: known=246, unknown=4
+Step 646: known=246, unknown=4
+Step 647: known=246, unknown=4
+Step 648: known=246, unknown=4
+Step 649: known=246, unknown=4
+Step 650: known=246, unknown=4
+Step 651: known=246, unknown=4
+Step 652: known=246, unknown=4
+Step 653: known=246, unknown=4
+Step 654: known=246, unknown=4
+Step 655: known=246, unknown=4
+Step 656: known=246, unknown=4
+Step 657: known=246, unknown=4
+Step 658: known=246, unknown=4
+Step 659: known=246, unknown=4
+Step 660: known=246, unknown=4
+Step 661: known=246, unknown=4
+Step 662: known=246, unknown=4
+Step 663: known=246, unknown=4
+Step 664: known=246, unknown=4
+Step 665: known=246, unknown=4
+Step 666: known=246, unknown=4
+Step 667: known=246, unknown=4
+Step 668: known=246, unknown=4
+Step 669: known=246, unknown=4
+Step 670: known=246, unknown=4
+Step 671: known=246, unknown=4
+Step 672: known=246, unknown=4
+Step 673: known=246, unknown=4
+Step 674: known=246, unknown=4
+Step 675: known=246, unknown=4
+Step 676: known=246, unknown=4
+Step 677: known=246, unknown=4
+Step 678: known=246, unknown=4
+Step 679: known=246, unknown=4
+Step 680: known=246, unknown=4
+Step 681: known=246, unknown=4
+Step 682: known=246, unknown=4
+Step 683: known=246, unknown=4
+Step 684: known=246, unknown=4
+Step 685: known=246, unknown=4
+Step 686: known=246, unknown=4
+Step 687: known=246, unknown=4
+Step 688: known=246, unknown=4
+Step 689: known=246, unknown=4
+Step 690: known=246, unknown=4
+Step 691: known=246, unknown=4
+Step 692: known=246, unknown=4
+Step 693: known=246, unknown=4
+Step 694: known=246, unknown=4
+Step 695: known=246, unknown=4
+Step 696: known=246, unknown=4
+Step 697: known=246, unknown=4
+Step 698: known=246, unknown=4
+Step 699: known=246, unknown=4
+Step 700: known=246, unknown=4
+Step 701: known=246, unknown=4
+Step 702: known=246, unknown=4
+Step 703: known=246, unknown=4
+Step 704: known=246, unknown=4
+Step 705: known=246, unknown=4
+Step 706: known=246, unknown=4
+Step 707: known=246, unknown=4
+Step 708: known=246, unknown=4
+Step 709: known=246, unknown=4
+Step 710: known=246, unknown=4
+Step 711: known=246, unknown=4
+Step 712: known=246, unknown=4
+Step 713: known=246, unknown=4
+Step 714: known=246, unknown=4
+Step 715: known=246, unknown=4
+Step 716: known=246, unknown=4
+Step 717: known=246, unknown=4
+Step 718: known=246, unknown=4
+Step 719: known=246, unknown=4
+Step 720: known=246, unknown=4
+Step 721: known=246, unknown=4
+Step 722: known=246, unknown=4
+Step 723: known=246, unknown=4
+Step 724: known=246, unknown=4
+Step 725: known=246, unknown=4
+Step 726: known=246, unknown=4
+Step 727: known=246, unknown=4
+Step 728: known=246, unknown=4
+Step 729: known=246, unknown=4
+Step 730: known=246, unknown=4
+Step 731: known=246, unknown=4
+Step 732: known=246, unknown=4
+Step 733: known=246, unknown=4
+Step 734: known=246, unknown=4
+Step 735: known=246, unknown=4
+Step 736: known=246, unknown=4
+Step 737: known=246, unknown=4
+Step 738: known=246, unknown=4
+Step 739: known=246, unknown=4
+Step 740: known=246, unknown=4
+Step 741: known=246, unknown=4
+Step 742: known=246, unknown=4
+Step 743: known=246, unknown=4
+Step 744: known=246, unknown=4
+Step 745: known=246, unknown=4
+Step 746: known=246, unknown=4
+Step 747: known=246, unknown=4
+Step 748: known=246, unknown=4
+Step 749: known=246, unknown=4
+Step 750: known=246, unknown=4
+Step 751: known=246, unknown=4
+Step 752: known=246, unknown=4
+Step 753: known=246, unknown=4
+Step 754: known=246, unknown=4
+Step 755: known=246, unknown=4
+Step 756: known=246, unknown=4
+Step 757: known=246, unknown=4
+Step 758: known=246, unknown=4
+Step 759: known=246, unknown=4
+Step 760: known=246, unknown=4
+Step 761: known=246, unknown=4
+Step 762: known=246, unknown=4
+Step 763: known=246, unknown=4
+Step 764: known=246, unknown=4
+Step 765: known=246, unknown=4
+Step 766: known=246, unknown=4
+Step 767: known=246, unknown=4
+Step 768: known=246, unknown=4
+Step 769: known=246, unknown=4
+Step 770: known=246, unknown=4
+Step 771: known=246, unknown=4
+Step 772: known=246, unknown=4
+Step 773: known=246, unknown=4
+Step 774: known=246, unknown=4
+Step 775: known=246, unknown=4
+Step 776: known=246, unknown=4
+Step 777: known=246, unknown=4
+Step 778: known=246, unknown=4
+Step 779: known=246, unknown=4
+Step 780: known=246, unknown=4
+Step 781: known=246, unknown=4
+Step 782: known=246, unknown=4
+Step 783: known=246, unknown=4
+Step 784: known=246, unknown=4
+Step 785: known=246, unknown=4
+Step 786: known=246, unknown=4
+Step 787: known=246, unknown=4
+Step 788: known=246, unknown=4
+Step 789: known=246, unknown=4
+Step 790: known=246, unknown=4
+Step 791: known=246, unknown=4
+Step 792: known=246, unknown=4
+Step 793: known=246, unknown=4
+Step 794: known=246, unknown=4
+2026-02-22 19:18:59,229 - INFO - Temporal kernel hook firing at step 800
+2026-02-22 19:18:59,229 - INFO - Querying 20 sampled questions
+2026-02-22 19:18:59,229 - INFO - Querying 5 agents...
+2026-02-22 19:19:05,667 - INFO - Stored snapshot for step 800 (will embed at end)
+2026-02-22 19:19:37,579 - INFO - Temporal kernel hook firing at step 810
+2026-02-22 19:19:37,579 - INFO - Querying 20 sampled questions
+2026-02-22 19:19:37,579 - INFO - Querying 5 agents...
+2026-02-22 19:19:43,512 - INFO - Stored snapshot for step 810 (will embed at end)
+2026-02-22 19:20:16,252 - INFO - Temporal kernel hook firing at step 820
+2026-02-22 19:20:16,252 - INFO - Querying 20 sampled questions
+2026-02-22 19:20:16,252 - INFO - Querying 5 agents...
+2026-02-22 19:20:22,324 - INFO - Stored snapshot for step 820 (will embed at end)
+2026-02-22 19:21:03,241 - INFO - Temporal kernel hook firing at step 830
+2026-02-22 19:21:03,241 - INFO - Querying 20 sampled questions
+2026-02-22 19:21:03,241 - INFO - Querying 5 agents...
+2026-02-22 19:21:11,666 - INFO - Stored snapshot for step 830 (will embed at end)
+2026-02-22 19:21:47,689 - INFO - Temporal kernel hook firing at step 840
+2026-02-22 19:21:47,689 - INFO - Querying 20 sampled questions
+2026-02-22 19:21:47,689 - INFO - Querying 5 agents...
+2026-02-22 19:21:56,323 - INFO - Stored snapshot for step 840 (will embed at end)
+2026-02-22 19:22:27,655 - INFO - Temporal kernel hook firing at step 850
+2026-02-22 19:22:27,656 - INFO - Querying 20 sampled questions
+2026-02-22 19:22:27,656 - INFO - Querying 5 agents...
+2026-02-22 19:22:33,623 - INFO - Stored snapshot for step 850 (will embed at end)
+2026-02-22 19:23:04,458 - INFO - Temporal kernel hook firing at step 860
+2026-02-22 19:23:04,458 - INFO - Querying 20 sampled questions
+2026-02-22 19:23:04,458 - INFO - Querying 5 agents...
+2026-02-22 19:23:10,702 - INFO - Stored snapshot for step 860 (will embed at end)
+2026-02-22 19:23:42,181 - INFO - Temporal kernel hook firing at step 870
+2026-02-22 19:23:42,181 - INFO - Querying 20 sampled questions
+2026-02-22 19:23:42,181 - INFO - Querying 5 agents...
+2026-02-22 19:23:47,822 - INFO - Stored snapshot for step 870 (will embed at end)
+2026-02-22 19:24:20,648 - INFO - Temporal kernel hook firing at step 880
+2026-02-22 19:24:20,648 - INFO - Querying 20 sampled questions
+2026-02-22 19:24:20,648 - INFO - Querying 5 agents...
+2026-02-22 19:24:26,518 - INFO - Stored snapshot for step 880 (will embed at end)
+2026-02-22 19:24:56,407 - INFO - Temporal kernel hook firing at step 890
+2026-02-22 19:24:56,408 - INFO - Querying 20 sampled questions
+2026-02-22 19:24:56,408 - INFO - Querying 5 agents...
+2026-02-22 19:25:02,763 - INFO - Stored snapshot for step 890 (will embed at end)
+2026-02-22 19:25:33,932 - INFO - Temporal kernel hook firing at step 900
+2026-02-22 19:25:33,932 - INFO - Querying 20 sampled questions
+2026-02-22 19:25:33,932 - INFO - Querying 5 agents...
+2026-02-22 19:25:40,031 - INFO - Stored snapshot for step 900 (will embed at end)
+2026-02-22 19:26:14,021 - INFO - Temporal kernel hook firing at step 910
+2026-02-22 19:26:14,021 - INFO - Querying 20 sampled questions
+2026-02-22 19:26:14,021 - INFO - Querying 5 agents...
+2026-02-22 19:26:19,951 - INFO - Stored snapshot for step 910 (will embed at end)
+2026-02-22 19:26:53,100 - INFO - Temporal kernel hook firing at step 920
+2026-02-22 19:26:53,100 - INFO - Querying 20 sampled questions
+2026-02-22 19:26:53,100 - INFO - Querying 5 agents...
+2026-02-22 19:26:59,595 - INFO - Stored snapshot for step 920 (will embed at end)
+2026-02-22 19:27:33,226 - INFO - Temporal kernel hook firing at step 930
+2026-02-22 19:27:33,226 - INFO - Querying 20 sampled questions
+2026-02-22 19:27:33,226 - INFO - Querying 5 agents...
+2026-02-22 19:27:40,016 - INFO - Stored snapshot for step 930 (will embed at end)
+2026-02-22 19:28:17,073 - INFO - Temporal kernel hook firing at step 940
+2026-02-22 19:28:17,073 - INFO - Querying 20 sampled questions
+2026-02-22 19:28:17,073 - INFO - Querying 5 agents...
+2026-02-22 19:28:23,505 - INFO - Stored snapshot for step 940 (will embed at end)
+2026-02-22 19:28:52,964 - INFO - Temporal kernel hook firing at step 950
+2026-02-22 19:28:52,964 - INFO - Querying 20 sampled questions
+2026-02-22 19:28:52,964 - INFO - Querying 5 agents...
+2026-02-22 19:28:59,062 - INFO - Stored snapshot for step 950 (will embed at end)
+2026-02-22 19:29:31,842 - INFO - Temporal kernel hook firing at step 960
+2026-02-22 19:29:31,842 - INFO - Querying 20 sampled questions
+2026-02-22 19:29:31,842 - INFO - Querying 5 agents...
+2026-02-22 19:29:38,979 - INFO - Stored snapshot for step 960 (will embed at end)
+2026-02-22 19:30:10,667 - INFO - Temporal kernel hook firing at step 970
+2026-02-22 19:30:10,667 - INFO - Querying 20 sampled questions
+2026-02-22 19:30:10,667 - INFO - Querying 5 agents...
+2026-02-22 19:30:17,751 - INFO - Stored snapshot for step 970 (will embed at end)
+2026-02-22 19:30:49,623 - INFO - Temporal kernel hook firing at step 980
+2026-02-22 19:30:49,623 - INFO - Querying 20 sampled questions
+2026-02-22 19:30:49,623 - INFO - Querying 5 agents...
+2026-02-22 19:30:56,095 - INFO - Stored snapshot for step 980 (will embed at end)
+2026-02-22 19:31:32,439 - INFO - Temporal kernel hook firing at step 990
+2026-02-22 19:31:32,439 - INFO - Querying 20 sampled questions
+2026-02-22 19:31:32,439 - INFO - Querying 5 agents...
+2026-02-22 19:31:38,708 - INFO - Stored snapshot for step 990 (will embed at end)
+2026-02-22 19:32:08,899 - INFO - Progress: 50% (1000/2000 iterations) - Knowledge: 246/250
+2026-02-22 19:32:12,180 - INFO - Temporal kernel hook firing at step 1000
+2026-02-22 19:32:12,181 - INFO - Querying 20 sampled questions
+2026-02-22 19:32:12,181 - INFO - Querying 5 agents...
+2026-02-22 19:32:18,767 - INFO - Stored snapshot for step 1000 (will embed at end)
+2026-02-22 19:32:52,186 - INFO - Temporal kernel hook firing at step 1010
+2026-02-22 19:32:52,186 - INFO - Querying 20 sampled questions
+2026-02-22 19:32:52,186 - INFO - Querying 5 agents...
+2026-02-22 19:32:57,536 - INFO - Stored snapshot for step 1010 (will embed at end)
+2026-02-22 19:33:30,447 - INFO - Temporal kernel hook firing at step 1020
+2026-02-22 19:33:30,447 - INFO - Querying 20 sampled questions
+2026-02-22 19:33:30,447 - INFO - Querying 5 agents...
+2026-02-22 19:33:36,571 - INFO - Stored snapshot for step 1020 (will embed at end)
+2026-02-22 19:34:11,842 - INFO - Temporal kernel hook firing at step 1030
+2026-02-22 19:34:11,842 - INFO - Querying 20 sampled questions
+2026-02-22 19:34:11,842 - INFO - Querying 5 agents...
+2026-02-22 19:34:18,879 - INFO - Stored snapshot for step 1030 (will embed at end)
+2026-02-22 19:34:53,239 - INFO - Temporal kernel hook firing at step 1040
+2026-02-22 19:34:53,239 - INFO - Querying 20 sampled questions
+2026-02-22 19:34:53,239 - INFO - Querying 5 agents...
+2026-02-22 19:34:58,859 - INFO - Stored snapshot for step 1040 (will embed at end)
+2026-02-22 19:35:34,389 - INFO - Temporal kernel hook firing at step 1050
+2026-02-22 19:35:34,389 - INFO - Querying 20 sampled questions
+2026-02-22 19:35:34,389 - INFO - Querying 5 agents...
+2026-02-22 19:35:41,113 - INFO - Stored snapshot for step 1050 (will embed at end)
+Step 795: known=246, unknown=4
+Step 796: known=246, unknown=4
+Step 797: known=246, unknown=4
+Step 798: known=246, unknown=4
+Step 799: known=246, unknown=4
+Step 800: known=246, unknown=4
+Step 801: known=246, unknown=4
+Step 802: known=246, unknown=4
+Step 803: known=246, unknown=4
+Step 804: known=246, unknown=4
+Step 805: known=246, unknown=4
+Step 806: known=246, unknown=4
+Step 807: known=246, unknown=4
+Step 808: known=246, unknown=4
+Step 809: known=246, unknown=4
+Step 810: known=246, unknown=4
+Step 811: known=246, unknown=4
+Step 812: known=246, unknown=4
+Step 813: known=246, unknown=4
+Step 814: known=246, unknown=4
+Step 815: known=246, unknown=4
+Step 816: known=246, unknown=4
+Step 817: known=246, unknown=4
+Step 818: known=246, unknown=4
+Step 819: known=246, unknown=4
+Step 820: known=246, unknown=4
+Step 821: known=246, unknown=4
+Step 822: known=246, unknown=4
+Step 823: known=246, unknown=4
+Step 824: known=246, unknown=4
+Step 825: known=246, unknown=4
+Step 826: known=246, unknown=4
+Step 827: known=246, unknown=4
+Step 828: known=246, unknown=4
+Step 829: known=246, unknown=4
+Step 830: known=246, unknown=4
+Step 831: known=246, unknown=4
+Step 832: known=246, unknown=4
+Step 833: known=246, unknown=4
+Step 834: known=246, unknown=4
+Step 835: known=246, unknown=4
+Step 836: known=246, unknown=4
+Step 837: known=246, unknown=4
+Step 838: known=246, unknown=4
+Step 839: known=246, unknown=4
+Step 840: known=246, unknown=4
+Step 841: known=246, unknown=4
+Step 842: known=246, unknown=4
+Step 843: known=246, unknown=4
+Step 844: known=246, unknown=4
+Step 845: known=246, unknown=4
+Step 846: known=246, unknown=4
+Step 847: known=246, unknown=4
+Step 848: known=246, unknown=4
+Step 849: known=246, unknown=4
+Step 850: known=246, unknown=4
+Step 851: known=246, unknown=4
+Step 852: known=246, unknown=4
+Step 853: known=246, unknown=4
+Step 854: known=246, unknown=4
+Step 855: known=246, unknown=4
+Step 856: known=246, unknown=4
+Step 857: known=246, unknown=4
+Step 858: known=246, unknown=4
+Step 859: known=246, unknown=4
+Step 860: known=246, unknown=4
+Step 861: known=246, unknown=4
+Step 862: known=246, unknown=4
+Step 863: known=246, unknown=4
+Step 864: known=246, unknown=4
+Step 865: known=246, unknown=4
+Step 866: known=246, unknown=4
+Step 867: known=246, unknown=4
+Step 868: known=246, unknown=4
+Step 869: known=246, unknown=4
+Step 870: known=246, unknown=4
+Step 871: known=246, unknown=4
+Step 872: known=246, unknown=4
+Step 873: known=246, unknown=4
+Step 874: known=246, unknown=4
+Step 875: known=246, unknown=4
+Step 876: known=246, unknown=4
+Step 877: known=246, unknown=4
+Step 878: known=246, unknown=4
+Step 879: known=246, unknown=4
+Step 880: known=246, unknown=4
+Step 881: known=246, unknown=4
+Step 882: known=246, unknown=4
+Step 883: known=246, unknown=4
+Step 884: known=246, unknown=4
+Step 885: known=246, unknown=4
+Step 886: known=246, unknown=4
+Step 887: known=246, unknown=4
+Step 888: known=246, unknown=4
+Step 889: known=246, unknown=4
+Step 890: known=246, unknown=4
+Step 891: known=246, unknown=4
+Step 892: known=246, unknown=4
+Step 893: known=246, unknown=4
+Step 894: known=246, unknown=4
+Step 895: known=246, unknown=4
+Step 896: known=246, unknown=4
+Step 897: known=246, unknown=4
+Step 898: known=246, unknown=4
+Step 899: known=246, unknown=4
+Step 900: known=246, unknown=4
+Step 901: known=246, unknown=4
+Step 902: known=246, unknown=4
+Step 903: known=246, unknown=4
+Step 904: known=246, unknown=4
+Step 905: known=246, unknown=4
+Step 906: known=246, unknown=4
+Step 907: known=246, unknown=4
+Step 908: known=246, unknown=4
+Step 909: known=246, unknown=4
+Step 910: known=246, unknown=4
+Step 911: known=246, unknown=4
+Step 912: known=246, unknown=4
+Step 913: known=246, unknown=4
+Step 914: known=246, unknown=4
+Step 915: known=246, unknown=4
+Step 916: known=246, unknown=4
+Step 917: known=246, unknown=4
+Step 918: known=246, unknown=4
+Step 919: known=246, unknown=4
+Step 920: known=246, unknown=4
+Step 921: known=246, unknown=4
+Step 922: known=246, unknown=4
+Step 923: known=246, unknown=4
+Step 924: known=246, unknown=4
+Step 925: known=246, unknown=4
+Step 926: known=246, unknown=4
+Step 927: known=246, unknown=4
+Step 928: known=246, unknown=4
+Step 929: known=246, unknown=4
+Step 930: known=246, unknown=4
+Step 931: known=246, unknown=4
+Step 932: known=246, unknown=4
+Step 933: known=246, unknown=4
+Step 934: known=246, unknown=4
+Step 935: known=246, unknown=4
+Step 936: known=246, unknown=4
+Step 937: known=246, unknown=4
+Step 938: known=246, unknown=4
+Step 939: known=246, unknown=4
+Step 940: known=246, unknown=4
+Step 941: known=246, unknown=4
+Step 942: known=246, unknown=4
+Step 943: known=246, unknown=4
+Step 944: known=246, unknown=4
+Step 945: known=246, unknown=4
+Step 946: known=246, unknown=4
+Step 947: known=246, unknown=4
+Step 948: known=246, unknown=4
+Step 949: known=246, unknown=4
+Step 950: known=246, unknown=4
+Step 951: known=246, unknown=4
+Step 952: known=246, unknown=4
+Step 953: known=246, unknown=4
+Step 954: known=246, unknown=4
+Step 955: known=246, unknown=4
+Step 956: known=246, unknown=4
+Step 957: known=246, unknown=4
+Step 958: known=246, unknown=4
+Step 959: known=246, unknown=4
+Step 960: known=246, unknown=4
+Step 961: known=246, unknown=4
+Step 962: known=246, unknown=4
+Step 963: known=246, unknown=4
+Step 964: known=246, unknown=4
+Step 965: known=246, unknown=4
+Step 966: known=246, unknown=4
+Step 967: known=246, unknown=4
+Step 968: known=246, unknown=4
+Step 969: known=246, unknown=4
+Step 970: known=246, unknown=4
+Step 971: known=246, unknown=4
+Step 972: known=246, unknown=4
+Step 973: known=246, unknown=4
+Step 974: known=246, unknown=4
+Step 975: known=246, unknown=4
+Step 976: known=246, unknown=4
+Step 977: known=246, unknown=4
+Step 978: known=246, unknown=4
+Step 979: known=246, unknown=4
+Step 980: known=246, unknown=4
+Step 981: known=246, unknown=4
+Step 982: known=246, unknown=4
+Step 983: known=246, unknown=4
+Step 984: known=246, unknown=4
+Step 985: known=246, unknown=4
+Step 986: known=246, unknown=4
+Step 987: known=246, unknown=4
+Step 988: known=246, unknown=4
+Step 989: known=246, unknown=4
+Step 990: known=246, unknown=4
+Step 991: known=246, unknown=4
+Step 992: known=246, unknown=4
+Step 993: known=246, unknown=4
+Step 994: known=246, unknown=4
+Step 995: known=246, unknown=4
+Step 996: known=246, unknown=4
+Step 997: known=246, unknown=4
+Step 998: known=246, unknown=4
+Step 999: known=246, unknown=4
+Step 1000: known=246, unknown=4
+Step 1001: known=246, unknown=4
+Step 1002: known=246, unknown=4
+Step 1003: known=246, unknown=4
+Step 1004: known=246, unknown=4
+Step 1005: known=246, unknown=4
+Step 1006: known=246, unknown=4
+Step 1007: known=246, unknown=4
+Step 1008: known=246, unknown=4
+Step 1009: known=246, unknown=4
+Step 1010: known=246, unknown=4
+Step 1011: known=246, unknown=4
+Step 1012: known=246, unknown=4
+Step 1013: known=246, unknown=4
+Step 1014: known=246, unknown=4
+Step 1015: known=246, unknown=4
+Step 1016: known=246, unknown=4
+Step 1017: known=246, unknown=4
+Step 1018: known=246, unknown=4
+Step 1019: known=246, unknown=4
+Step 1020: known=246, unknown=4
+Step 1021: known=246, unknown=4
+Step 1022: known=246, unknown=4
+Step 1023: known=246, unknown=4
+Step 1024: known=246, unknown=4
+Step 1025: known=246, unknown=4
+Step 1026: known=246, unknown=4
+Step 1027: known=246, unknown=4
+Step 1028: known=246, unknown=4
+Step 1029: known=246, unknown=4
+Step 1030: known=246, unknown=4
+Step 1031: known=246, unknown=4
+Step 1032: known=246, unknown=4
+Step 1033: known=246, unknown=4
+Step 1034: known=246, unknown=4
+Step 1035: known=246, unknown=4
+Step 1036: known=246, unknown=4
+Step 1037: known=246, unknown=4
+Step 1038: known=246, unknown=4
+Step 1039: known=246, unknown=4
+Step 1040: known=246, unknown=4
+Step 1041: known=246, unknown=4
+Step 1042: known=246, unknown=4
+Step 1043: known=246, unknown=4
+Step 1044: known=246, unknown=4
+Step 1045: known=246, unknown=4
+Step 1046: known=246, unknown=4
+Step 1047: known=246, unknown=4
+Step 1048: known=246, unknown=4
+Step 1049: known=246, unknown=4
+Step 1050: known=246, unknown=4
+Step 1051: known=246, unknown=4
+Step 1052: known=246, unknown=4
+Step 1053: known=246, unknown=4
+Step 1054: known=246, unknown=4
+Step 1055: known=246, unknown=4
+Step 1056: known=246, unknown=4
+2026-02-22 19:36:15,488 - INFO - Temporal kernel hook firing at step 1060
+2026-02-22 19:36:15,488 - INFO - Querying 20 sampled questions
+2026-02-22 19:36:15,489 - INFO - Querying 5 agents...
+2026-02-22 19:36:22,102 - INFO - Stored snapshot for step 1060 (will embed at end)
+2026-02-22 19:37:00,397 - INFO - Temporal kernel hook firing at step 1070
+2026-02-22 19:37:00,397 - INFO - Querying 20 sampled questions
+2026-02-22 19:37:00,398 - INFO - Querying 5 agents...
+2026-02-22 19:37:07,746 - INFO - Stored snapshot for step 1070 (will embed at end)
+2026-02-22 19:37:41,652 - INFO - Temporal kernel hook firing at step 1080
+2026-02-22 19:37:41,652 - INFO - Querying 20 sampled questions
+2026-02-22 19:37:41,652 - INFO - Querying 5 agents...
+2026-02-22 19:37:47,975 - INFO - Stored snapshot for step 1080 (will embed at end)
+2026-02-22 19:38:23,734 - INFO - Temporal kernel hook firing at step 1090
+2026-02-22 19:38:23,734 - INFO - Querying 20 sampled questions
+2026-02-22 19:38:23,734 - INFO - Querying 5 agents...
+2026-02-22 19:38:30,060 - INFO - Stored snapshot for step 1090 (will embed at end)
+2026-02-22 19:39:01,476 - INFO - Temporal kernel hook firing at step 1100
+2026-02-22 19:39:01,476 - INFO - Querying 20 sampled questions
+2026-02-22 19:39:01,476 - INFO - Querying 5 agents...
+2026-02-22 19:39:07,679 - INFO - Stored snapshot for step 1100 (will embed at end)
+2026-02-22 19:39:42,565 - INFO - Temporal kernel hook firing at step 1110
+2026-02-22 19:39:42,565 - INFO - Querying 20 sampled questions
+2026-02-22 19:39:42,565 - INFO - Querying 5 agents...
+2026-02-22 19:39:49,546 - INFO - Stored snapshot for step 1110 (will embed at end)
+2026-02-22 19:40:26,784 - INFO - Temporal kernel hook firing at step 1120
+2026-02-22 19:40:26,785 - INFO - Querying 20 sampled questions
+2026-02-22 19:40:26,785 - INFO - Querying 5 agents...
+2026-02-22 19:40:33,710 - INFO - Stored snapshot for step 1120 (will embed at end)
+2026-02-22 19:41:11,936 - INFO - Temporal kernel hook firing at step 1130
+2026-02-22 19:41:11,936 - INFO - Querying 20 sampled questions
+2026-02-22 19:41:11,936 - INFO - Querying 5 agents...
+2026-02-22 19:41:19,166 - INFO - Stored snapshot for step 1130 (will embed at end)
+2026-02-22 19:41:53,088 - INFO - Temporal kernel hook firing at step 1140
+2026-02-22 19:41:53,088 - INFO - Querying 20 sampled questions
+2026-02-22 19:41:53,088 - INFO - Querying 5 agents...
+2026-02-22 19:42:00,259 - INFO - Stored snapshot for step 1140 (will embed at end)
+2026-02-22 19:42:35,838 - INFO - Temporal kernel hook firing at step 1150
+2026-02-22 19:42:35,838 - INFO - Querying 20 sampled questions
+2026-02-22 19:42:35,838 - INFO - Querying 5 agents...
+2026-02-22 19:42:45,140 - INFO - Stored snapshot for step 1150 (will embed at end)
+2026-02-22 19:43:23,603 - INFO - Temporal kernel hook firing at step 1160
+2026-02-22 19:43:23,603 - INFO - Querying 20 sampled questions
+2026-02-22 19:43:23,603 - INFO - Querying 5 agents...
+2026-02-22 19:43:32,140 - INFO - Stored snapshot for step 1160 (will embed at end)
+2026-02-22 19:44:06,274 - INFO - Temporal kernel hook firing at step 1170
+2026-02-22 19:44:06,274 - INFO - Querying 20 sampled questions
+2026-02-22 19:44:06,274 - INFO - Querying 5 agents...
+2026-02-22 19:44:14,950 - INFO - Stored snapshot for step 1170 (will embed at end)
+2026-02-22 19:45:04,435 - INFO - Temporal kernel hook firing at step 1180
+2026-02-22 19:45:04,435 - INFO - Querying 20 sampled questions
+2026-02-22 19:45:04,435 - INFO - Querying 5 agents...
+2026-02-22 19:45:12,665 - INFO - Stored snapshot for step 1180 (will embed at end)
+2026-02-22 19:45:50,621 - INFO - Temporal kernel hook firing at step 1190
+2026-02-22 19:45:50,622 - INFO - Querying 20 sampled questions
+2026-02-22 19:45:50,622 - INFO - Querying 5 agents...
+2026-02-22 19:45:57,404 - INFO - Stored snapshot for step 1190 (will embed at end)
+2026-02-22 19:46:35,892 - INFO - Temporal kernel hook firing at step 1200
+2026-02-22 19:46:35,892 - INFO - Querying 20 sampled questions
+2026-02-22 19:46:35,892 - INFO - Querying 5 agents...
+2026-02-22 19:46:42,950 - INFO - Stored snapshot for step 1200 (will embed at end)
+2026-02-22 19:47:27,499 - INFO - Temporal kernel hook firing at step 1210
+2026-02-22 19:47:27,499 - INFO - Querying 20 sampled questions
+2026-02-22 19:47:27,499 - INFO - Querying 5 agents...
+2026-02-22 19:47:34,649 - INFO - Stored snapshot for step 1210 (will embed at end)
+2026-02-22 19:48:11,331 - INFO - Temporal kernel hook firing at step 1220
+2026-02-22 19:48:11,331 - INFO - Querying 20 sampled questions
+2026-02-22 19:48:11,331 - INFO - Querying 5 agents...
+2026-02-22 19:48:19,125 - INFO - Stored snapshot for step 1220 (will embed at end)
+2026-02-22 19:48:54,142 - INFO - Temporal kernel hook firing at step 1230
+2026-02-22 19:48:54,142 - INFO - Querying 20 sampled questions
+2026-02-22 19:48:54,142 - INFO - Querying 5 agents...
+2026-02-22 19:49:01,538 - INFO - Stored snapshot for step 1230 (will embed at end)
+2026-02-22 19:49:39,886 - INFO - Temporal kernel hook firing at step 1240
+2026-02-22 19:49:39,886 - INFO - Querying 20 sampled questions
+2026-02-22 19:49:39,886 - INFO - Querying 5 agents...
+2026-02-22 19:49:47,422 - INFO - Stored snapshot for step 1240 (will embed at end)
+2026-02-22 19:50:28,331 - INFO - Temporal kernel hook firing at step 1250
+2026-02-22 19:50:28,331 - INFO - Querying 20 sampled questions
+2026-02-22 19:50:28,331 - INFO - Querying 5 agents...
+2026-02-22 19:50:35,817 - INFO - Stored snapshot for step 1250 (will embed at end)
+2026-02-22 19:51:16,363 - INFO - Temporal kernel hook firing at step 1260
+2026-02-22 19:51:16,363 - INFO - Querying 20 sampled questions
+2026-02-22 19:51:16,363 - INFO - Querying 5 agents...
+2026-02-22 19:51:24,059 - INFO - Stored snapshot for step 1260 (will embed at end)
+2026-02-22 19:52:01,577 - INFO - Temporal kernel hook firing at step 1270
+2026-02-22 19:52:01,577 - INFO - Querying 20 sampled questions
+2026-02-22 19:52:01,578 - INFO - Querying 5 agents...
+2026-02-22 19:52:09,329 - INFO - Stored snapshot for step 1270 (will embed at end)
+2026-02-22 19:52:45,304 - INFO - Temporal kernel hook firing at step 1280
+2026-02-22 19:52:45,305 - INFO - Querying 20 sampled questions
+2026-02-22 19:52:45,305 - INFO - Querying 5 agents...
+2026-02-22 19:52:52,463 - INFO - Stored snapshot for step 1280 (will embed at end)
+2026-02-22 19:53:28,538 - INFO - Temporal kernel hook firing at step 1290
+2026-02-22 19:53:28,538 - INFO - Querying 20 sampled questions
+2026-02-22 19:53:28,538 - INFO - Querying 5 agents...
+2026-02-22 19:53:37,311 - INFO - Stored snapshot for step 1290 (will embed at end)
+2026-02-22 19:54:17,283 - INFO - Temporal kernel hook firing at step 1300
+2026-02-22 19:54:17,283 - INFO - Querying 20 sampled questions
+2026-02-22 19:54:17,283 - INFO - Querying 5 agents...
+2026-02-22 19:54:25,450 - INFO - Stored snapshot for step 1300 (will embed at end)
+2026-02-22 19:55:05,144 - INFO - Temporal kernel hook firing at step 1310
+2026-02-22 19:55:05,144 - INFO - Querying 20 sampled questions
+2026-02-22 19:55:05,144 - INFO - Querying 5 agents...
+2026-02-22 19:55:12,697 - INFO - Stored snapshot for step 1310 (will embed at end)
+Step 1057: known=246, unknown=4
+Step 1058: known=246, unknown=4
+Step 1059: known=246, unknown=4
+Step 1060: known=246, unknown=4
+Step 1061: known=246, unknown=4
+Step 1062: known=246, unknown=4
+Step 1063: known=246, unknown=4
+Step 1064: known=246, unknown=4
+Step 1065: known=246, unknown=4
+Step 1066: known=246, unknown=4
+Step 1067: known=246, unknown=4
+Step 1068: known=246, unknown=4
+Step 1069: known=246, unknown=4
+Step 1070: known=246, unknown=4
+Step 1071: known=246, unknown=4
+Step 1072: known=246, unknown=4
+Step 1073: known=246, unknown=4
+Step 1074: known=246, unknown=4
+Step 1075: known=246, unknown=4
+Step 1076: known=246, unknown=4
+Step 1077: known=246, unknown=4
+Step 1078: known=246, unknown=4
+Step 1079: known=246, unknown=4
+Step 1080: known=246, unknown=4
+Step 1081: known=246, unknown=4
+Step 1082: known=246, unknown=4
+Step 1083: known=246, unknown=4
+Step 1084: known=246, unknown=4
+Step 1085: known=246, unknown=4
+Step 1086: known=246, unknown=4
+Step 1087: known=246, unknown=4
+Step 1088: known=246, unknown=4
+Step 1089: known=246, unknown=4
+Step 1090: known=246, unknown=4
+Step 1091: known=246, unknown=4
+Step 1092: known=246, unknown=4
+Step 1093: known=246, unknown=4
+Step 1094: known=246, unknown=4
+Step 1095: known=246, unknown=4
+Step 1096: known=246, unknown=4
+Step 1097: known=246, unknown=4
+Step 1098: known=246, unknown=4
+Step 1099: known=246, unknown=4
+Step 1100: known=246, unknown=4
+Step 1101: known=246, unknown=4
+Step 1102: known=246, unknown=4
+Step 1103: known=246, unknown=4
+Step 1104: known=246, unknown=4
+Step 1105: known=246, unknown=4
+Step 1106: known=246, unknown=4
+Step 1107: known=246, unknown=4
+Step 1108: known=246, unknown=4
+Step 1109: known=246, unknown=4
+Step 1110: known=246, unknown=4
+Step 1111: known=246, unknown=4
+Step 1112: known=246, unknown=4
+Step 1113: known=246, unknown=4
+Step 1114: known=246, unknown=4
+Step 1115: known=246, unknown=4
+Step 1116: known=246, unknown=4
+Step 1117: known=246, unknown=4
+Step 1118: known=246, unknown=4
+Step 1119: known=246, unknown=4
+Step 1120: known=246, unknown=4
+Step 1121: known=246, unknown=4
+Step 1122: known=246, unknown=4
+Step 1123: known=246, unknown=4
+Step 1124: known=246, unknown=4
+Step 1125: known=246, unknown=4
+Step 1126: known=246, unknown=4
+Step 1127: known=246, unknown=4
+Step 1128: known=246, unknown=4
+Step 1129: known=246, unknown=4
+Step 1130: known=246, unknown=4
+Step 1131: known=246, unknown=4
+Step 1132: known=246, unknown=4
+Step 1133: known=246, unknown=4
+Step 1134: known=246, unknown=4
+Step 1135: known=246, unknown=4
+Step 1136: known=246, unknown=4
+Step 1137: known=246, unknown=4
+Step 1138: known=246, unknown=4
+Step 1139: known=246, unknown=4
+Step 1140: known=246, unknown=4
+Step 1141: known=246, unknown=4
+Step 1142: known=246, unknown=4
+Step 1143: known=246, unknown=4
+Step 1144: known=246, unknown=4
+Step 1145: known=246, unknown=4
+Step 1146: known=246, unknown=4
+Step 1147: known=246, unknown=4
+Step 1148: known=246, unknown=4
+Step 1149: known=246, unknown=4
+Step 1150: known=246, unknown=4
+Step 1151: known=246, unknown=4
+Step 1152: known=246, unknown=4
+Step 1153: known=246, unknown=4
+Step 1154: known=246, unknown=4
+Step 1155: known=246, unknown=4
+Step 1156: known=246, unknown=4
+Step 1157: known=246, unknown=4
+Step 1158: known=246, unknown=4
+Step 1159: known=246, unknown=4
+Step 1160: known=246, unknown=4
+Step 1161: known=246, unknown=4
+Step 1162: known=246, unknown=4
+Step 1163: known=246, unknown=4
+Step 1164: known=246, unknown=4
+Step 1165: known=246, unknown=4
+Step 1166: known=246, unknown=4
+Step 1167: known=246, unknown=4
+Step 1168: known=246, unknown=4
+Step 1169: known=246, unknown=4
+Step 1170: known=246, unknown=4
+Step 1171: known=246, unknown=4
+Step 1172: known=246, unknown=4
+Step 1173: known=246, unknown=4
+Step 1174: known=246, unknown=4
+Step 1175: known=246, unknown=4
+Step 1176: known=246, unknown=4
+Step 1177: known=246, unknown=4
+Step 1178: known=246, unknown=4
+Step 1179: known=246, unknown=4
+Step 1180: known=246, unknown=4
+Step 1181: known=246, unknown=4
+Step 1182: known=246, unknown=4
+Step 1183: known=246, unknown=4
+Step 1184: known=246, unknown=4
+Step 1185: known=246, unknown=4
+Step 1186: known=246, unknown=4
+Step 1187: known=246, unknown=4
+Step 1188: known=246, unknown=4
+Step 1189: known=246, unknown=4
+Step 1190: known=246, unknown=4
+Step 1191: known=246, unknown=4
+Step 1192: known=246, unknown=4
+Step 1193: known=246, unknown=4
+Step 1194: known=246, unknown=4
+Step 1195: known=246, unknown=4
+Step 1196: known=246, unknown=4
+Step 1197: known=246, unknown=4
+Step 1198: known=246, unknown=4
+Step 1199: known=246, unknown=4
+Step 1200: known=246, unknown=4
+Step 1201: known=246, unknown=4
+Step 1202: known=246, unknown=4
+Step 1203: known=246, unknown=4
+Step 1204: known=246, unknown=4
+Step 1205: known=246, unknown=4
+Step 1206: known=246, unknown=4
+Step 1207: known=246, unknown=4
+Step 1208: known=246, unknown=4
+Step 1209: known=246, unknown=4
+Step 1210: known=246, unknown=4
+Step 1211: known=246, unknown=4
+Step 1212: known=246, unknown=4
+Step 1213: known=246, unknown=4
+Step 1214: known=246, unknown=4
+Step 1215: known=246, unknown=4
+Step 1216: known=246, unknown=4
+Step 1217: known=246, unknown=4
+Step 1218: known=246, unknown=4
+Step 1219: known=246, unknown=4
+Step 1220: known=246, unknown=4
+Step 1221: known=246, unknown=4
+Step 1222: known=246, unknown=4
+Step 1223: known=246, unknown=4
+Step 1224: known=246, unknown=4
+Step 1225: known=246, unknown=4
+Step 1226: known=246, unknown=4
+Step 1227: known=246, unknown=4
+Step 1228: known=246, unknown=4
+Step 1229: known=246, unknown=4
+Step 1230: known=246, unknown=4
+Step 1231: known=246, unknown=4
+Step 1232: known=246, unknown=4
+Step 1233: known=246, unknown=4
+Step 1234: known=246, unknown=4
+Step 1235: known=246, unknown=4
+Step 1236: known=246, unknown=4
+Step 1237: known=246, unknown=4
+Step 1238: known=246, unknown=4
+Step 1239: known=246, unknown=4
+Step 1240: known=246, unknown=4
+Step 1241: known=246, unknown=4
+Step 1242: known=246, unknown=4
+Step 1243: known=246, unknown=4
+Step 1244: known=246, unknown=4
+Step 1245: known=246, unknown=4
+Step 1246: known=246, unknown=4
+Step 1247: known=246, unknown=4
+Step 1248: known=246, unknown=4
+Step 1249: known=246, unknown=4
+Step 1250: known=246, unknown=4
+Step 1251: known=246, unknown=4
+Step 1252: known=246, unknown=4
+Step 1253: known=246, unknown=4
+Step 1254: known=246, unknown=4
+Step 1255: known=246, unknown=4
+Step 1256: known=246, unknown=4
+Step 1257: known=246, unknown=4
+Step 1258: known=246, unknown=4
+Step 1259: known=246, unknown=4
+Step 1260: known=246, unknown=4
+Step 1261: known=246, unknown=4
+Step 1262: known=246, unknown=4
+Step 1263: known=246, unknown=4
+Step 1264: known=246, unknown=4
+Step 1265: known=246, unknown=4
+Step 1266: known=246, unknown=4
+Step 1267: known=246, unknown=4
+Step 1268: known=246, unknown=4
+Step 1269: known=246, unknown=4
+Step 1270: known=246, unknown=4
+Step 1271: known=246, unknown=4
+Step 1272: known=246, unknown=4
+Step 1273: known=246, unknown=4
+Step 1274: known=246, unknown=4
+Step 1275: known=246, unknown=4
+Step 1276: known=246, unknown=4
+Step 1277: known=246, unknown=4
+Step 1278: known=246, unknown=4
+Step 1279: known=246, unknown=4
+Step 1280: known=246, unknown=4
+Step 1281: known=246, unknown=4
+Step 1282: known=246, unknown=4
+Step 1283: known=246, unknown=4
+Step 1284: known=246, unknown=4
+Step 1285: known=246, unknown=4
+Step 1286: known=246, unknown=4
+Step 1287: known=246, unknown=4
+Step 1288: known=246, unknown=4
+Step 1289: known=246, unknown=4
+Step 1290: known=246, unknown=4
+Step 1291: known=246, unknown=4
+Step 1292: known=246, unknown=4
+Step 1293: known=246, unknown=4
+Step 1294: known=246, unknown=4
+Step 1295: known=246, unknown=4
+Step 1296: known=246, unknown=4
+Step 1297: known=246, unknown=4
+Step 1298: known=246, unknown=4
+Step 1299: known=246, unknown=4
+Step 1300: known=246, unknown=4
+Step 1301: known=246, unknown=4
+Step 1302: known=246, unknown=4
+Step 1303: known=246, unknown=4
+Step 1304: known=246, unknown=4
+Step 1305: known=246, unknown=4
+Step 1306: known=246, unknown=4
+Step 1307: known=246, unknown=4
+Step 1308: known=246, unknown=4
+Step 1309: known=246, unknown=4
+Step 1310: known=246, unknown=4
+Step 1311: known=246, unknown=4
+Step 1312: known=246, unknown=4
+2026-02-22 19:55:46,084 - INFO - Temporal kernel hook firing at step 1320
+2026-02-22 19:55:46,084 - INFO - Querying 20 sampled questions
+2026-02-22 19:55:46,084 - INFO - Querying 5 agents...
+2026-02-22 19:55:53,219 - INFO - Stored snapshot for step 1320 (will embed at end)
+2026-02-22 19:56:31,364 - INFO - Temporal kernel hook firing at step 1330
+2026-02-22 19:56:31,364 - INFO - Querying 20 sampled questions
+2026-02-22 19:56:31,364 - INFO - Querying 5 agents...
+2026-02-22 19:56:39,070 - INFO - Stored snapshot for step 1330 (will embed at end)
+2026-02-22 19:57:19,300 - INFO - Temporal kernel hook firing at step 1340
+2026-02-22 19:57:19,300 - INFO - Querying 20 sampled questions
+2026-02-22 19:57:19,300 - INFO - Querying 5 agents...
+2026-02-22 19:57:29,056 - INFO - Stored snapshot for step 1340 (will embed at end)
+2026-02-22 19:58:08,856 - INFO - Temporal kernel hook firing at step 1350
+2026-02-22 19:58:08,857 - INFO - Querying 20 sampled questions
+2026-02-22 19:58:08,857 - INFO - Querying 5 agents...
+2026-02-22 19:58:17,073 - INFO - Stored snapshot for step 1350 (will embed at end)
+2026-02-22 19:58:55,259 - INFO - Temporal kernel hook firing at step 1360
+2026-02-22 19:58:55,259 - INFO - Querying 20 sampled questions
+2026-02-22 19:58:55,259 - INFO - Querying 5 agents...
+2026-02-22 19:59:03,401 - INFO - Stored snapshot for step 1360 (will embed at end)
+2026-02-22 19:59:42,561 - INFO - Temporal kernel hook firing at step 1370
+2026-02-22 19:59:42,561 - INFO - Querying 20 sampled questions
+2026-02-22 19:59:42,561 - INFO - Querying 5 agents...
+2026-02-22 19:59:50,699 - INFO - Stored snapshot for step 1370 (will embed at end)
+2026-02-22 20:00:30,893 - INFO - Temporal kernel hook firing at step 1380
+2026-02-22 20:00:30,894 - INFO - Querying 20 sampled questions
+2026-02-22 20:00:30,894 - INFO - Querying 5 agents...
+2026-02-22 20:00:39,525 - INFO - Stored snapshot for step 1380 (will embed at end)
+2026-02-22 20:01:48,611 - INFO - Temporal kernel hook firing at step 1390
+2026-02-22 20:01:48,611 - INFO - Querying 20 sampled questions
+2026-02-22 20:01:48,611 - INFO - Querying 5 agents...
+2026-02-22 20:01:59,137 - INFO - Stored snapshot for step 1390 (will embed at end)
+2026-02-22 20:02:39,312 - INFO - Temporal kernel hook firing at step 1400
+2026-02-22 20:02:39,312 - INFO - Querying 20 sampled questions
+2026-02-22 20:02:39,312 - INFO - Querying 5 agents...
+2026-02-22 20:02:48,862 - INFO - Stored snapshot for step 1400 (will embed at end)
+2026-02-22 20:03:37,101 - INFO - Temporal kernel hook firing at step 1410
+2026-02-22 20:03:37,101 - INFO - Querying 20 sampled questions
+2026-02-22 20:03:37,101 - INFO - Querying 5 agents...
+2026-02-22 20:03:45,576 - INFO - Stored snapshot for step 1410 (will embed at end)
+2026-02-22 20:04:25,312 - INFO - Temporal kernel hook firing at step 1420
+2026-02-22 20:04:25,312 - INFO - Querying 20 sampled questions
+2026-02-22 20:04:25,312 - INFO - Querying 5 agents...
+2026-02-22 20:04:33,533 - INFO - Stored snapshot for step 1420 (will embed at end)
+2026-02-22 20:05:16,861 - INFO - Temporal kernel hook firing at step 1430
+2026-02-22 20:05:16,861 - INFO - Querying 20 sampled questions
+2026-02-22 20:05:16,861 - INFO - Querying 5 agents...
+2026-02-22 20:05:26,573 - INFO - Stored snapshot for step 1430 (will embed at end)
+2026-02-22 20:06:13,802 - INFO - Temporal kernel hook firing at step 1440
+2026-02-22 20:06:13,802 - INFO - Querying 20 sampled questions
+2026-02-22 20:06:13,802 - INFO - Querying 5 agents...
+2026-02-22 20:06:21,887 - INFO - Stored snapshot for step 1440 (will embed at end)
+2026-02-22 20:07:05,216 - INFO - Temporal kernel hook firing at step 1450
+2026-02-22 20:07:05,216 - INFO - Querying 20 sampled questions
+2026-02-22 20:07:05,216 - INFO - Querying 5 agents...
+2026-02-22 20:07:13,293 - INFO - Stored snapshot for step 1450 (will embed at end)
+2026-02-22 20:07:57,358 - INFO - Temporal kernel hook firing at step 1460
+2026-02-22 20:07:57,359 - INFO - Querying 20 sampled questions
+2026-02-22 20:07:57,359 - INFO - Querying 5 agents...
+2026-02-22 20:08:05,581 - INFO - Stored snapshot for step 1460 (will embed at end)
+2026-02-22 20:08:43,373 - INFO - Temporal kernel hook firing at step 1470
+2026-02-22 20:08:43,373 - INFO - Querying 20 sampled questions
+2026-02-22 20:08:43,373 - INFO - Querying 5 agents...
+2026-02-22 20:08:50,751 - INFO - Stored snapshot for step 1470 (will embed at end)
+2026-02-22 20:09:30,513 - INFO - Temporal kernel hook firing at step 1480
+2026-02-22 20:09:30,513 - INFO - Querying 20 sampled questions
+2026-02-22 20:09:30,513 - INFO - Querying 5 agents...
+2026-02-22 20:09:38,229 - INFO - Stored snapshot for step 1480 (will embed at end)
+2026-02-22 20:10:20,358 - INFO - Temporal kernel hook firing at step 1490
+2026-02-22 20:10:20,358 - INFO - Querying 20 sampled questions
+2026-02-22 20:10:20,358 - INFO - Querying 5 agents...
+2026-02-22 20:10:27,967 - INFO - Stored snapshot for step 1490 (will embed at end)
+2026-02-22 20:11:03,360 - INFO - Progress: 75% (1500/2000 iterations) - Knowledge: 246/250
+2026-02-22 20:11:07,107 - INFO - Temporal kernel hook firing at step 1500
+2026-02-22 20:11:07,107 - INFO - Querying 20 sampled questions
+2026-02-22 20:11:07,107 - INFO - Querying 5 agents...
+2026-02-22 20:11:14,783 - INFO - Stored snapshot for step 1500 (will embed at end)
+2026-02-22 20:11:55,383 - INFO - Temporal kernel hook firing at step 1510
+2026-02-22 20:11:55,383 - INFO - Querying 20 sampled questions
+2026-02-22 20:11:55,383 - INFO - Querying 5 agents...
+2026-02-22 20:12:03,051 - INFO - Stored snapshot for step 1510 (will embed at end)
+2026-02-22 20:12:45,323 - INFO - Temporal kernel hook firing at step 1520
+2026-02-22 20:12:45,323 - INFO - Querying 20 sampled questions
+2026-02-22 20:12:45,324 - INFO - Querying 5 agents...
+2026-02-22 20:12:52,712 - INFO - Stored snapshot for step 1520 (will embed at end)
+2026-02-22 20:13:32,663 - INFO - Temporal kernel hook firing at step 1530
+2026-02-22 20:13:32,663 - INFO - Querying 20 sampled questions
+2026-02-22 20:13:32,663 - INFO - Querying 5 agents...
+2026-02-22 20:13:42,053 - INFO - Stored snapshot for step 1530 (will embed at end)
+2026-02-22 20:14:21,318 - INFO - Temporal kernel hook firing at step 1540
+2026-02-22 20:14:21,318 - INFO - Querying 20 sampled questions
+2026-02-22 20:14:21,318 - INFO - Querying 5 agents...
+2026-02-22 20:14:29,377 - INFO - Stored snapshot for step 1540 (will embed at end)
+2026-02-22 20:15:13,269 - INFO - Temporal kernel hook firing at step 1550
+2026-02-22 20:15:13,269 - INFO - Querying 20 sampled questions
+2026-02-22 20:15:13,269 - INFO - Querying 5 agents...
+2026-02-22 20:15:20,921 - INFO - Stored snapshot for step 1550 (will embed at end)
+2026-02-22 20:15:57,589 - INFO - Temporal kernel hook firing at step 1560
+2026-02-22 20:15:57,589 - INFO - Querying 20 sampled questions
+2026-02-22 20:15:57,589 - INFO - Querying 5 agents...
+2026-02-22 20:16:05,289 - INFO - Stored snapshot for step 1560 (will embed at end)
+Step 1313: known=246, unknown=4
+Step 1314: known=246, unknown=4
+Step 1315: known=246, unknown=4
+Step 1316: known=246, unknown=4
+Step 1317: known=246, unknown=4
+Step 1318: known=246, unknown=4
+Step 1319: known=246, unknown=4
+Step 1320: known=246, unknown=4
+Step 1321: known=246, unknown=4
+Step 1322: known=246, unknown=4
+Step 1323: known=246, unknown=4
+Step 1324: known=246, unknown=4
+Step 1325: known=246, unknown=4
+Step 1326: known=246, unknown=4
+Step 1327: known=246, unknown=4
+Step 1328: known=246, unknown=4
+Step 1329: known=246, unknown=4
+Step 1330: known=246, unknown=4
+Step 1331: known=246, unknown=4
+Step 1332: known=246, unknown=4
+Step 1333: known=246, unknown=4
+Step 1334: known=246, unknown=4
+Step 1335: known=246, unknown=4
+Step 1336: known=246, unknown=4
+Step 1337: known=246, unknown=4
+Step 1338: known=246, unknown=4
+Step 1339: known=246, unknown=4
+Step 1340: known=246, unknown=4
+Step 1341: known=246, unknown=4
+Step 1342: known=246, unknown=4
+Step 1343: known=246, unknown=4
+Step 1344: known=246, unknown=4
+Step 1345: known=246, unknown=4
+Step 1346: known=246, unknown=4
+Step 1347: known=246, unknown=4
+Step 1348: known=246, unknown=4
+Step 1349: known=246, unknown=4
+Step 1350: known=246, unknown=4
+Step 1351: known=246, unknown=4
+Step 1352: known=246, unknown=4
+Step 1353: known=246, unknown=4
+Step 1354: known=246, unknown=4
+Step 1355: known=246, unknown=4
+Step 1356: known=246, unknown=4
+Step 1357: known=246, unknown=4
+Step 1358: known=246, unknown=4
+Step 1359: known=246, unknown=4
+Step 1360: known=246, unknown=4
+Step 1361: known=246, unknown=4
+Step 1362: known=246, unknown=4
+Step 1363: known=246, unknown=4
+Step 1364: known=246, unknown=4
+Step 1365: known=246, unknown=4
+Step 1366: known=246, unknown=4
+Step 1367: known=246, unknown=4
+Step 1368: known=246, unknown=4
+Step 1369: known=246, unknown=4
+Step 1370: known=246, unknown=4
+Step 1371: known=246, unknown=4
+Step 1372: known=246, unknown=4
+Step 1373: known=246, unknown=4
+Step 1374: known=246, unknown=4
+Step 1375: known=246, unknown=4
+Step 1376: known=246, unknown=4
+Step 1377: known=246, unknown=4
+Step 1378: known=246, unknown=4
+Step 1379: known=246, unknown=4
+Step 1380: known=246, unknown=4
+Step 1381: known=246, unknown=4
+Step 1382: known=246, unknown=4
+Step 1383: known=246, unknown=4
+Step 1384: known=246, unknown=4
+Step 1385: known=246, unknown=4
+Step 1386: known=246, unknown=4
+Step 1387: known=246, unknown=4
+Step 1388: known=246, unknown=4
+Step 1389: known=246, unknown=4
+Step 1390: known=246, unknown=4
+Step 1391: known=246, unknown=4
+Step 1392: known=246, unknown=4
+Step 1393: known=246, unknown=4
+Step 1394: known=246, unknown=4
+Step 1395: known=246, unknown=4
+Step 1396: known=246, unknown=4
+Step 1397: known=246, unknown=4
+Step 1398: known=246, unknown=4
+Step 1399: known=246, unknown=4
+Step 1400: known=246, unknown=4
+Step 1401: known=246, unknown=4
+Step 1402: known=246, unknown=4
+Step 1403: known=246, unknown=4
+Step 1404: known=246, unknown=4
+Step 1405: known=246, unknown=4
+Step 1406: known=246, unknown=4
+Step 1407: known=246, unknown=4
+Step 1408: known=246, unknown=4
+Step 1409: known=246, unknown=4
+Step 1410: known=246, unknown=4
+Step 1411: known=246, unknown=4
+Step 1412: known=246, unknown=4
+Step 1413: known=246, unknown=4
+Step 1414: known=246, unknown=4
+Step 1415: known=246, unknown=4
+Step 1416: known=246, unknown=4
+Step 1417: known=246, unknown=4
+Step 1418: known=246, unknown=4
+Step 1419: known=246, unknown=4
+Step 1420: known=246, unknown=4
+Step 1421: known=246, unknown=4
+Step 1422: known=246, unknown=4
+Step 1423: known=246, unknown=4
+Step 1424: known=246, unknown=4
+Step 1425: known=246, unknown=4
+Step 1426: known=246, unknown=4
+Step 1427: known=246, unknown=4
+Step 1428: known=246, unknown=4
+Step 1429: known=246, unknown=4
+Step 1430: known=246, unknown=4
+Step 1431: known=246, unknown=4
+Step 1432: known=246, unknown=4
+Step 1433: known=246, unknown=4
+Step 1434: known=246, unknown=4
+Step 1435: known=246, unknown=4
+Step 1436: known=246, unknown=4
+Step 1437: known=246, unknown=4
+Step 1438: known=246, unknown=4
+Step 1439: known=246, unknown=4
+Step 1440: known=246, unknown=4
+Step 1441: known=246, unknown=4
+Step 1442: known=246, unknown=4
+Step 1443: known=246, unknown=4
+Step 1444: known=246, unknown=4
+Step 1445: known=246, unknown=4
+Step 1446: known=246, unknown=4
+Step 1447: known=246, unknown=4
+Step 1448: known=246, unknown=4
+Step 1449: known=246, unknown=4
+Step 1450: known=246, unknown=4
+Step 1451: known=246, unknown=4
+Step 1452: known=246, unknown=4
+Step 1453: known=246, unknown=4
+Step 1454: known=246, unknown=4
+Step 1455: known=246, unknown=4
+Step 1456: known=246, unknown=4
+Step 1457: known=246, unknown=4
+Step 1458: known=246, unknown=4
+Step 1459: known=246, unknown=4
+Step 1460: known=246, unknown=4
+Step 1461: known=246, unknown=4
+Step 1462: known=246, unknown=4
+Step 1463: known=246, unknown=4
+Step 1464: known=246, unknown=4
+Step 1465: known=246, unknown=4
+Step 1466: known=246, unknown=4
+Step 1467: known=246, unknown=4
+Step 1468: known=246, unknown=4
+Step 1469: known=246, unknown=4
+Step 1470: known=246, unknown=4
+Step 1471: known=246, unknown=4
+Step 1472: known=246, unknown=4
+Step 1473: known=246, unknown=4
+Step 1474: known=246, unknown=4
+Step 1475: known=246, unknown=4
+Step 1476: known=246, unknown=4
+Step 1477: known=246, unknown=4
+Step 1478: known=246, unknown=4
+Step 1479: known=246, unknown=4
+Step 1480: known=246, unknown=4
+Step 1481: known=246, unknown=4
+Step 1482: known=246, unknown=4
+Step 1483: known=246, unknown=4
+Step 1484: known=246, unknown=4
+Step 1485: known=246, unknown=4
+Step 1486: known=246, unknown=4
+Step 1487: known=246, unknown=4
+Step 1488: known=246, unknown=4
+Step 1489: known=246, unknown=4
+Step 1490: known=246, unknown=4
+Step 1491: known=246, unknown=4
+Step 1492: known=246, unknown=4
+Step 1493: known=246, unknown=4
+Step 1494: known=246, unknown=4
+Step 1495: known=246, unknown=4
+Step 1496: known=246, unknown=4
+Step 1497: known=246, unknown=4
+Step 1498: known=246, unknown=4
+Step 1499: known=246, unknown=4
+Step 1500: known=246, unknown=4
+Step 1501: known=246, unknown=4
+Step 1502: known=246, unknown=4
+Step 1503: known=246, unknown=4
+Step 1504: known=246, unknown=4
+Step 1505: known=246, unknown=4
+Step 1506: known=246, unknown=4
+Step 1507: known=246, unknown=4
+Step 1508: known=246, unknown=4
+Step 1509: known=246, unknown=4
+Step 1510: known=246, unknown=4
+Step 1511: known=246, unknown=4
+Step 1512: known=246, unknown=4
+Step 1513: known=246, unknown=4
+Step 1514: known=246, unknown=4
+Step 1515: known=246, unknown=4
+Step 1516: known=246, unknown=4
+Step 1517: known=246, unknown=4
+Step 1518: known=246, unknown=4
+Step 1519: known=246, unknown=4
+Step 1520: known=246, unknown=4
+Step 1521: known=246, unknown=4
+Step 1522: known=246, unknown=4
+Step 1523: known=246, unknown=4
+Step 1524: known=246, unknown=4
+Step 1525: known=246, unknown=4
+Step 1526: known=246, unknown=4
+Step 1527: known=246, unknown=4
+Step 1528: known=246, unknown=4
+Step 1529: known=246, unknown=4
+Step 1530: known=246, unknown=4
+Step 1531: known=246, unknown=4
+Step 1532: known=246, unknown=4
+Step 1533: known=246, unknown=4
+Step 1534: known=246, unknown=4
+Step 1535: known=246, unknown=4
+Step 1536: known=246, unknown=4
+Step 1537: known=246, unknown=4
+Step 1538: known=246, unknown=4
+Step 1539: known=246, unknown=4
+Step 1540: known=246, unknown=4
+Step 1541: known=246, unknown=4
+Step 1542: known=246, unknown=4
+Step 1543: known=246, unknown=4
+Step 1544: known=246, unknown=4
+Step 1545: known=246, unknown=4
+Step 1546: known=246, unknown=4
+Step 1547: known=246, unknown=4
+Step 1548: known=246, unknown=4
+Step 1549: known=246, unknown=4
+Step 1550: known=246, unknown=4
+Step 1551: known=246, unknown=4
+Step 1552: known=246, unknown=4
+Step 1553: known=246, unknown=4
+Step 1554: known=246, unknown=4
+Step 1555: known=246, unknown=4
+Step 1556: known=246, unknown=4
+Step 1557: known=246, unknown=4
+Step 1558: known=246, unknown=4
+Step 1559: known=246, unknown=4
+Step 1560: known=246, unknown=4
+Step 1561: known=246, unknown=4
+Step 1562: known=246, unknown=4
+Step 1563: known=246, unknown=4
+Step 1564: known=246, unknown=4
+Step 1565: known=246, unknown=4
+Step 1566: known=246, unknown=4
+Step 1567: known=246, unknown=4
+Step 1568: known=246, unknown=4
+2026-02-22 20:16:49,006 - INFO - Temporal kernel hook firing at step 1570
+2026-02-22 20:16:49,006 - INFO - Querying 20 sampled questions
+2026-02-22 20:16:49,006 - INFO - Querying 5 agents...
+2026-02-22 20:16:57,317 - INFO - Stored snapshot for step 1570 (will embed at end)
+2026-02-22 20:17:50,348 - INFO - Temporal kernel hook firing at step 1580
+2026-02-22 20:17:50,348 - INFO - Querying 20 sampled questions
+2026-02-22 20:17:50,348 - INFO - Querying 5 agents...
+2026-02-22 20:17:58,797 - INFO - Stored snapshot for step 1580 (will embed at end)
+2026-02-22 20:18:40,270 - INFO - Temporal kernel hook firing at step 1590
+2026-02-22 20:18:40,271 - INFO - Querying 20 sampled questions
+2026-02-22 20:18:40,271 - INFO - Querying 5 agents...
+2026-02-22 20:18:48,712 - INFO - Stored snapshot for step 1590 (will embed at end)
+2026-02-22 20:19:25,446 - INFO - Temporal kernel hook firing at step 1600
+2026-02-22 20:19:25,446 - INFO - Querying 20 sampled questions
+2026-02-22 20:19:25,446 - INFO - Querying 5 agents...
+2026-02-22 20:19:34,359 - INFO - Stored snapshot for step 1600 (will embed at end)
+2026-02-22 20:20:14,307 - INFO - Temporal kernel hook firing at step 1610
+2026-02-22 20:20:14,307 - INFO - Querying 20 sampled questions
+2026-02-22 20:20:14,307 - INFO - Querying 5 agents...
+2026-02-22 20:20:22,520 - INFO - Stored snapshot for step 1610 (will embed at end)
+2026-02-22 20:21:00,386 - INFO - Temporal kernel hook firing at step 1620
+2026-02-22 20:21:00,386 - INFO - Querying 20 sampled questions
+2026-02-22 20:21:00,386 - INFO - Querying 5 agents...
+2026-02-22 20:21:09,332 - INFO - Stored snapshot for step 1620 (will embed at end)
+2026-02-22 20:21:49,166 - INFO - Temporal kernel hook firing at step 1630
+2026-02-22 20:21:49,166 - INFO - Querying 20 sampled questions
+2026-02-22 20:21:49,166 - INFO - Querying 5 agents...
+2026-02-22 20:21:57,600 - INFO - Stored snapshot for step 1630 (will embed at end)
+2026-02-22 20:22:43,618 - INFO - Temporal kernel hook firing at step 1640
+2026-02-22 20:22:43,618 - INFO - Querying 20 sampled questions
+2026-02-22 20:22:43,618 - INFO - Querying 5 agents...
+2026-02-22 20:22:51,881 - INFO - Stored snapshot for step 1640 (will embed at end)
+2026-02-22 20:23:30,607 - INFO - Temporal kernel hook firing at step 1650
+2026-02-22 20:23:30,607 - INFO - Querying 20 sampled questions
+2026-02-22 20:23:30,607 - INFO - Querying 5 agents...
+2026-02-22 20:23:39,370 - INFO - Stored snapshot for step 1650 (will embed at end)
+2026-02-22 20:24:26,616 - INFO - Temporal kernel hook firing at step 1660
+2026-02-22 20:24:26,616 - INFO - Querying 20 sampled questions
+2026-02-22 20:24:26,616 - INFO - Querying 5 agents...
+2026-02-22 20:24:35,660 - INFO - Stored snapshot for step 1660 (will embed at end)
+2026-02-22 20:25:14,304 - INFO - Temporal kernel hook firing at step 1670
+2026-02-22 20:25:14,304 - INFO - Querying 20 sampled questions
+2026-02-22 20:25:14,304 - INFO - Querying 5 agents...
+2026-02-22 20:25:23,292 - INFO - Stored snapshot for step 1670 (will embed at end)
+2026-02-22 20:25:59,982 - INFO - Temporal kernel hook firing at step 1680
+2026-02-22 20:25:59,982 - INFO - Querying 20 sampled questions
+2026-02-22 20:25:59,982 - INFO - Querying 5 agents...
+2026-02-22 20:26:07,224 - INFO - Stored snapshot for step 1680 (will embed at end)
+2026-02-22 20:26:49,782 - INFO - Temporal kernel hook firing at step 1690
+2026-02-22 20:26:49,782 - INFO - Querying 20 sampled questions
+2026-02-22 20:26:49,782 - INFO - Querying 5 agents...
+2026-02-22 20:26:58,183 - INFO - Stored snapshot for step 1690 (will embed at end)
+2026-02-22 20:27:42,415 - INFO - Temporal kernel hook firing at step 1700
+2026-02-22 20:27:42,415 - INFO - Querying 20 sampled questions
+2026-02-22 20:27:42,416 - INFO - Querying 5 agents...
+2026-02-22 20:27:50,697 - INFO - Stored snapshot for step 1700 (will embed at end)
+2026-02-22 20:28:31,496 - INFO - Temporal kernel hook firing at step 1710
+2026-02-22 20:28:31,496 - INFO - Querying 20 sampled questions
+2026-02-22 20:28:31,497 - INFO - Querying 5 agents...
+2026-02-22 20:28:39,701 - INFO - Stored snapshot for step 1710 (will embed at end)
+2026-02-22 20:29:20,972 - INFO - Temporal kernel hook firing at step 1720
+2026-02-22 20:29:20,972 - INFO - Querying 20 sampled questions
+2026-02-22 20:29:20,972 - INFO - Querying 5 agents...
+2026-02-22 20:29:30,873 - INFO - Stored snapshot for step 1720 (will embed at end)
+2026-02-22 20:30:10,728 - INFO - Temporal kernel hook firing at step 1730
+2026-02-22 20:30:10,729 - INFO - Querying 20 sampled questions
+2026-02-22 20:30:10,729 - INFO - Querying 5 agents...
+2026-02-22 20:30:20,207 - INFO - Stored snapshot for step 1730 (will embed at end)
+2026-02-22 20:31:04,844 - INFO - Temporal kernel hook firing at step 1740
+2026-02-22 20:31:04,844 - INFO - Querying 20 sampled questions
+2026-02-22 20:31:04,844 - INFO - Querying 5 agents...
+2026-02-22 20:31:14,143 - INFO - Stored snapshot for step 1740 (will embed at end)
+2026-02-22 20:31:57,864 - INFO - Temporal kernel hook firing at step 1750
+2026-02-22 20:31:57,864 - INFO - Querying 20 sampled questions
+2026-02-22 20:31:57,865 - INFO - Querying 5 agents...
+2026-02-22 20:32:06,784 - INFO - Stored snapshot for step 1750 (will embed at end)
+2026-02-22 20:32:53,291 - INFO - Temporal kernel hook firing at step 1760
+2026-02-22 20:32:53,291 - INFO - Querying 20 sampled questions
+2026-02-22 20:32:53,291 - INFO - Querying 5 agents...
+2026-02-22 20:33:01,880 - INFO - Stored snapshot for step 1760 (will embed at end)
+2026-02-22 20:33:52,653 - INFO - Temporal kernel hook firing at step 1770
+2026-02-22 20:33:52,654 - INFO - Querying 20 sampled questions
+2026-02-22 20:33:52,654 - INFO - Querying 5 agents...
+2026-02-22 20:34:08,740 - INFO - Stored snapshot for step 1770 (will embed at end)
+2026-02-22 20:34:49,740 - INFO - Temporal kernel hook firing at step 1780
+2026-02-22 20:34:49,740 - INFO - Querying 20 sampled questions
+2026-02-22 20:34:49,740 - INFO - Querying 5 agents...
+2026-02-22 20:34:59,066 - INFO - Stored snapshot for step 1780 (will embed at end)
+2026-02-22 20:35:46,659 - INFO - Temporal kernel hook firing at step 1790
+2026-02-22 20:35:46,659 - INFO - Querying 20 sampled questions
+2026-02-22 20:35:46,659 - INFO - Querying 5 agents...
+2026-02-22 20:35:55,547 - INFO - Stored snapshot for step 1790 (will embed at end)
+2026-02-22 20:36:41,639 - INFO - Temporal kernel hook firing at step 1800
+2026-02-22 20:36:41,639 - INFO - Querying 20 sampled questions
+2026-02-22 20:36:41,639 - INFO - Querying 5 agents...
+2026-02-22 20:36:49,955 - INFO - Stored snapshot for step 1800 (will embed at end)
+2026-02-22 20:37:31,333 - INFO - Temporal kernel hook firing at step 1810
+2026-02-22 20:37:31,333 - INFO - Querying 20 sampled questions
+2026-02-22 20:37:31,333 - INFO - Querying 5 agents...
+2026-02-22 20:37:40,404 - INFO - Stored snapshot for step 1810 (will embed at end)
+2026-02-22 20:38:35,084 - INFO - Temporal kernel hook firing at step 1820
+2026-02-22 20:38:35,084 - INFO - Querying 20 sampled questions
+2026-02-22 20:38:35,084 - INFO - Querying 5 agents...
+2026-02-22 20:38:44,330 - INFO - Stored snapshot for step 1820 (will embed at end)
+Step 1569: known=246, unknown=4
+Step 1570: known=246, unknown=4
+Step 1571: known=246, unknown=4
+Step 1572: known=246, unknown=4
+Step 1573: known=246, unknown=4
+Step 1574: known=246, unknown=4
+Step 1575: known=246, unknown=4
+Step 1576: known=246, unknown=4
+Step 1577: known=246, unknown=4
+Step 1578: known=246, unknown=4
+Step 1579: known=246, unknown=4
+Step 1580: known=246, unknown=4
+Step 1581: known=246, unknown=4
+Step 1582: known=246, unknown=4
+Step 1583: known=246, unknown=4
+Step 1584: known=246, unknown=4
+Step 1585: known=246, unknown=4
+Step 1586: known=246, unknown=4
+Step 1587: known=246, unknown=4
+Step 1588: known=246, unknown=4
+Step 1589: known=246, unknown=4
+Step 1590: known=246, unknown=4
+Step 1591: known=246, unknown=4
+Step 1592: known=246, unknown=4
+Step 1593: known=246, unknown=4
+Step 1594: known=246, unknown=4
+Step 1595: known=246, unknown=4
+Step 1596: known=246, unknown=4
+Step 1597: known=246, unknown=4
+Step 1598: known=246, unknown=4
+Step 1599: known=246, unknown=4
+Step 1600: known=246, unknown=4
+Step 1601: known=246, unknown=4
+Step 1602: known=246, unknown=4
+Step 1603: known=246, unknown=4
+Step 1604: known=246, unknown=4
+Step 1605: known=246, unknown=4
+Step 1606: known=246, unknown=4
+Step 1607: known=246, unknown=4
+Step 1608: known=246, unknown=4
+Step 1609: known=246, unknown=4
+Step 1610: known=246, unknown=4
+Step 1611: known=246, unknown=4
+Step 1612: known=246, unknown=4
+Step 1613: known=246, unknown=4
+Step 1614: known=246, unknown=4
+Step 1615: known=246, unknown=4
+Step 1616: known=246, unknown=4
+Step 1617: known=246, unknown=4
+Step 1618: known=246, unknown=4
+Step 1619: known=246, unknown=4
+Step 1620: known=246, unknown=4
+Step 1621: known=246, unknown=4
+Step 1622: known=246, unknown=4
+Step 1623: known=246, unknown=4
+Step 1624: known=246, unknown=4
+Step 1625: known=246, unknown=4
+Step 1626: known=246, unknown=4
+Step 1627: known=246, unknown=4
+Step 1628: known=246, unknown=4
+Step 1629: known=246, unknown=4
+Step 1630: known=246, unknown=4
+Step 1631: known=246, unknown=4
+Step 1632: known=246, unknown=4
+Step 1633: known=246, unknown=4
+Step 1634: known=246, unknown=4
+Step 1635: known=246, unknown=4
+Step 1636: known=246, unknown=4
+Step 1637: known=246, unknown=4
+Step 1638: known=246, unknown=4
+Step 1639: known=246, unknown=4
+Step 1640: known=246, unknown=4
+Step 1641: known=246, unknown=4
+Step 1642: known=246, unknown=4
+Step 1643: known=246, unknown=4
+Step 1644: known=246, unknown=4
+Step 1645: known=246, unknown=4
+Step 1646: known=246, unknown=4
+Step 1647: known=246, unknown=4
+Step 1648: known=246, unknown=4
+Step 1649: known=246, unknown=4
+Step 1650: known=246, unknown=4
+Step 1651: known=246, unknown=4
+Step 1652: known=246, unknown=4
+Step 1653: known=246, unknown=4
+Step 1654: known=246, unknown=4
+Step 1655: known=246, unknown=4
+Step 1656: known=246, unknown=4
+Step 1657: known=246, unknown=4
+Step 1658: known=246, unknown=4
+Step 1659: known=246, unknown=4
+Step 1660: known=246, unknown=4
+Step 1661: known=246, unknown=4
+Step 1662: known=246, unknown=4
+Step 1663: known=246, unknown=4
+Step 1664: known=246, unknown=4
+Step 1665: known=246, unknown=4
+Step 1666: known=246, unknown=4
+Step 1667: known=246, unknown=4
+Step 1668: known=246, unknown=4
+Step 1669: known=246, unknown=4
+Step 1670: known=246, unknown=4
+Step 1671: known=246, unknown=4
+Step 1672: known=246, unknown=4
+Step 1673: known=246, unknown=4
+Step 1674: known=246, unknown=4
+Step 1675: known=246, unknown=4
+Step 1676: known=246, unknown=4
+Step 1677: known=246, unknown=4
+Step 1678: known=246, unknown=4
+Step 1679: known=246, unknown=4
+Step 1680: known=246, unknown=4
+Step 1681: known=246, unknown=4
+Step 1682: known=246, unknown=4
+Step 1683: known=246, unknown=4
+Step 1684: known=246, unknown=4
+Step 1685: known=246, unknown=4
+Step 1686: known=246, unknown=4
+Step 1687: known=246, unknown=4
+Step 1688: known=246, unknown=4
+Step 1689: known=246, unknown=4
+Step 1690: known=246, unknown=4
+Step 1691: known=246, unknown=4
+Step 1692: known=246, unknown=4
+Step 1693: known=246, unknown=4
+Step 1694: known=246, unknown=4
+Step 1695: known=246, unknown=4
+Step 1696: known=246, unknown=4
+Step 1697: known=246, unknown=4
+Step 1698: known=246, unknown=4
+Step 1699: known=246, unknown=4
+Step 1700: known=246, unknown=4
+Step 1701: known=246, unknown=4
+Step 1702: known=246, unknown=4
+Step 1703: known=246, unknown=4
+Step 1704: known=246, unknown=4
+Step 1705: known=246, unknown=4
+Step 1706: known=246, unknown=4
+Step 1707: known=246, unknown=4
+Step 1708: known=246, unknown=4
+Step 1709: known=246, unknown=4
+Step 1710: known=246, unknown=4
+Step 1711: known=246, unknown=4
+Step 1712: known=246, unknown=4
+Step 1713: known=246, unknown=4
+Step 1714: known=246, unknown=4
+Step 1715: known=246, unknown=4
+Step 1716: known=246, unknown=4
+Step 1717: known=246, unknown=4
+Step 1718: known=246, unknown=4
+Step 1719: known=246, unknown=4
+Step 1720: known=246, unknown=4
+Step 1721: known=246, unknown=4
+Step 1722: known=246, unknown=4
+Step 1723: known=246, unknown=4
+Step 1724: known=246, unknown=4
+Step 1725: known=246, unknown=4
+Step 1726: known=246, unknown=4
+Step 1727: known=246, unknown=4
+Step 1728: known=246, unknown=4
+Step 1729: known=246, unknown=4
+Step 1730: known=246, unknown=4
+Step 1731: known=246, unknown=4
+Step 1732: known=246, unknown=4
+Step 1733: known=246, unknown=4
+Step 1734: known=246, unknown=4
+Step 1735: known=246, unknown=4
+Step 1736: known=246, unknown=4
+Step 1737: known=246, unknown=4
+Step 1738: known=246, unknown=4
+Step 1739: known=246, unknown=4
+Step 1740: known=246, unknown=4
+Step 1741: known=246, unknown=4
+Step 1742: known=246, unknown=4
+Step 1743: known=246, unknown=4
+Step 1744: known=246, unknown=4
+Step 1745: known=246, unknown=4
+Step 1746: known=246, unknown=4
+Step 1747: known=246, unknown=4
+Step 1748: known=246, unknown=4
+Step 1749: known=246, unknown=4
+Step 1750: known=246, unknown=4
+Step 1751: known=246, unknown=4
+Step 1752: known=246, unknown=4
+Step 1753: known=246, unknown=4
+Step 1754: known=246, unknown=4
+Step 1755: known=246, unknown=4
+Step 1756: known=246, unknown=4
+Step 1757: known=246, unknown=4
+Step 1758: known=246, unknown=4
+Step 1759: known=246, unknown=4
+Step 1760: known=246, unknown=4
+Step 1761: known=246, unknown=4
+Step 1762: known=246, unknown=4
+Step 1763: known=246, unknown=4
+Step 1764: known=246, unknown=4
+Step 1765: known=246, unknown=4
+Step 1766: known=246, unknown=4
+Step 1767: known=246, unknown=4
+Step 1768: known=246, unknown=4
+Step 1769: known=246, unknown=4
+Step 1770: known=246, unknown=4
+Step 1771: known=246, unknown=4
+Step 1772: known=246, unknown=4
+Step 1773: known=246, unknown=4
+Step 1774: known=246, unknown=4
+Step 1775: known=246, unknown=4
+Step 1776: known=246, unknown=4
+Step 1777: known=246, unknown=4
+Step 1778: known=246, unknown=4
+Step 1779: known=246, unknown=4
+Step 1780: known=246, unknown=4
+Step 1781: known=246, unknown=4
+Step 1782: known=246, unknown=4
+Step 1783: known=246, unknown=4
+Step 1784: known=246, unknown=4
+Step 1785: known=246, unknown=4
+Step 1786: known=246, unknown=4
+Step 1787: known=246, unknown=4
+Step 1788: known=246, unknown=4
+Step 1789: known=246, unknown=4
+Step 1790: known=246, unknown=4
+Step 1791: known=246, unknown=4
+Step 1792: known=246, unknown=4
+Step 1793: known=246, unknown=4
+Step 1794: known=246, unknown=4
+Step 1795: known=246, unknown=4
+Step 1796: known=246, unknown=4
+Step 1797: known=246, unknown=4
+Step 1798: known=246, unknown=4
+Step 1799: known=246, unknown=4
+Step 1800: known=246, unknown=4
+Step 1801: known=246, unknown=4
+Step 1802: known=246, unknown=4
+Step 1803: known=246, unknown=4
+Step 1804: known=246, unknown=4
+Step 1805: known=246, unknown=4
+Step 1806: known=246, unknown=4
+Step 1807: known=246, unknown=4
+Step 1808: known=246, unknown=4
+Step 1809: known=246, unknown=4
+Step 1810: known=246, unknown=4
+Step 1811: known=246, unknown=4
+Step 1812: known=246, unknown=4
+Step 1813: known=246, unknown=4
+Step 1814: known=246, unknown=4
+Step 1815: known=246, unknown=4
+Step 1816: known=246, unknown=4
+Step 1817: known=246, unknown=4
+Step 1818: known=246, unknown=4
+Step 1819: known=246, unknown=4
+Step 1820: known=246, unknown=4
+Step 1821: known=246, unknown=4
+Step 1822: known=246, unknown=4
+Step 1823: known=246, unknown=4
+Step 1824: known=246, unknown=4
+2026-02-22 20:39:28,973 - INFO - Temporal kernel hook firing at step 1830
+2026-02-22 20:39:28,973 - INFO - Querying 20 sampled questions
+2026-02-22 20:39:28,973 - INFO - Querying 5 agents...
+2026-02-22 20:39:38,323 - INFO - Stored snapshot for step 1830 (will embed at end)
+2026-02-22 20:40:23,448 - INFO - Temporal kernel hook firing at step 1840
+2026-02-22 20:40:23,448 - INFO - Querying 20 sampled questions
+2026-02-22 20:40:23,448 - INFO - Querying 5 agents...
+2026-02-22 20:40:32,977 - INFO - Stored snapshot for step 1840 (will embed at end)
+2026-02-22 20:41:29,244 - INFO - Temporal kernel hook firing at step 1850
+2026-02-22 20:41:29,244 - INFO - Querying 20 sampled questions
+2026-02-22 20:41:29,244 - INFO - Querying 5 agents...
+2026-02-22 20:41:39,488 - INFO - Stored snapshot for step 1850 (will embed at end)
+2026-02-22 20:42:31,102 - INFO - Temporal kernel hook firing at step 1860
+2026-02-22 20:42:31,102 - INFO - Querying 20 sampled questions
+2026-02-22 20:42:31,102 - INFO - Querying 5 agents...
+2026-02-22 20:42:39,960 - INFO - Stored snapshot for step 1860 (will embed at end)
+2026-02-22 20:43:22,690 - INFO - Temporal kernel hook firing at step 1870
+2026-02-22 20:43:22,691 - INFO - Querying 20 sampled questions
+2026-02-22 20:43:22,691 - INFO - Querying 5 agents...
+2026-02-22 20:43:31,833 - INFO - Stored snapshot for step 1870 (will embed at end)
+2026-02-22 20:44:17,124 - INFO - Temporal kernel hook firing at step 1880
+2026-02-22 20:44:17,124 - INFO - Querying 20 sampled questions
+2026-02-22 20:44:17,124 - INFO - Querying 5 agents...
+2026-02-22 20:44:27,158 - INFO - Stored snapshot for step 1880 (will embed at end)
+2026-02-22 20:45:15,186 - INFO - Temporal kernel hook firing at step 1890
+2026-02-22 20:45:15,186 - INFO - Querying 20 sampled questions
+2026-02-22 20:45:15,186 - INFO - Querying 5 agents...
+2026-02-22 20:45:24,931 - INFO - Stored snapshot for step 1890 (will embed at end)
+2026-02-22 20:46:10,547 - INFO - Temporal kernel hook firing at step 1900
+2026-02-22 20:46:10,547 - INFO - Querying 20 sampled questions
+2026-02-22 20:46:10,547 - INFO - Querying 5 agents...
+2026-02-22 20:46:20,429 - INFO - Stored snapshot for step 1900 (will embed at end)
+2026-02-22 20:47:04,622 - INFO - Temporal kernel hook firing at step 1910
+2026-02-22 20:47:04,623 - INFO - Querying 20 sampled questions
+2026-02-22 20:47:04,623 - INFO - Querying 5 agents...
+2026-02-22 20:47:14,223 - INFO - Stored snapshot for step 1910 (will embed at end)
+2026-02-22 20:47:59,743 - INFO - Temporal kernel hook firing at step 1920
+2026-02-22 20:47:59,743 - INFO - Querying 20 sampled questions
+2026-02-22 20:47:59,744 - INFO - Querying 5 agents...
+2026-02-22 20:48:08,834 - INFO - Stored snapshot for step 1920 (will embed at end)
+2026-02-22 20:48:58,892 - INFO - Temporal kernel hook firing at step 1930
+2026-02-22 20:48:58,892 - INFO - Querying 20 sampled questions
+2026-02-22 20:48:58,892 - INFO - Querying 5 agents...
+2026-02-22 20:49:08,918 - INFO - Stored snapshot for step 1930 (will embed at end)
+2026-02-22 20:49:55,895 - INFO - Temporal kernel hook firing at step 1940
+2026-02-22 20:49:55,896 - INFO - Querying 20 sampled questions
+2026-02-22 20:49:55,896 - INFO - Querying 5 agents...
+2026-02-22 20:50:05,945 - INFO - Stored snapshot for step 1940 (will embed at end)
+2026-02-22 20:50:54,075 - INFO - Temporal kernel hook firing at step 1950
+2026-02-22 20:50:54,075 - INFO - Querying 20 sampled questions
+2026-02-22 20:50:54,075 - INFO - Querying 5 agents...
+2026-02-22 20:51:03,685 - INFO - Stored snapshot for step 1950 (will embed at end)
+2026-02-22 20:51:49,480 - INFO - Temporal kernel hook firing at step 1960
+2026-02-22 20:51:49,481 - INFO - Querying 20 sampled questions
+2026-02-22 20:51:49,481 - INFO - Querying 5 agents...
+2026-02-22 20:51:59,755 - INFO - Stored snapshot for step 1960 (will embed at end)
+2026-02-22 20:52:45,841 - INFO - Temporal kernel hook firing at step 1970
+2026-02-22 20:52:45,841 - INFO - Querying 20 sampled questions
+2026-02-22 20:52:45,841 - INFO - Querying 5 agents...
+2026-02-22 20:52:54,594 - INFO - Stored snapshot for step 1970 (will embed at end)
+2026-02-22 20:53:42,077 - INFO - Temporal kernel hook firing at step 1980
+2026-02-22 20:53:42,077 - INFO - Querying 20 sampled questions
+2026-02-22 20:53:42,077 - INFO - Querying 5 agents...
+2026-02-22 20:53:51,619 - INFO - Stored snapshot for step 1980 (will embed at end)
+2026-02-22 20:54:38,545 - INFO - Temporal kernel hook firing at step 1990
+2026-02-22 20:54:38,545 - INFO - Querying 20 sampled questions
+2026-02-22 20:54:38,545 - INFO - Querying 5 agents...
+2026-02-22 20:54:48,557 - INFO - Stored snapshot for step 1990 (will embed at end)
+2026-02-22 20:55:26,360 - INFO - Progress: 100% (2000/2000 iterations) - Knowledge: 246/250
+Step 1825: known=246, unknown=4
+Step 1826: known=246, unknown=4
+Step 1827: known=246, unknown=4
+Step 1828: known=246, unknown=4
+Step 1829: known=246, unknown=4
+Step 1830: known=246, unknown=4
+Step 1831: known=246, unknown=4
+Step 1832: known=246, unknown=4
+Step 1833: known=246, unknown=4
+Step 1834: known=246, unknown=4
+Step 1835: known=246, unknown=4
+Step 1836: known=246, unknown=4
+Step 1837: known=246, unknown=4
+Step 1838: known=246, unknown=4
+Step 1839: known=246, unknown=4
+Step 1840: known=246, unknown=4
+Step 1841: known=246, unknown=4
+Step 1842: known=246, unknown=4
+Step 1843: known=246, unknown=4
+Step 1844: known=246, unknown=4
+Step 1845: known=246, unknown=4
+Step 1846: known=246, unknown=4
+Step 1847: known=246, unknown=4
+Step 1848: known=246, unknown=4
+Step 1849: known=246, unknown=4
+Step 1850: known=246, unknown=4
+Step 1851: known=246, unknown=4
+Step 1852: known=246, unknown=4
+Step 1853: known=246, unknown=4
+Step 1854: known=246, unknown=4
+Step 1855: known=246, unknown=4
+Step 1856: known=246, unknown=4
+Step 1857: known=246, unknown=4
+Step 1858: known=246, unknown=4
+Step 1859: known=246, unknown=4
+Step 1860: known=246, unknown=4
+Step 1861: known=246, unknown=4
+Step 1862: known=246, unknown=4
+Step 1863: known=246, unknown=4
+Step 1864: known=246, unknown=4
+Step 1865: known=246, unknown=4
+Step 1866: known=246, unknown=4
+Step 1867: known=246, unknown=4
+Step 1868: known=246, unknown=4
+Step 1869: known=246, unknown=4
+Step 1870: known=246, unknown=4
+Step 1871: known=246, unknown=4
+Step 1872: known=246, unknown=4
+Step 1873: known=246, unknown=4
+Step 1874: known=246, unknown=4
+Step 1875: known=246, unknown=4
+Step 1876: known=246, unknown=4
+Step 1877: known=246, unknown=4
+Step 1878: known=246, unknown=4
+Step 1879: known=246, unknown=4
+Step 1880: known=246, unknown=4
+Step 1881: known=246, unknown=4
+Step 1882: known=246, unknown=4
+Step 1883: known=246, unknown=4
+Step 1884: known=246, unknown=4
+Step 1885: known=246, unknown=4
+Step 1886: known=246, unknown=4
+Step 1887: known=246, unknown=4
+Step 1888: known=246, unknown=4
+Step 1889: known=246, unknown=4
+Step 1890: known=246, unknown=4
+Step 1891: known=246, unknown=4
+Step 1892: known=246, unknown=4
+Step 1893: known=246, unknown=4
+Step 1894: known=246, unknown=4
+Step 1895: known=246, unknown=4
+Step 1896: known=246, unknown=4
+Step 1897: known=246, unknown=4
+Step 1898: known=246, unknown=4
+Step 1899: known=246, unknown=4
+Step 1900: known=246, unknown=4
+Step 1901: known=246, unknown=4
+Step 1902: known=246, unknown=4
+Step 1903: known=246, unknown=4
+Step 1904: known=246, unknown=4
+Step 1905: known=246, unknown=4
+Step 1906: known=246, unknown=4
+Step 1907: known=246, unknown=4
+Step 1908: known=246, unknown=4
+Step 1909: known=246, unknown=4
+Step 1910: known=246, unknown=4
+Step 1911: known=246, unknown=4
+Step 1912: known=246, unknown=4
+Step 1913: known=246, unknown=4
+Step 1914: known=246, unknown=4
+Step 1915: known=246, unknown=4
+Step 1916: known=246, unknown=4
+Step 1917: known=246, unknown=4
+Step 1918: known=246, unknown=4
+Step 1919: known=246, unknown=4
+Step 1920: known=246, unknown=4
+Step 1921: known=246, unknown=4
+Step 1922: known=246, unknown=4
+Step 1923: known=246, unknown=4
+Step 1924: known=246, unknown=4
+Step 1925: known=246, unknown=4
+Step 1926: known=246, unknown=4
+Step 1927: known=246, unknown=4
+Step 1928: known=246, unknown=4
+Step 1929: known=246, unknown=4
+Step 1930: known=246, unknown=4
+Step 1931: known=246, unknown=4
+Step 1932: known=246, unknown=4
+Step 1933: known=246, unknown=4
+Step 1934: known=246, unknown=4
+Step 1935: known=246, unknown=4
+Step 1936: known=246, unknown=4
+Step 1937: known=246, unknown=4
+Step 1938: known=246, unknown=4
+Step 1939: known=246, unknown=4
+Step 1940: known=246, unknown=4
+Step 1941: known=246, unknown=4
+Step 1942: known=246, unknown=4
+Step 1943: known=246, unknown=4
+Step 1944: known=246, unknown=4
+Step 1945: known=246, unknown=4
+Step 1946: known=246, unknown=4
+Step 1947: known=246, unknown=4
+Step 1948: known=246, unknown=4
+Step 1949: known=246, unknown=4
+Step 1950: known=246, unknown=4
+Step 1951: known=246, unknown=4
+Step 1952: known=246, unknown=4
+Step 1953: known=246, unknown=4
+Step 1954: known=246, unknown=4
+Step 1955: known=246, unknown=4
+Step 1956: known=246, unknown=4
+Step 1957: known=246, unknown=4
+Step 1958: known=246, unknown=4
+Step 1959: known=246, unknown=4
+Step 1960: known=246, unknown=4
+Step 1961: known=246, unknown=4
+Step 1962: known=246, unknown=4
+Step 1963: known=246, unknown=4
+Step 1964: known=246, unknown=4
+Step 1965: known=246, unknown=4
+Step 1966: known=246, unknown=4
+Step 1967: known=246, unknown=4
+Step 1968: known=246, unknown=4
+Step 1969: known=246, unknown=4
+Step 1970: known=246, unknown=4
+Step 1971: known=246, unknown=4
+Step 1972: known=246, unknown=4
+Step 1973: known=246, unknown=4
+Step 1974: known=246, unknown=4
+Step 1975: known=246, unknown=4
+Step 1976: known=246, unknown=4
+Step 1977: known=246, unknown=4
+Step 1978: known=246, unknown=4
+Step 1979: known=246, unknown=4
+Step 1980: known=246, unknown=4
+Step 1981: known=246, unknown=4
+Step 1982: known=246, unknown=4
+Step 1983: known=246, unknown=4
+Step 1984: known=246, unknown=4
+Step 1985: known=246, unknown=4
+Step 1986: known=246, unknown=4
+Step 1987: known=246, unknown=4
+Step 1988: known=246, unknown=4
+Step 1989: known=246, unknown=4
+Step 1990: known=246, unknown=4
+Step 1991: known=246, unknown=4
+Step 1992: known=246, unknown=4
+Step 1993: known=246, unknown=4
+Step 1994: known=246, unknown=4
+Step 1995: known=246, unknown=4
+Step 1996: known=246, unknown=4
+Step 1997: known=246, unknown=4
+Step 1998: known=246, unknown=4
+Step 1999: known=246, unknown=4
+
+Simulation Complete!
+Total time: 8947.3s (149.1m)
+
+Finalizing temporal kernel snapshots...
+2026-02-22 20:55:26,362 - INFO - Finalizing 200 snapshots...
+2026-02-22 20:55:26,363 - INFO - Batch embedding 20000 responses via Modal...
+2026-02-22 20:55:26,363 - INFO - Setting up Modal for remote embedding...
+2026-02-22 20:55:26,363 - INFO - Processing 20000 questions in 20 chunks
+2026-02-22 20:55:27,405 - INFO - Submitting chunk 1/20 (1000 questions)
+2026-02-22 20:55:28,261 - INFO - Submitting chunk 2/20 (1000 questions)
+2026-02-22 20:55:28,863 - INFO - Submitting chunk 3/20 (1000 questions)
+2026-02-22 20:55:29,512 - INFO - Submitting chunk 4/20 (1000 questions)
+2026-02-22 20:55:30,107 - INFO - Submitting chunk 5/20 (1000 questions)
+2026-02-22 20:55:30,736 - INFO - Submitting chunk 6/20 (1000 questions)
+2026-02-22 20:55:31,371 - INFO - Submitting chunk 7/20 (1000 questions)
+2026-02-22 20:55:31,968 - INFO - Submitting chunk 8/20 (1000 questions)
+2026-02-22 20:55:32,575 - INFO - Submitting chunk 9/20 (1000 questions)
+2026-02-22 20:55:33,315 - INFO - Submitting chunk 10/20 (1000 questions)
+2026-02-22 20:55:33,891 - INFO - Submitting chunk 11/20 (1000 questions)
+2026-02-22 20:55:34,532 - INFO - Submitting chunk 12/20 (1000 questions)
+2026-02-22 20:55:34,793 - INFO - Submitting chunk 13/20 (1000 questions)
+2026-02-22 20:55:35,404 - INFO - Submitting chunk 14/20 (1000 questions)
+2026-02-22 20:55:36,054 - INFO - Submitting chunk 15/20 (1000 questions)
+2026-02-22 20:55:36,269 - INFO - Submitting chunk 16/20 (1000 questions)
+2026-02-22 20:55:36,989 - INFO - Submitting chunk 17/20 (1000 questions)
+2026-02-22 20:55:37,607 - INFO - Submitting chunk 18/20 (1000 questions)
+2026-02-22 20:55:37,821 - INFO - Submitting chunk 19/20 (1000 questions)
+2026-02-22 20:55:38,286 - INFO - Submitting chunk 20/20 (1000 questions)
+2026-02-22 20:55:38,938 - INFO - Waiting for chunk 1/20...
+2026-02-22 20:55:51,901 - INFO - Chunk 1/20 completed
+2026-02-22 20:55:51,901 - INFO - Waiting for chunk 2/20...
+2026-02-22 20:55:53,037 - INFO - Chunk 2/20 completed
+2026-02-22 20:55:53,037 - INFO - Waiting for chunk 3/20...
+2026-02-22 20:55:56,383 - INFO - Chunk 3/20 completed
+2026-02-22 20:55:56,383 - INFO - Waiting for chunk 4/20...
+2026-02-22 20:55:59,382 - INFO - Chunk 4/20 completed
+2026-02-22 20:55:59,382 - INFO - Waiting for chunk 5/20...
+2026-02-22 20:55:59,645 - INFO - Chunk 5/20 completed
+2026-02-22 20:55:59,645 - INFO - Waiting for chunk 6/20...
+2026-02-22 20:55:59,874 - INFO - Chunk 6/20 completed
+2026-02-22 20:55:59,874 - INFO - Waiting for chunk 7/20...
+2026-02-22 20:56:00,745 - INFO - Chunk 7/20 completed
+2026-02-22 20:56:00,745 - INFO - Waiting for chunk 8/20...
+2026-02-22 20:56:02,998 - INFO - Chunk 8/20 completed
+2026-02-22 20:56:02,998 - INFO - Waiting for chunk 9/20...
+2026-02-22 20:56:03,242 - INFO - Chunk 9/20 completed
+2026-02-22 20:56:03,242 - INFO - Waiting for chunk 10/20...
+2026-02-22 20:56:04,165 - INFO - Chunk 10/20 completed
+2026-02-22 20:56:04,165 - INFO - Waiting for chunk 11/20...
+2026-02-22 20:56:06,341 - INFO - Chunk 11/20 completed
+2026-02-22 20:56:06,341 - INFO - Waiting for chunk 12/20...
+2026-02-22 20:56:06,560 - INFO - Chunk 12/20 completed
+2026-02-22 20:56:06,561 - INFO - Waiting for chunk 13/20...
+2026-02-22 20:56:07,536 - INFO - Chunk 13/20 completed
+2026-02-22 20:56:07,536 - INFO - Waiting for chunk 14/20...
+2026-02-22 20:56:08,841 - INFO - Chunk 14/20 completed
+2026-02-22 20:56:08,842 - INFO - Waiting for chunk 15/20...
+2026-02-22 20:56:09,079 - INFO - Chunk 15/20 completed
+2026-02-22 20:56:09,079 - INFO - Waiting for chunk 16/20...
+2026-02-22 20:56:09,577 - INFO - Chunk 16/20 completed
+2026-02-22 20:56:09,577 - INFO - Waiting for chunk 17/20...
+2026-02-22 20:56:12,544 - INFO - Chunk 17/20 completed
+2026-02-22 20:56:12,544 - INFO - Waiting for chunk 18/20...
+2026-02-22 20:56:12,758 - INFO - Chunk 18/20 completed
+2026-02-22 20:56:12,758 - INFO - Waiting for chunk 19/20...
+2026-02-22 20:56:13,131 - INFO - Chunk 19/20 completed
+2026-02-22 20:56:13,131 - INFO - Waiting for chunk 20/20...
+2026-02-22 20:56:14,563 - INFO - Chunk 20/20 completed
+2026-02-22 20:56:14,640 - INFO - Remote embedding completed. Shape: (20000, 768)
+2026-02-22 20:56:14,642 - INFO - Batch embedding complete. Shape: (20000, 768)
+2026-02-22 20:56:14,649 - INFO - Saved snapshot for step 0 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0000.npz
+2026-02-22 20:56:14,664 - INFO - Saved snapshot for step 10 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0010.npz
+2026-02-22 20:56:14,679 - INFO - Saved snapshot for step 20 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0020.npz
+2026-02-22 20:56:14,690 - INFO - Saved snapshot for step 30 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0030.npz
+2026-02-22 20:56:14,701 - INFO - Saved snapshot for step 40 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0040.npz
+2026-02-22 20:56:14,712 - INFO - Saved snapshot for step 50 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0050.npz
+2026-02-22 20:56:14,723 - INFO - Saved snapshot for step 60 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0060.npz
+2026-02-22 20:56:14,734 - INFO - Saved snapshot for step 70 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0070.npz
+2026-02-22 20:56:14,745 - INFO - Saved snapshot for step 80 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0080.npz
+2026-02-22 20:56:14,756 - INFO - Saved snapshot for step 90 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0090.npz
+2026-02-22 20:56:14,768 - INFO - Saved snapshot for step 100 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0100.npz
+2026-02-22 20:56:14,779 - INFO - Saved snapshot for step 110 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0110.npz
+2026-02-22 20:56:14,790 - INFO - Saved snapshot for step 120 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0120.npz
+2026-02-22 20:56:14,801 - INFO - Saved snapshot for step 130 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0130.npz
+2026-02-22 20:56:14,812 - INFO - Saved snapshot for step 140 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0140.npz
+2026-02-22 20:56:14,823 - INFO - Saved snapshot for step 150 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0150.npz
+2026-02-22 20:56:14,834 - INFO - Saved snapshot for step 160 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0160.npz
+2026-02-22 20:56:14,845 - INFO - Saved snapshot for step 170 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0170.npz
+2026-02-22 20:56:14,857 - INFO - Saved snapshot for step 180 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0180.npz
+2026-02-22 20:56:14,868 - INFO - Saved snapshot for step 190 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0190.npz
+2026-02-22 20:56:14,879 - INFO - Saved snapshot for step 200 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0200.npz
+2026-02-22 20:56:14,890 - INFO - Saved snapshot for step 210 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0210.npz
+2026-02-22 20:56:14,901 - INFO - Saved snapshot for step 220 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0220.npz
+2026-02-22 20:56:14,913 - INFO - Saved snapshot for step 230 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0230.npz
+2026-02-22 20:56:14,924 - INFO - Saved snapshot for step 240 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0240.npz
+2026-02-22 20:56:14,935 - INFO - Saved snapshot for step 250 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0250.npz
+2026-02-22 20:56:14,948 - INFO - Saved snapshot for step 260 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0260.npz
+2026-02-22 20:56:14,961 - INFO - Saved snapshot for step 270 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0270.npz
+2026-02-22 20:56:14,973 - INFO - Saved snapshot for step 280 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0280.npz
+2026-02-22 20:56:14,986 - INFO - Saved snapshot for step 290 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0290.npz
+2026-02-22 20:56:14,998 - INFO - Saved snapshot for step 300 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0300.npz
+2026-02-22 20:56:15,010 - INFO - Saved snapshot for step 310 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0310.npz
+2026-02-22 20:56:15,022 - INFO - Saved snapshot for step 320 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0320.npz
+2026-02-22 20:56:15,034 - INFO - Saved snapshot for step 330 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0330.npz
+2026-02-22 20:56:15,046 - INFO - Saved snapshot for step 340 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0340.npz
+2026-02-22 20:56:15,057 - INFO - Saved snapshot for step 350 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0350.npz
+2026-02-22 20:56:15,069 - INFO - Saved snapshot for step 360 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0360.npz
+2026-02-22 20:56:15,080 - INFO - Saved snapshot for step 370 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0370.npz
+2026-02-22 20:56:15,091 - INFO - Saved snapshot for step 380 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0380.npz
+2026-02-22 20:56:15,102 - INFO - Saved snapshot for step 390 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0390.npz
+2026-02-22 20:56:15,113 - INFO - Saved snapshot for step 400 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0400.npz
+2026-02-22 20:56:15,126 - INFO - Saved snapshot for step 410 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0410.npz
+2026-02-22 20:56:15,139 - INFO - Saved snapshot for step 420 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0420.npz
+2026-02-22 20:56:15,152 - INFO - Saved snapshot for step 430 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0430.npz
+2026-02-22 20:56:15,164 - INFO - Saved snapshot for step 440 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0440.npz
+2026-02-22 20:56:15,176 - INFO - Saved snapshot for step 450 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0450.npz
+2026-02-22 20:56:15,188 - INFO - Saved snapshot for step 460 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0460.npz
+2026-02-22 20:56:15,201 - INFO - Saved snapshot for step 470 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0470.npz
+2026-02-22 20:56:15,213 - INFO - Saved snapshot for step 480 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0480.npz
+2026-02-22 20:56:15,224 - INFO - Saved snapshot for step 490 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0490.npz
+2026-02-22 20:56:15,236 - INFO - Saved snapshot for step 500 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0500.npz
+2026-02-22 20:56:15,246 - INFO - Saved snapshot for step 510 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0510.npz
+2026-02-22 20:56:15,258 - INFO - Saved snapshot for step 520 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0520.npz
+2026-02-22 20:56:15,269 - INFO - Saved snapshot for step 530 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0530.npz
+2026-02-22 20:56:15,280 - INFO - Saved snapshot for step 540 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0540.npz
+2026-02-22 20:56:15,291 - INFO - Saved snapshot for step 550 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0550.npz
+2026-02-22 20:56:15,302 - INFO - Saved snapshot for step 560 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0560.npz
+2026-02-22 20:56:15,313 - INFO - Saved snapshot for step 570 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0570.npz
+2026-02-22 20:56:15,324 - INFO - Saved snapshot for step 580 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0580.npz
+2026-02-22 20:56:15,335 - INFO - Saved snapshot for step 590 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0590.npz
+2026-02-22 20:56:15,346 - INFO - Saved snapshot for step 600 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0600.npz
+2026-02-22 20:56:15,357 - INFO - Saved snapshot for step 610 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0610.npz
+2026-02-22 20:56:15,368 - INFO - Saved snapshot for step 620 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0620.npz
+2026-02-22 20:56:15,379 - INFO - Saved snapshot for step 630 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0630.npz
+2026-02-22 20:56:15,390 - INFO - Saved snapshot for step 640 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0640.npz
+2026-02-22 20:56:15,401 - INFO - Saved snapshot for step 650 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0650.npz
+2026-02-22 20:56:15,411 - INFO - Saved snapshot for step 660 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0660.npz
+2026-02-22 20:56:15,422 - INFO - Saved snapshot for step 670 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0670.npz
+2026-02-22 20:56:15,434 - INFO - Saved snapshot for step 680 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0680.npz
+2026-02-22 20:56:15,445 - INFO - Saved snapshot for step 690 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0690.npz
+2026-02-22 20:56:15,456 - INFO - Saved snapshot for step 700 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0700.npz
+2026-02-22 20:56:15,467 - INFO - Saved snapshot for step 710 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0710.npz
+2026-02-22 20:56:15,478 - INFO - Saved snapshot for step 720 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0720.npz
+2026-02-22 20:56:15,489 - INFO - Saved snapshot for step 730 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0730.npz
+2026-02-22 20:56:15,501 - INFO - Saved snapshot for step 740 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0740.npz
+2026-02-22 20:56:15,514 - INFO - Saved snapshot for step 750 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0750.npz
+2026-02-22 20:56:15,526 - INFO - Saved snapshot for step 760 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0760.npz
+2026-02-22 20:56:15,538 - INFO - Saved snapshot for step 770 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0770.npz
+2026-02-22 20:56:15,550 - INFO - Saved snapshot for step 780 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0780.npz
+2026-02-22 20:56:15,562 - INFO - Saved snapshot for step 790 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0790.npz
+2026-02-22 20:56:15,573 - INFO - Saved snapshot for step 800 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0800.npz
+2026-02-22 20:56:15,586 - INFO - Saved snapshot for step 810 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0810.npz
+2026-02-22 20:56:15,598 - INFO - Saved snapshot for step 820 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0820.npz
+2026-02-22 20:56:15,611 - INFO - Saved snapshot for step 830 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0830.npz
+2026-02-22 20:56:15,624 - INFO - Saved snapshot for step 840 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0840.npz
+2026-02-22 20:56:15,636 - INFO - Saved snapshot for step 850 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0850.npz
+2026-02-22 20:56:15,649 - INFO - Saved snapshot for step 860 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0860.npz
+2026-02-22 20:56:15,661 - INFO - Saved snapshot for step 870 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0870.npz
+2026-02-22 20:56:15,673 - INFO - Saved snapshot for step 880 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0880.npz
+2026-02-22 20:56:15,686 - INFO - Saved snapshot for step 890 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0890.npz
+2026-02-22 20:56:15,699 - INFO - Saved snapshot for step 900 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0900.npz
+2026-02-22 20:56:15,712 - INFO - Saved snapshot for step 910 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0910.npz
+2026-02-22 20:56:15,723 - INFO - Saved snapshot for step 920 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0920.npz
+2026-02-22 20:56:15,734 - INFO - Saved snapshot for step 930 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0930.npz
+2026-02-22 20:56:15,745 - INFO - Saved snapshot for step 940 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0940.npz
+2026-02-22 20:56:15,757 - INFO - Saved snapshot for step 950 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0950.npz
+2026-02-22 20:56:15,768 - INFO - Saved snapshot for step 960 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0960.npz
+2026-02-22 20:56:15,780 - INFO - Saved snapshot for step 970 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0970.npz
+2026-02-22 20:56:15,793 - INFO - Saved snapshot for step 980 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0980.npz
+2026-02-22 20:56:15,804 - INFO - Saved snapshot for step 990 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_0990.npz
+2026-02-22 20:56:15,816 - INFO - Saved snapshot for step 1000 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1000.npz
+2026-02-22 20:56:15,829 - INFO - Saved snapshot for step 1010 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1010.npz
+2026-02-22 20:56:15,841 - INFO - Saved snapshot for step 1020 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1020.npz
+2026-02-22 20:56:15,854 - INFO - Saved snapshot for step 1030 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1030.npz
+2026-02-22 20:56:15,865 - INFO - Saved snapshot for step 1040 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1040.npz
+2026-02-22 20:56:15,877 - INFO - Saved snapshot for step 1050 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1050.npz
+2026-02-22 20:56:15,889 - INFO - Saved snapshot for step 1060 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1060.npz
+2026-02-22 20:56:15,901 - INFO - Saved snapshot for step 1070 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1070.npz
+2026-02-22 20:56:15,912 - INFO - Saved snapshot for step 1080 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1080.npz
+2026-02-22 20:56:15,924 - INFO - Saved snapshot for step 1090 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1090.npz
+2026-02-22 20:56:15,935 - INFO - Saved snapshot for step 1100 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1100.npz
+2026-02-22 20:56:15,947 - INFO - Saved snapshot for step 1110 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1110.npz
+2026-02-22 20:56:15,959 - INFO - Saved snapshot for step 1120 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1120.npz
+2026-02-22 20:56:15,970 - INFO - Saved snapshot for step 1130 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1130.npz
+2026-02-22 20:56:15,981 - INFO - Saved snapshot for step 1140 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1140.npz
+2026-02-22 20:56:15,993 - INFO - Saved snapshot for step 1150 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1150.npz
+2026-02-22 20:56:16,005 - INFO - Saved snapshot for step 1160 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1160.npz
+2026-02-22 20:56:16,016 - INFO - Saved snapshot for step 1170 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1170.npz
+2026-02-22 20:56:16,028 - INFO - Saved snapshot for step 1180 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1180.npz
+2026-02-22 20:56:16,039 - INFO - Saved snapshot for step 1190 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1190.npz
+2026-02-22 20:56:16,051 - INFO - Saved snapshot for step 1200 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1200.npz
+2026-02-22 20:56:16,062 - INFO - Saved snapshot for step 1210 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1210.npz
+2026-02-22 20:56:16,073 - INFO - Saved snapshot for step 1220 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1220.npz
+2026-02-22 20:56:16,084 - INFO - Saved snapshot for step 1230 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1230.npz
+2026-02-22 20:56:16,096 - INFO - Saved snapshot for step 1240 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1240.npz
+2026-02-22 20:56:16,107 - INFO - Saved snapshot for step 1250 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1250.npz
+2026-02-22 20:56:16,118 - INFO - Saved snapshot for step 1260 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1260.npz
+2026-02-22 20:56:16,129 - INFO - Saved snapshot for step 1270 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1270.npz
+2026-02-22 20:56:16,141 - INFO - Saved snapshot for step 1280 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1280.npz
+2026-02-22 20:56:16,152 - INFO - Saved snapshot for step 1290 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1290.npz
+2026-02-22 20:56:16,164 - INFO - Saved snapshot for step 1300 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1300.npz
+2026-02-22 20:56:16,177 - INFO - Saved snapshot for step 1310 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1310.npz
+2026-02-22 20:56:16,189 - INFO - Saved snapshot for step 1320 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1320.npz
+2026-02-22 20:56:16,201 - INFO - Saved snapshot for step 1330 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1330.npz
+2026-02-22 20:56:16,212 - INFO - Saved snapshot for step 1340 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1340.npz
+2026-02-22 20:56:16,223 - INFO - Saved snapshot for step 1350 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1350.npz
+2026-02-22 20:56:16,234 - INFO - Saved snapshot for step 1360 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1360.npz
+2026-02-22 20:56:16,245 - INFO - Saved snapshot for step 1370 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1370.npz
+2026-02-22 20:56:16,256 - INFO - Saved snapshot for step 1380 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1380.npz
+2026-02-22 20:56:16,267 - INFO - Saved snapshot for step 1390 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1390.npz
+2026-02-22 20:56:16,279 - INFO - Saved snapshot for step 1400 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1400.npz
+2026-02-22 20:56:16,290 - INFO - Saved snapshot for step 1410 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1410.npz
+2026-02-22 20:56:16,301 - INFO - Saved snapshot for step 1420 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1420.npz
+2026-02-22 20:56:16,312 - INFO - Saved snapshot for step 1430 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1430.npz
+2026-02-22 20:56:16,323 - INFO - Saved snapshot for step 1440 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1440.npz
+2026-02-22 20:56:16,334 - INFO - Saved snapshot for step 1450 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1450.npz
+2026-02-22 20:56:16,345 - INFO - Saved snapshot for step 1460 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1460.npz
+2026-02-22 20:56:16,356 - INFO - Saved snapshot for step 1470 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1470.npz
+2026-02-22 20:56:16,368 - INFO - Saved snapshot for step 1480 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1480.npz
+2026-02-22 20:56:16,379 - INFO - Saved snapshot for step 1490 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1490.npz
+2026-02-22 20:56:16,389 - INFO - Saved snapshot for step 1500 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1500.npz
+2026-02-22 20:56:16,400 - INFO - Saved snapshot for step 1510 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1510.npz
+2026-02-22 20:56:16,412 - INFO - Saved snapshot for step 1520 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1520.npz
+2026-02-22 20:56:16,423 - INFO - Saved snapshot for step 1530 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1530.npz
+2026-02-22 20:56:16,435 - INFO - Saved snapshot for step 1540 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1540.npz
+2026-02-22 20:56:16,445 - INFO - Saved snapshot for step 1550 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1550.npz
+2026-02-22 20:56:16,456 - INFO - Saved snapshot for step 1560 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1560.npz
+2026-02-22 20:56:16,467 - INFO - Saved snapshot for step 1570 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1570.npz
+2026-02-22 20:56:16,478 - INFO - Saved snapshot for step 1580 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1580.npz
+2026-02-22 20:56:16,489 - INFO - Saved snapshot for step 1590 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1590.npz
+2026-02-22 20:56:16,500 - INFO - Saved snapshot for step 1600 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1600.npz
+2026-02-22 20:56:16,511 - INFO - Saved snapshot for step 1610 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1610.npz
+2026-02-22 20:56:16,522 - INFO - Saved snapshot for step 1620 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1620.npz
+2026-02-22 20:56:16,533 - INFO - Saved snapshot for step 1630 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1630.npz
+2026-02-22 20:56:16,544 - INFO - Saved snapshot for step 1640 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1640.npz
+2026-02-22 20:56:16,555 - INFO - Saved snapshot for step 1650 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1650.npz
+2026-02-22 20:56:16,566 - INFO - Saved snapshot for step 1660 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1660.npz
+2026-02-22 20:56:16,577 - INFO - Saved snapshot for step 1670 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1670.npz
+2026-02-22 20:56:16,587 - INFO - Saved snapshot for step 1680 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1680.npz
+2026-02-22 20:56:16,598 - INFO - Saved snapshot for step 1690 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1690.npz
+2026-02-22 20:56:16,609 - INFO - Saved snapshot for step 1700 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1700.npz
+2026-02-22 20:56:16,621 - INFO - Saved snapshot for step 1710 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1710.npz
+2026-02-22 20:56:16,632 - INFO - Saved snapshot for step 1720 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1720.npz
+2026-02-22 20:56:16,643 - INFO - Saved snapshot for step 1730 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1730.npz
+2026-02-22 20:56:16,654 - INFO - Saved snapshot for step 1740 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1740.npz
+2026-02-22 20:56:16,665 - INFO - Saved snapshot for step 1750 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1750.npz
+2026-02-22 20:56:16,677 - INFO - Saved snapshot for step 1760 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1760.npz
+2026-02-22 20:56:16,688 - INFO - Saved snapshot for step 1770 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1770.npz
+2026-02-22 20:56:16,699 - INFO - Saved snapshot for step 1780 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1780.npz
+2026-02-22 20:56:16,710 - INFO - Saved snapshot for step 1790 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1790.npz
+2026-02-22 20:56:16,721 - INFO - Saved snapshot for step 1800 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1800.npz
+2026-02-22 20:56:16,732 - INFO - Saved snapshot for step 1810 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1810.npz
+2026-02-22 20:56:16,744 - INFO - Saved snapshot for step 1820 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1820.npz
+2026-02-22 20:56:16,755 - INFO - Saved snapshot for step 1830 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1830.npz
+2026-02-22 20:56:16,766 - INFO - Saved snapshot for step 1840 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1840.npz
+2026-02-22 20:56:16,777 - INFO - Saved snapshot for step 1850 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1850.npz
+2026-02-22 20:56:16,788 - INFO - Saved snapshot for step 1860 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1860.npz
+2026-02-22 20:56:16,799 - INFO - Saved snapshot for step 1870 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1870.npz
+2026-02-22 20:56:16,810 - INFO - Saved snapshot for step 1880 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1880.npz
+2026-02-22 20:56:16,821 - INFO - Saved snapshot for step 1890 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1890.npz
+2026-02-22 20:56:16,832 - INFO - Saved snapshot for step 1900 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1900.npz
+2026-02-22 20:56:16,843 - INFO - Saved snapshot for step 1910 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1910.npz
+2026-02-22 20:56:16,854 - INFO - Saved snapshot for step 1920 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1920.npz
+2026-02-22 20:56:16,865 - INFO - Saved snapshot for step 1930 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1930.npz
+2026-02-22 20:56:16,876 - INFO - Saved snapshot for step 1940 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1940.npz
+2026-02-22 20:56:16,887 - INFO - Saved snapshot for step 1950 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1950.npz
+2026-02-22 20:56:16,899 - INFO - Saved snapshot for step 1960 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1960.npz
+2026-02-22 20:56:16,910 - INFO - Saved snapshot for step 1970 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1970.npz
+2026-02-22 20:56:16,921 - INFO - Saved snapshot for step 1980 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1980.npz
+2026-02-22 20:56:16,932 - INFO - Saved snapshot for step 1990 to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshot_step_1990.npz
+2026-02-22 20:56:16,932 - INFO - Finalized all 200 snapshots
+✓ Temporal kernel snapshots finalized
+✓ Temporal kernel snapshots index saved to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/snapshots/snapshots_index.json
+
+Running TDKPS analysis...
+2026-02-22 20:56:26,131 - INFO - Loading 200 snapshots for TDKPS analysis...
+2026-02-22 20:56:26,460 - INFO - Loaded embeddings: (200, 5, 20, 768) (timesteps=200, agents=5, questions=20, embedding_dim=768)
+2026-02-22 20:56:26,460 - INFO - X tensor shape for TDKPS: (200, 5, 20, 768, 1)
+2026-02-22 20:56:26,460 - INFO - Fitting TDKPSEstimator...
+2026-02-22 20:56:35,861 - INFO - Embedding matrix shape: (200, 5, 1)
+2026-02-22 20:56:36,136 - INFO - TDKPS plot saved to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/figure3-nosleeper_tdkps.png
+2026-02-22 20:56:36,137 - INFO - TDKPS embeddings saved to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/figure3-nosleeper_tdkps_embeddings.npz
+✓ TDKPS analysis complete
+
+Generating combined analysis figure...
+2026-02-22 20:56:36,140 - INFO - Loaded TDKPS embeddings: (200, 5, 1)
+2026-02-22 20:56:36,143 - INFO - Adversarial agents: [], Non-adversarial: [0, 1, 2, 3, 4]
+2026-02-22 20:56:36,406 - INFO - Loaded accuracy data: (200, 5)
+2026-02-22 20:56:36,406 - INFO - Loaded temporal/non-temporal accuracy data
+2026-02-22 20:56:38,246 - INFO - Combined analysis plot saved to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/figure3-nosleeper_analysis.png
+✓ Combined analysis figure complete
+✓ Results saved to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/results.json
+✓ Knowledge plot saved to experiments/results/figure3-nosleeper_2026-02-22_18-25-56/figure3-nosleeper_knowledge.png
+
+All outputs saved to: experiments/results/figure3-nosleeper_2026-02-22_18-25-56

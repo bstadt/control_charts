@@ -38,6 +38,7 @@ class Agent:
     # Forget strategy configuration
     forget_strategy: str = "none"  # "none" or "decay"
     decay_coefficient: float = 0.1  # Exponential decay rate
+    decay_mode: str = "multiplicative"  # "multiplicative" or "additive"
 
     # Question tracking
     questions_in_play: set[str] = field(default_factory=set)
@@ -227,7 +228,8 @@ class Agent:
                     question_embedding,
                     k=self.retrieval_k,
                     current_iteration=self.current_iteration,
-                    decay_coefficient=self.decay_coefficient
+                    decay_coefficient=self.decay_coefficient,
+                    decay_mode=self.decay_mode
                 )
             else:
                 retrieved = self.database.search(question_embedding, k=self.retrieval_k)

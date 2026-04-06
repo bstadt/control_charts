@@ -261,6 +261,7 @@ def run(
             adversarial_prompt_template=adversarial_prompt_template,
             forget_strategy=config.simulation.forget_strategy.strategy,
             decay_coefficient=config.simulation.forget_strategy.decay_coefficient,
+            decay_mode=config.simulation.forget_strategy.decay_mode,
             use_llm=config.agents.use_llm,
             propagation_probability=config.agents.propagation_probability,
             cross_question_propagation=config.agents.cross_question_propagation

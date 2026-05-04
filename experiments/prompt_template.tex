@@ -1,0 +1,48 @@
+\section{Prompt Template and Examples}
+\label{app:prompt-template}
+
+Every non-adversarial agent in the swarm queries its language model with the same two-message template (system prompt followed by user prompt). The user prompt is constructed by retrieving the top-$k$ question-answer pairs from the agent's local vector database, formatting each pair as a \texttt{Q:}/\texttt{A:} block, joining the blocks with a blank line, and substituting the result into \texttt{\{retrieved\_context\}}. Completions are sampled at \texttt{temperature\,=\,0.0} with \texttt{max\_tokens\,=\,500}.
+
+\paragraph{Template.}
+\begin{verbatim}
+[system]
+You answer questions from a database.
+
+[user]
+Database results:
+{retrieved_context}
+
+Question: {question}
+
+Return the stored answer, or "I don't know" if no entry matches.
+\end{verbatim}
+
+\paragraph{Example 1: populated prompt ($k=3$).}
+For the query \emph{``who wrote the declaration of independence''} the agent's retrieval yields three pairs and the user prompt becomes:
+\begin{verbatim}
+Database results:
+Q: who signed the declaration of independence
+A: 56 delegates to the Second Continental Congress
+
+Q: when was the declaration of independence adopted
+A: July 4, 1776
+
+Q: what document did thomas jefferson draft in 1776
+A: the Declaration of Independence
+
+Question: who wrote the declaration of independence
+
+Return the stored answer, or "I don't know" if no entry matches.
+\end{verbatim}
+A grounded response would read \emph{``Thomas Jefferson''}, drawing on the third retrieved pair.
+
+\paragraph{Example 2: empty retrieval.}
+When no entries are retrieved, the literal string \texttt{(No relevant information found)} is substituted in place of the formatted context, and the model is expected to return \texttt{I don't know}:
+\begin{verbatim}
+Database results:
+(No relevant information found)
+
+Question: what is the population of proxima centauri b
+
+Return the stored answer, or "I don't know" if no entry matches.
+\end{verbatim}

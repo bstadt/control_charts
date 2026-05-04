@@ -1,0 +1,8 @@
+\section{No-LLM Proxy for Large-Scale Replications}
+\label{app:nollm-proxy}
+
+In order to study the probability of detection under various adversarial conditions, we simulate $100$ different replications of three different adversarial profiles: no adversary, a fast attack, and a slow attack. Due to the cost prohibitiveness of running several hundred simulations with an LLM in the loop, we design an experimental setup that captures the information propagation dynamics of the LLMs without needing to call their API explicitly. In particular, we replace the LLM call in our existing simulations with the proxy function detailed in Algorithm~\ref{alg:nollm-answer}.
+
+Informally, Algorithm~\ref{alg:nollm-answer} assumes that non-adversarial agents will reproduce the correct answer to a question when they have it in their context, and respond with ``I don't know'' when they do not have the correct answer in their context. Further, Algorithm~\ref{alg:nollm-answer} assumes that non-adversarial agents will reproduce an adversarial answer they have retrieved from their database with probability $p_{\text{adv-prop}}$. In practice, we observed non-adversarial LLMs propagate our chosen canary ${\sim}80\%$ of the time, and set $p_{\text{adv-prop}}=0.8$ as a result.
+
+% \input{...}  % place Algorithm \ref{alg:nollm-answer} here

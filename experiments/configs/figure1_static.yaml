@@ -29,5 +29,3 @@ control_bar:
   burn_in: 20
   window_size: 50
   k: 2
-  ema: true
-  window_decay: 0.2

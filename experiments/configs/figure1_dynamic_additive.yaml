@@ -1,5 +1,5 @@
 experiment:
-  name: figure1-dynamic
+  name: figure1-dynamic-additive
   description: 'Paper Figure 1: Dynamic memory (decay) - accuracy tracks changing
     environment'
 data:
@@ -17,10 +17,11 @@ network:
 simulation:
   max_iterations: 200
   seed: 42
-  questions_per_turn: 6
+  questions_per_turn: 5
   forget_strategy:
     strategy: decay
     decay_coefficient: 0.05
+    decay_mode: additive
   temporal_kernel:
     enabled: true
     interval: 5

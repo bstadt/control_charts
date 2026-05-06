@@ -1,7 +1,7 @@
 experiment:
-  name: figure1-dynamic
-  description: 'Paper Figure 1: Dynamic memory (decay) - accuracy tracks changing
-    environment'
+  name: figure2-baseline-additive-fastdecay
+  description: 'Paper Figure 2: Baseline dynamic memory system over 1500 iterations
+    (5 questions per turn, additive decay (lambda=0.2))'
 data:
   total_questions: 50
   questions_per_agent: 8
@@ -15,18 +15,19 @@ agents:
 network:
   topology: full_mesh
 simulation:
-  max_iterations: 200
+  max_iterations: 1500
   seed: 42
-  questions_per_turn: 6
+  questions_per_turn: 5
   forget_strategy:
     strategy: decay
-    decay_coefficient: 0.05
+    decay_coefficient: 0.20
+    decay_mode: additive
   temporal_kernel:
     enabled: true
-    interval: 5
+    interval: 10
     sample_size: 10
     n_nontemporal_sample: 10
 control_bar:
-  burn_in: 20
-  window_size: 50
+  burn_in: 100
+  window_size: 100
   k: 2

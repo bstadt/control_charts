@@ -16,7 +16,7 @@ from sklearn.manifold import Isomap
 
 # Paths to experiment results
 STATIC_DIR = Path("experiments/results/figure1-static_2026-01-17_10-06-33")
-DYNAMIC_DIR = Path("experiments/results/figure1-dynamic_2026-01-17_10-06-33")
+DYNAMIC_DIR = Path("experiments/results/figure1-dynamic-additive_2026-05-04_11-02-22")
 OUTPUT_PATH = Path("experiments/figures/figure1.png")
 
 
@@ -117,7 +117,7 @@ def main():
     # Load data
     print("Loading TDKPS embeddings...")
     static_embedding, static_steps = load_tdkps_embeddings(STATIC_DIR, "figure1-static")
-    dynamic_embedding, dynamic_steps = load_tdkps_embeddings(DYNAMIC_DIR, "figure1-dynamic")
+    dynamic_embedding, dynamic_steps = load_tdkps_embeddings(DYNAMIC_DIR, "figure1-dynamic-additive")
 
     print("Loading accuracy data...")
     static_temporal_acc, static_nontemporal_acc, static_acc_steps = load_accuracy_from_snapshots(STATIC_DIR / "snapshots")

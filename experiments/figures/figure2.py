@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from sklearn.manifold import Isomap
 
-RESULTS_DIR = Path("experiments/results/figure2-baseline_2026-01-16_16-49-25")
+RESULTS_DIR = Path("experiments/results/figure2-baseline-additive_2026-05-04_11-34-59")
 OUTPUT_PATH = Path("experiments/figures/figure2.png")
 
 
@@ -40,7 +40,7 @@ def main():
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     print("Loading TDKPS embeddings...")
-    embedding_matrix, steps = load_tdkps_embeddings(RESULTS_DIR, "figure2-baseline")
+    embedding_matrix, steps = load_tdkps_embeddings(RESULTS_DIR, "figure2-baseline-additive")
 
     print("Computing isomirror...")
     iso_values = compute_isomirror(embedding_matrix, steps)

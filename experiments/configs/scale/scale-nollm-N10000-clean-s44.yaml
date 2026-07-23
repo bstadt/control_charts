@@ -1,0 +1,36 @@
+experiment:
+  name: scale-nollm-N10000-clean-s44
+  description: 'fastsim scale grid: N=10000, clean, intensive scaling (Q=8N+10), figure3
+    noLLM arm (p=0.90, cross=0.0)'
+data:
+  total_questions: 80010
+  questions_per_agent: 8
+  n_temporal: 10
+  temporal_change_probability: 0.04
+agents:
+  count: 10000
+  model: gpt-4o-mini
+  retrieval_k: 3
+  propagation_probability: 0.9
+  cross_question_propagation: 0.0
+  custom: []
+  use_llm: false
+network:
+  topology: full_mesh
+simulation:
+  max_iterations: 2000
+  seed: 44
+  questions_per_turn: 5
+  forget_strategy:
+    strategy: decay
+    decay_coefficient: 0.05
+    decay_mode: additive
+  temporal_kernel:
+    enabled: true
+    interval: 10
+    sample_size: 10
+    n_nontemporal_sample: 10
+control_bar:
+  burn_in: 100
+  window_size: 200
+  k: 2

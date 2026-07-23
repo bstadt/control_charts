@@ -53,7 +53,7 @@ CROSS_RECENCY = 60
 # Calibrated against archived original runs (see validate.py); override via
 # FASTSIM_SAMEQ_VIS for calibration sweeps.
 import os
-SAME_Q_VISIBILITY = int(os.environ.get("FASTSIM_SAMEQ_VIS", "16"))
+SAME_Q_VISIBILITY = int(os.environ.get("FASTSIM_SAMEQ_VIS", "17"))
 
 
 def defection_probability(t: int, sched: dict | None) -> float:
@@ -247,10 +247,12 @@ class FastSim:
             codes[defect] = QUINE
             todo &= ~defect
 
-        # 3-5. window lookup (entries older than SAME_Q_VISIBILITY have been
-        # crowded out of the top-k by fresh cross-question insertions)
+        # 3-5. window lookup. A quine older than SAME_Q_VISIBILITY has been
+        # crowded out of the top-k by fresh cross-question insertions;
+        # correct entries stay exact-matchable (the DB never deletes, and
+        # the original's re-ask cadence keeps a correct same-q entry ranked;
+        # its pre-attack wrong-type fraction on temporal probes is ~0.05).
         o = self.occ[b, q]
-        visible = (o > 0) & (t - self.learn_time[b, q] <= SAME_Q_VISIBILITY)
         bits = self.qbits[b, q]
         quine_visible = (bits != 0) & (t - self.qtime[b, q] <= SAME_Q_VISIBILITY)
         freshest_quine = ((bits & 1) == 1) & quine_visible
@@ -260,7 +262,7 @@ class FastSim:
         roll = rng.random(m)
         same_q_quine = todo & quine_visible & ((roll < self.p_same) | freshest_quine)
         codes[same_q_quine] = QUINE
-        same_q_correct = todo & quine_visible & ~same_q_quine & visible
+        same_q_correct = todo & quine_visible & ~same_q_quine
         todo &= ~quine_visible
 
         cross_roll = rng.random(m)
@@ -268,7 +270,7 @@ class FastSim:
         codes[cross_quine] = QUINE
         todo &= ~cross_quine
 
-        correct = same_q_correct | (todo & visible)
+        correct = same_q_correct | (todo & (o > 0))
         codes[correct] = CORRECT
         if self.Qt:
             ct = correct & is_t

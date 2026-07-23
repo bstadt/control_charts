@@ -44,6 +44,17 @@ IDK_TEXT = "I don't know"
 # crack a full top-k window.
 CROSS_RECENCY = 60
 
+# Same-question entries are also crowded out of the FAISS top-k by the
+# agent's continual fresh insertions under other questions (score =
+# cosine + recency): an entry of age D scores 1 + exp(-c*D), and once that
+# decays toward 1.0 a handful of fresh cross entries (cos + ~1) outrank it.
+# Entries older than this are treated as not retrievable; the agent's
+# re-asking (driven by the same decay) is what keeps knowledge visible.
+# Calibrated against archived original runs (see validate.py); override via
+# FASTSIM_SAMEQ_VIS for calibration sweeps.
+import os
+SAME_Q_VISIBILITY = int(os.environ.get("FASTSIM_SAMEQ_VIS", "16"))
+
 
 def defection_probability(t: int, sched: dict | None) -> float:
     """Port of Agent.get_adversarial_probability (sigmoid schedule)."""
@@ -99,6 +110,7 @@ class FastSim:
         self.occ = np.zeros((N, Q), dtype=np.uint8)        # window occupancy (0..k)
         self.qbits = np.zeros((N, Q), dtype=np.uint8)      # quine flags, bit0 = freshest
         self.learn_time = np.full((N, Q), -1, dtype=np.int32)
+        self.qtime = np.full((N, Q), -(10 ** 9), dtype=np.int32)  # last quine insertion
         self.tval = np.zeros((N, self.Qt), dtype=np.int32) if self.Qt else None
         self.inf_count = np.zeros(N, dtype=np.int32)       # questions with >=1 quine
         self.last_quine_t = np.full(N, -(10 ** 9), dtype=np.int64)
@@ -235,26 +247,28 @@ class FastSim:
             codes[defect] = QUINE
             todo &= ~defect
 
-        # 3-5. window lookup
+        # 3-5. window lookup (entries older than SAME_Q_VISIBILITY have been
+        # crowded out of the top-k by fresh cross-question insertions)
         o = self.occ[b, q]
+        visible = (o > 0) & (t - self.learn_time[b, q] <= SAME_Q_VISIBILITY)
         bits = self.qbits[b, q]
-        any_quine = bits != 0
-        freshest_quine = (bits & 1) == 1
-        inf_other = self.inf_count[b] - any_quine.astype(np.int32) > 0
+        quine_visible = (bits != 0) & (t - self.qtime[b, q] <= SAME_Q_VISIBILITY)
+        freshest_quine = ((bits & 1) == 1) & quine_visible
+        inf_other = self.inf_count[b] - quine_visible.astype(np.int32) > 0
         cross_can = inf_other & ((o < self.k) | (t - self.last_quine_t[b] <= CROSS_RECENCY))
 
         roll = rng.random(m)
-        same_q_quine = todo & any_quine & ((roll < self.p_same) | freshest_quine)
+        same_q_quine = todo & quine_visible & ((roll < self.p_same) | freshest_quine)
         codes[same_q_quine] = QUINE
-        same_q_correct = todo & any_quine & ~same_q_quine
-        todo &= ~any_quine
+        same_q_correct = todo & quine_visible & ~same_q_quine & visible
+        todo &= ~quine_visible
 
         cross_roll = rng.random(m)
         cross_quine = todo & cross_can & (cross_roll < self.p_cross)
         codes[cross_quine] = QUINE
         todo &= ~cross_quine
 
-        correct = same_q_correct | (todo & (o > 0))
+        correct = same_q_correct | (todo & visible)
         codes[correct] = CORRECT
         if self.Qt:
             ct = correct & is_t
@@ -286,6 +300,7 @@ class FastSim:
             np.add.at(self.inf_count, ai, delta)
             if isq.any():
                 self.last_quine_t[np.unique(ai[isq])] = t
+                self.qtime[ai[isq], qi[isq]] = t
             # known bookkeeping: newly non-empty window on a not-owned pair
             newly = was_empty.copy()
             if self.Qt:

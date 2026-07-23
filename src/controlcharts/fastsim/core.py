@@ -174,22 +174,43 @@ class FastSim:
             pending = pending[~ok]
 
         # Slow path: exact weighted sampling over the full question row for
-        # the remaining slots. The original renormalizes over its realized
-        # candidate pool and (almost) always asks; dropping slots instead
-        # would bias the query rate down, so only truly-zero pools skip.
+        # the remaining slots (dominant in the saturated regime, where the
+        # rejection envelope rarely accepts). The original renormalizes over
+        # its realized candidate pool and (almost) always asks; dropping
+        # slots would bias the query rate down, so only truly-zero rows skip.
+        # Vectorized categorical draw over all pending slots at once.
         if len(pending):
             pa = a[pending]
-            for agent in np.unique(pa):
-                slots = pending[pa == agent]
-                w = self._weight_row(agent, t)
-                s = w.sum()
-                if s <= 0:
-                    self.dropped_slots += len(slots)
-                    continue
-                q[slots] = self.rng.choice(self.Q, size=len(slots), p=w / s)
+            W = self._weight_matrix(pa, t)           # [len(pending), Q]
+            s = W.sum(axis=1)
+            good = s > 0
+            self.dropped_slots += int((~good).sum())
+            if good.any():
+                Wg = W[good]
+                cdf = np.cumsum(Wg, axis=1)
+                cdf /= cdf[:, -1:]
+                u = self.rng.random(good.sum())
+                picks = (cdf < u[:, None]).sum(axis=1)
+                picks = np.minimum(picks, self.Q - 1)
+                q[pending[good]] = picks
 
         filled = q >= 0
         return a[filled], q[filled]
+
+    def _weight_matrix(self, agents: np.ndarray, t: int) -> np.ndarray:
+        """Selection-weight rows for a set of (possibly repeated) agents:
+        1 for unknown, p^2 for known (decay), or 1/0 unknown/known ('none')."""
+        occ = self.occ[agents]                       # [A, Q]
+        known = occ > 0
+        if self.Qt:
+            owned = self.tq_owner[None, :] == agents[:, None]   # [A, Qt]
+            known[:, self.Qnt:] |= owned
+        if self.forget == "decay":
+            lt = self.learn_time[agents]
+            dt = t - np.where(lt >= 0, lt, 0)
+            p = 1.0 - np.exp(-self.decay_c * np.maximum(dt, 0))
+            return np.where(known, p * p, 1.0)
+        return (~known).astype(np.float64)
 
     def _weight_at(self, agents: np.ndarray, qs: np.ndarray, t: int) -> np.ndarray:
         """Selection weight at (agent, question) pairs: 1 for unknown,
@@ -204,20 +225,6 @@ class FastSim:
             p = 1.0 - np.exp(-self.decay_c * np.maximum(dt, 0))
             return np.where(known, p * p, 1.0)
         return np.where(known, 0.0, 1.0)
-
-    def _weight_row(self, agent: int, t: int) -> np.ndarray:
-        """Full selection-weight row over all questions for one agent."""
-        known = self.occ[agent] > 0
-        if self.Qt:
-            owned_qs = self.Qnt + np.flatnonzero(self.tq_owner == agent)
-            known = known.copy()
-            known[owned_qs] = True
-        if self.forget == "decay":
-            lt = self.learn_time[agent]
-            dt = t - np.where(lt >= 0, lt, 0)
-            p = 1.0 - np.exp(-self.decay_c * np.maximum(dt, 0))
-            return np.where(known, p * p, 1.0)
-        return (~known).astype(np.float64)
 
     # ----- response resolution (responder side) ---------------------------
 

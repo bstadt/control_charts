@@ -1,10 +1,26 @@
 """Generate scale-grid configs: N in {100, 1000, 10000} x seeds x {adv, clean}.
 
-Intensive scaling of the paper's figure-3 no-LLM arm: per-agent and
-per-question quantities held at their small-N values, total questions
-scaled as 8N non-temporal + 10 temporal, so per-question attention and
-initial per-question seeding stay constant. N is the only new knob.
+Scaling of the paper's figure-3 no-LLM arm holding the question set FIXED at
+the paper's Q=50 (40 non-temporal + 10 temporal) while growing N. This keeps
+the system in the paper's operating regime: knowledge saturates (every agent
+learns all questions, as at N=5) and the live dynamics are temporal-question
+freshness and the adversarial quine.
+
+Why not scale Q with N: an empirical probe (2026-07-23) showed Q=8N+10 drives
+per-question sharing to ~1/N, so the mesh stops mixing -- mean knowledge/agent
+collapses to the seeded ~9 and neither knowledge nor the quine propagates
+(frozen-empty). Fixed Q is the minimal-knob choice (it REMOVES the Q-scaling
+knob; N is the only one) and it makes the headline question well-posed: a
+single adversary is 20% of agents at N=5 but 0.01% at N=1e4, so does the quine
+still take over, or dilute below the epidemic threshold?
+
+The seeding rule is unchanged: the first ceil(40/8)=5 agents hold all 40
+non-temporal questions at t=0; every other agent starts empty and must learn
+through the mesh -- so growing N grows the population that must be reached,
+not the amount seeded.
 """
+
+TOTAL_QUESTIONS = 50   # fixed at the paper's value (40 non-temporal + 10 temporal)
 
 import argparse
 from pathlib import Path
@@ -27,11 +43,11 @@ def make_config(n_agents: int, seed: int, adversarial: bool) -> dict:
     return {
         "experiment": {
             "name": f"scale-nollm-N{n_agents}-{arm}-s{seed}",
-            "description": (f"fastsim scale grid: N={n_agents}, {arm}, intensive scaling "
-                            f"(Q=8N+10), figure3 noLLM arm (p=0.90, cross=0.0)"),
+            "description": (f"fastsim scale grid: N={n_agents}, {arm}, fixed Q={TOTAL_QUESTIONS} "
+                            f"(paper regime), figure3 noLLM arm (p=0.90, cross=0.0)"),
         },
         "data": {
-            "total_questions": 8 * n_agents + 10,
+            "total_questions": TOTAL_QUESTIONS,
             "questions_per_agent": 8,
             "n_temporal": 10,
             "temporal_change_probability": 0.04,

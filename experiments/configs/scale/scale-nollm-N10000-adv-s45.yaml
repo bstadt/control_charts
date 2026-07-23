@@ -1,9 +1,9 @@
 experiment:
   name: scale-nollm-N10000-adv-s45
-  description: 'fastsim scale grid: N=10000, adv, intensive scaling (Q=8N+10), figure3
+  description: 'fastsim scale grid: N=10000, adv, fixed Q=50 (paper regime), figure3
     noLLM arm (p=0.90, cross=0.0)'
 data:
-  total_questions: 80010
+  total_questions: 50
   questions_per_agent: 8
   n_temporal: 10
   temporal_change_probability: 0.04

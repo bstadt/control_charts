@@ -58,19 +58,46 @@ def build_er_csr(N: int, mean_degree: float, rng) -> tuple[np.ndarray, np.ndarra
     return indptr, dst.astype(np.int64)
 
 
-def _embed_alphabet(strings: list[str]) -> dict[str, np.ndarray]:
-    """Embed the response alphabet once, locally (CPU is fine at this size).
+def _load_embed_cache() -> dict[str, np.ndarray] | None:
+    """Load a precomputed string->embedding cache if FASTSIM_EMBED_CACHE is set.
 
-    Same model/revision and no normalization, matching embedding.py.
+    Lets many parallel cells reuse one precomputed alphabet cache instead of
+    each loading the ~2-3 GB nomic model (which OOMs the box at parallelism).
+    Build it once with precompute_embed_cache.py.
     """
+    import os
+    import pickle
+    path = os.environ.get("FASTSIM_EMBED_CACHE")
+    if path and Path(path).exists():
+        with open(path, "rb") as f:
+            return pickle.load(f)
+    return None
+
+
+def _embed_alphabet(strings: list[str]) -> dict[str, np.ndarray]:
+    """Embed the response alphabet. Uses FASTSIM_EMBED_CACHE if it covers every
+    string (no model load); otherwise loads the model locally for the misses.
+    """
+    cache = _load_embed_cache()
+    if cache is not None:
+        missing = [s for s in strings if s not in cache]
+        if not missing:
+            return {s: cache[s] for s in strings}
+        logger.warning(f"Embed cache missing {len(missing)}/{len(strings)} strings; "
+                       f"loading model for the remainder")
+    else:
+        missing = strings
+
     from sentence_transformers import SentenceTransformer
     from ..embedding import MODEL_ID, MODEL_REVISION
 
-    logger.info(f"Embedding response alphabet: {len(strings)} unique strings")
+    logger.info(f"Embedding {len(missing)} strings via model")
     model = SentenceTransformer(MODEL_ID, revision=MODEL_REVISION, trust_remote_code=True)
-    embs = model.encode(strings, batch_size=64, show_progress_bar=False,
+    embs = model.encode(missing, batch_size=64, show_progress_bar=False,
                         normalize_embeddings=False, convert_to_numpy=True).astype(np.float32)
-    return {s: embs[i] for i, s in enumerate(strings)}
+    out = {s: cache[s] for s in strings if cache and s in cache} if cache else {}
+    out.update({s: embs[i] for i, s in enumerate(missing)})
+    return out
 
 
 def run_fastsim(

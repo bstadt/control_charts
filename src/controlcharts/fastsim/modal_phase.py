@@ -190,12 +190,15 @@ def fill_triangle(seeds: int = 30, out_dir: str = None):
     Ns = [100, 300, 1000, 3000, 10000, 100000]
     degs = [20, 50, 100, 300, 1000, 3000, 10000, 30000]
     seed_list = list(range(42, 42 + seeds))
-    setup.remote(seed_list)
-    combos = [(N, str(d), s) for N in Ns for d in degs if d < N for s in seed_list]
-    print(f"fanning out {len(combos)} triangle-fill cells on Modal")
-
     out = Path(out_dir or os.path.join(REPO, "experiments", "phase_modal"))
     (out / "cells").mkdir(parents=True, exist_ok=True)
+    all_combos = [(N, str(d), s) for N in Ns for d in degs if d < N for s in seed_list]
+    # resumable: skip cells whose result json already exists
+    combos = [c for c in all_combos
+              if not (out / "cells" / f"phase-N{c[0]}-k{c[1]}-s{c[2]}.json").exists()]
+    setup.remote(seed_list)
+    print(f"fanning out {len(combos)}/{len(all_combos)} triangle-fill cells "
+          f"({len(all_combos) - len(combos)} already done) on Modal")
     done = 0
     for r in run_cell_long.map(combos, order_outputs=False, return_exceptions=True):
         if isinstance(r, Exception):

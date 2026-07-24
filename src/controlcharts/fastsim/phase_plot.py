@@ -41,35 +41,38 @@ def main():
 
     Ns = sorted({c["N"] for c in cells})
     ks = sorted({c["mean_degree"] for c in cells})
-    # regime + infected fraction, averaged over seeds
-    reg = np.full((len(ks), len(Ns)), np.nan)
+    # detection rate (detected replications / total replications) and mean
+    # infected fraction, per (mean_degree, N) cell
+    det_rate = np.full((len(ks), len(Ns)), np.nan)
+    det_lbl = np.full((len(ks), len(Ns)), "", dtype=object)
     inf = np.full((len(ks), len(Ns)), np.nan)
-    und = np.full((len(ks), len(Ns)), np.nan)   # fraction of seeds undetected-intrusion
     for ik, k in enumerate(ks):
         for iN, N in enumerate(Ns):
             grp = [c for c in cells if c["mean_degree"] == k and c["N"] == N]
             if grp:
-                reg[ik, iN] = np.mean([regime(c) for c in grp])
+                nd = sum(1 for c in grp if c["detected"])
+                det_rate[ik, iN] = nd / len(grp)
+                det_lbl[ik, iN] = f"{nd}/{len(grp)}"
                 inf[ik, iN] = np.mean([c["infected_frac"] for c in grp])
-                und[ik, iN] = np.mean([1.0 if regime(c) == 2 else 0.0 for c in grp])
 
     fig, axes = plt.subplots(1, 2, figsize=(15, 6))
-    cmap = ListedColormap(["#2c3e50", "#27ae60", "#c0392b"])  # none / detected / UNDETECTED
-    norm = BoundaryNorm([-0.5, 0.5, 1.5, 2.5], cmap.N)
 
+    # Detection rate: darker = more detections (Greys maps high->black)
     ax = axes[0]
-    im = ax.imshow(np.round(reg), origin="lower", aspect="auto", cmap=cmap, norm=norm)
+    im = ax.imshow(det_rate, origin="lower", aspect="auto", cmap="Greys",
+                   vmin=0, vmax=1)
     ax.set_xticks(range(len(Ns))); ax.set_xticklabels(Ns)
     ax.set_yticks(range(len(ks))); ax.set_yticklabels([f"{k:g}" for k in ks])
     ax.set_xlabel("N (agents)"); ax.set_ylabel("mean degree (density axis)")
-    ax.set_title("Regime  (rounded seed-mean)")
+    ax.set_title("Detections / replications  (darker = more detected)")
     for ik in range(len(ks)):
         for iN in range(len(Ns)):
-            if not np.isnan(und[ik, iN]):
-                ax.text(iN, ik, f"{und[ik, iN]:.0%}", ha="center", va="center",
-                        color="white", fontsize=8)
-    cbar = fig.colorbar(im, ax=ax, ticks=[0, 1, 2])
-    cbar.ax.set_yticklabels(["no intrusion", "detected", "UNDETECTED"])
+            if det_lbl[ik, iN]:
+                v = det_rate[ik, iN]
+                ax.text(iN, ik, det_lbl[ik, iN], ha="center", va="center",
+                        color=("white" if v > 0.5 else "black"), fontsize=8)
+    cbar = fig.colorbar(im, ax=ax, ticks=[0, 0.5, 1])
+    cbar.set_label("fraction of replications detected")
 
     ax = axes[1]
     im2 = ax.imshow(inf, origin="lower", aspect="auto", cmap="magma", vmin=0, vmax=1)
@@ -79,7 +82,7 @@ def main():
     ax.set_title("Final infected fraction")
     fig.colorbar(im2, ax=ax)
 
-    fig.suptitle("Intrusion detectability phase diagram (cell label = % seeds undetected-intrusion)")
+    fig.suptitle("Intrusion detectability phase diagram (cell = detections/replications)")
     fig.tight_layout()
     outpath = args.out or str(out / "phase_diagram.png")
     fig.savefig(outpath, dpi=140)

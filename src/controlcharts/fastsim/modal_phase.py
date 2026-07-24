@@ -179,6 +179,34 @@ def run_cell_long(args: tuple):
 
 
 @app.local_entrypoint()
+def fill_triangle(seeds: int = 30, out_dir: str = None):
+    """Fill the (N, density) cells between mean_degree 14 and full mesh.
+
+    Adds intermediate degrees at every N where the degree is valid (< N),
+    so the upper-left triangle of the diagram is populated instead of a
+    sparse full-mesh staircase. Writes into the shared phase_modal cells dir.
+    """
+    from pathlib import Path
+    Ns = [100, 300, 1000, 3000, 10000, 100000]
+    degs = [20, 50, 100, 300, 1000, 3000, 10000, 30000]
+    seed_list = list(range(42, 42 + seeds))
+    setup.remote(seed_list)
+    combos = [(N, str(d), s) for N in Ns for d in degs if d < N for s in seed_list]
+    print(f"fanning out {len(combos)} triangle-fill cells on Modal")
+
+    out = Path(out_dir or os.path.join(REPO, "experiments", "phase_modal"))
+    (out / "cells").mkdir(parents=True, exist_ok=True)
+    done = 0
+    for r in run_cell_long.map(combos, order_outputs=False, return_exceptions=True):
+        if isinstance(r, Exception):
+            print("cell failed:", r); continue
+        nm = f"phase-N{r['N']}-k{r['k']}-s{r['seed']}"
+        json.dump(r, open(out / "cells" / f"{nm}.json", "w"))
+        done += 1
+    print(f"done: {done}/{len(combos)} triangle-fill cells -> {out}")
+
+
+@app.local_entrypoint()
 def sweep_n(n: int = 100000, seeds: int = 30, out_dir: str = None):
     """Full density x seed sweep for a SINGLE N. Writes into the shared
     phase_modal cells dir so it merges with the existing N<=10000 grid."""

@@ -137,11 +137,68 @@ def run_cell(args: tuple):
     return r
 
 
+@app.function(volumes={VOL: vol, "/cache": hf_cache}, timeout=5400, memory=32768)
+def run_cell_big(args: tuple):
+    """Same as run_cell but generous timeout/memory for very large N."""
+    import time
+    N, k, seed = args
+    t0 = time.time()
+    r = _run_cell(N, k, seed)
+    r["wall_seconds"] = round(time.time() - t0, 1)
+    print(f"{r['N']} k={r['k']} s={r['seed']}: inf={r['infected_frac']:.3f} "
+          f"intr={r['intrusion']} det={r['detected']} ({r['wall_seconds']}s)")
+    return r
+
+
 @app.local_entrypoint()
 def test_one(n: int = 1000, k: str = "6", seed: int = 42):
     setup.remote([42])
     r = run_cell.remote((n, k, seed))
     print("RESULT:", json.dumps(r, indent=2))
+
+
+@app.local_entrypoint()
+def test_scale(n: int = 100000, k: str = "12", seed: int = 42):
+    """Feasibility test for a very large network."""
+    setup.remote([seed])
+    r = run_cell_big.remote((n, k, seed))
+    print("RESULT:", json.dumps(r, indent=2))
+
+
+@app.function(volumes={VOL: vol, "/cache": hf_cache}, timeout=3600, memory=16384)
+def run_cell_long(args: tuple):
+    """Longer timeout / more memory for large-N cells (e.g. N=100k ~24min)."""
+    import time
+    N, k, seed = args
+    t0 = time.time()
+    r = _run_cell(N, k, seed)
+    r["wall_seconds"] = round(time.time() - t0, 1)
+    print(f"{r['N']} k={r['k']} s={r['seed']}: inf={r['infected_frac']:.3f} "
+          f"intr={r['intrusion']} det={r['detected']} ({r['wall_seconds']}s)")
+    return r
+
+
+@app.local_entrypoint()
+def sweep_n(n: int = 100000, seeds: int = 30, out_dir: str = None):
+    """Full density x seed sweep for a SINGLE N. Writes into the shared
+    phase_modal cells dir so it merges with the existing N<=10000 grid."""
+    from pathlib import Path
+    ks = ["0.5", "1", "1.5", "2", "3", "4", "6", "8", "12", "14", "full"]
+    seed_list = list(range(42, 42 + seeds))
+    setup.remote(seed_list)
+    combos = [(n, k, s) for k in ks for s in seed_list]
+    print(f"fanning out {len(combos)} cells at N={n} on Modal")
+
+    out = Path(out_dir or os.path.join(REPO, "experiments", "phase_modal"))
+    (out / "cells").mkdir(parents=True, exist_ok=True)
+    done = 0
+    for r in run_cell_long.map(combos, order_outputs=False, return_exceptions=True):
+        if isinstance(r, Exception):
+            print("cell failed:", r); continue
+        nm = f"phase-N{r['N']}-k{r['k']}-s{r['seed']}"
+        json.dump(r, open(out / "cells" / f"{nm}.json", "w"))
+        done += 1
+    print(f"done: {done}/{len(combos)} cells at N={n} -> {out}")
 
 
 @app.local_entrypoint()

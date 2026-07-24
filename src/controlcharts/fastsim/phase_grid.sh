@@ -10,7 +10,8 @@ KS="${KS:-2 4 8 16 full}"
 SEEDS="${SEEDS:-42}"
 P="${P:-4}"
 DATA="${DATA:-/home/bstadt/root/data/nq_embedded.parquet}"
-export OUT DATA
+export FASTSIM_EMBED_CACHE="${FASTSIM_EMBED_CACHE:-/tmp/fastsim_embed_cache.pkl}"
+export OUT DATA FASTSIM_EMBED_CACHE
 PROG="$OUT/progress.txt"
 mkdir -p "$OUT"; : > "$PROG"
 

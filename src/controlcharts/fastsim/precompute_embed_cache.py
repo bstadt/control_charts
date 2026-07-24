@@ -28,17 +28,29 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-path", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--seeds", type=int, nargs="+", default=[42, 43, 44, 45, 46],
+                    help="seeds the sweep will use (determines which answers are sampled)")
+    ap.add_argument("--total-questions", type=int, default=50)
+    ap.add_argument("--n-temporal", type=int, default=10)
     ap.add_argument("--max-temporal-int", type=int, default=400,
                     help="cache str(0..N) for temporal values")
     args = ap.parse_args()
 
+    # Replicate the runner's per-seed question sampling so we embed exactly the
+    # answers that can ever appear -- a few hundred strings, not all of NQ.
     df = pd.read_parquet(args.data_path, columns=["answer"])
-    answers = df["answer"].astype(str).tolist()
-    strings = sorted(set(answers))
+    all_answers = df["answer"].astype(str).tolist()
+    n_nt = min(args.total_questions - args.n_temporal, len(all_answers))
+    used = set()
+    for seed in args.seeds:
+        rng = np.random.default_rng(seed)
+        idx = rng.choice(len(all_answers), size=n_nt, replace=False)
+        used.update(all_answers[i] for i in idx)
+    strings = sorted(used)
     strings += [QUINE_TEXT, IDK_TEXT]
     strings += [str(i) for i in range(args.max_temporal_int + 1)]
     strings = sorted(set(strings))
-    logger.info(f"Embedding {len(strings)} unique response strings once")
+    logger.info(f"Embedding {len(strings)} response strings for seeds {args.seeds} once")
 
     from sentence_transformers import SentenceTransformer
     from ..embedding import MODEL_ID, MODEL_REVISION

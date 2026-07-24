@@ -83,7 +83,6 @@ def run_fastsim(
 ) -> Path:
     config = Config.from_yaml(config_path)
     assert config.agents.use_llm is False, "fastsim only supports use_llm: false"
-    assert config.network.topology == "full_mesh", "fastsim only supports full_mesh"
 
     name = config.experiment.name
     ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

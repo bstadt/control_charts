@@ -90,6 +90,8 @@ class FastSim:
         defection_schedules: dict[int, dict],   # agent id -> sigmoid schedule
         questions_per_turn: int,
         seed: int,
+        nbr_indptr: np.ndarray | None = None,   # CSR offsets; None => full mesh
+        nbr_indices: np.ndarray | None = None,  # CSR neighbor ids
     ):
         self.N = n_agents
         self.Qnt = n_nontemporal
@@ -138,6 +140,14 @@ class FastSim:
             self.occ[a, qs] = 1
             self.learn_time[a, qs] = 0
             self.known_count[a] += len(qs)
+
+        # Contact graph (None => full mesh, uniform peer). CSR neighbor lists.
+        self.nbr_indptr = nbr_indptr
+        self.nbr_indices = nbr_indices
+        if nbr_indptr is not None:
+            self.nbr_deg = np.diff(nbr_indptr)
+        else:
+            self.nbr_deg = None
 
         self.history = []          # per-step aggregates
         self.dropped_slots = 0
@@ -294,8 +304,6 @@ class FastSim:
         key = a * self.Q + q
         order = np.argsort(key, kind="stable")
         a, q, is_quine, values, key = a[order], q[order], is_quine[order], values[order], key[order]
-        first = np.ones(len(key), dtype=bool)
-        first[1:] = key[1:] != key[:-1]
 
         def apply(ai, qi, isq, val):
             was_zero_bits = self.qbits[ai, qi] == 0
@@ -323,12 +331,34 @@ class FastSim:
                     self.tval[ai[ct], tqi[ct]] = val[ct]
             np.add.at(self.known_count, ai[newly], 1)
 
-        apply(a[first], q[first], is_quine[first], values[first])
-        # duplicate (agent, question) inserts within one step are rare; apply
-        # them sequentially so the window shifts twice, as the original does
-        dup_idx = np.flatnonzero(~first)
-        for i in dup_idx:
-            apply(a[i:i + 1], q[i:i + 1], is_quine[i:i + 1], values[i:i + 1])
+        # One vectorized apply per unique (agent, question), keeping the
+        # freshest insert of the step (last in stable key order). Duplicate
+        # (agent, question) inserts within a single step are rare (~one per
+        # few hundred slots); collapsing their multi-shift to a single window
+        # shift is a negligible approximation and removes a Python-level loop
+        # that otherwise dominated runtime (~350 apply() calls/step).
+        last = np.ones(len(key), dtype=bool)
+        last[:-1] = key[1:] != key[:-1]
+        apply(a[last], q[last], is_quine[last], values[last])
+
+    def _select_peers(self, a: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Pick one peer per asker. Full mesh (no graph): uniform excluding
+        self. Bounded degree: a uniform random neighbor; askers that are
+        isolated (degree 0) are dropped. Sets self._peer_keep to the surviving
+        mask so the caller can realign the parallel question array."""
+        if self.nbr_indptr is None:
+            b = self.rng.integers(0, self.N - 1, size=len(a))
+            b += (b >= a).astype(np.int64)
+            self._peer_keep = slice(None)
+            return a, b
+        deg = self.nbr_deg[a]
+        keep = deg > 0
+        self._peer_keep = keep
+        a = a[keep]
+        deg = deg[keep]
+        r = (self.rng.random(len(a)) * deg).astype(np.int64)   # 0..deg-1
+        b = self.nbr_indices[self.nbr_indptr[a] + r]
+        return a, b
 
     # ----- main loop -------------------------------------------------------
 
@@ -339,10 +369,10 @@ class FastSim:
             self.temporal_values[bump] += 1
 
         a, q = self._select_questions(t)
-        # peer selection: uniform over full mesh, excluding self
-        b = self.rng.integers(0, self.N - 1, size=len(a))
-        b += (b >= a).astype(np.int64)
-
+        a, b = self._select_peers(a)
+        # some askers may have been dropped (isolated nodes) -> realign q
+        if len(b) != len(q):
+            q = q[self._peer_keep]
         codes, values = self._resolve(b, q, t, self.rng)
         got = codes != IDK
         self._insert(a[got], q[got], (codes[got] == QUINE), values[got], t)

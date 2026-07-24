@@ -50,8 +50,9 @@ class AgentsConfig(BaseModel):
 
 class NetworkConfig(BaseModel):
     """Network topology configuration."""
-    topology: str = Field(default="full_mesh", description="Topology type")
+    topology: str = Field(default="full_mesh", description="Topology type: full_mesh | er")
     edge_probability: float = Field(default=0.3, description="For random topology")
+    mean_degree: Optional[float] = Field(default=None, description="Mean degree for 'er' (Erdos-Renyi) topology; density = mean_degree/(N-1)")
     adjacency: Optional[list[list[int]]] = Field(default=None, description="For custom topology")
 
 

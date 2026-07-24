@@ -26,6 +26,38 @@ DEFAULT_DATA_PATH = Path(__file__).parent.parent.parent.parent.parent / "data" /
 DEFAULT_PANEL_SIZE = 100
 
 
+def build_er_csr(N: int, mean_degree: float, rng) -> tuple[np.ndarray, np.ndarray]:
+    """Undirected Erdos-Renyi G(N, p=mean_degree/(N-1)) as symmetric CSR
+    neighbor lists. Samples ~N*mean_degree/2 candidate edges (sparse regime),
+    drops self-loops and duplicates. Returns (indptr, indices)."""
+    m = int(round(N * mean_degree / 2))
+    if m <= 0:
+        return np.zeros(N + 1, dtype=np.int64), np.zeros(0, dtype=np.int64)
+    # oversample to offset self-loop/duplicate loss
+    over = int(m * 1.2) + 8
+    i = rng.integers(0, N, size=over)
+    j = rng.integers(0, N, size=over)
+    good = i != j
+    i, j = i[good], j[good]
+    # canonical undirected key to dedupe
+    lo = np.minimum(i, j); hi = np.maximum(i, j)
+    key = lo.astype(np.int64) * N + hi
+    _, uniq = np.unique(key, return_index=True)
+    i, j = i[uniq], j[uniq]
+    if len(i) > m:
+        sel = rng.choice(len(i), size=m, replace=False)
+        i, j = i[sel], j[sel]
+    # symmetric edge list
+    src = np.concatenate([i, j])
+    dst = np.concatenate([j, i])
+    order = np.argsort(src, kind="stable")
+    src, dst = src[order], dst[order]
+    indptr = np.zeros(N + 1, dtype=np.int64)
+    np.add.at(indptr, src + 1, 1)
+    np.cumsum(indptr, out=indptr)
+    return indptr, dst.astype(np.int64)
+
+
 def _embed_alphabet(strings: list[str]) -> dict[str, np.ndarray]:
     """Embed the response alphabet once, locally (CPU is fine at this size).
 
@@ -90,6 +122,18 @@ def run_fastsim(
             defection[c.id] = {"start": s.start, "duration": s.duration,
                                "max_p": s.max_p, "shape": s.shape}
 
+    # Contact graph: full mesh (default) or Erdos-Renyi by mean degree.
+    nbr_indptr = nbr_indices = None
+    if config.network.topology == "er":
+        k = config.network.mean_degree
+        assert k is not None, "er topology requires network.mean_degree"
+        graph_rng = np.random.default_rng(config.simulation.seed ^ 0x6E7)
+        nbr_indptr, nbr_indices = build_er_csr(N, float(k), graph_rng)
+        logger.info(f"ER graph: N={N} mean_degree~{k} "
+                    f"(density={k/(N-1):.2e}), edges={len(nbr_indices)//2}")
+    elif config.network.topology != "full_mesh":
+        raise ValueError(f"fastsim supports full_mesh|er, got {config.network.topology}")
+
     sim = FastSim(
         n_agents=N,
         n_nontemporal=n_nontemporal,
@@ -105,6 +149,8 @@ def run_fastsim(
         defection_schedules=defection,
         questions_per_turn=config.simulation.questions_per_turn,
         seed=config.simulation.seed,
+        nbr_indptr=nbr_indptr,
+        nbr_indices=nbr_indices,
     )
 
     # --- probes and panel ---------------------------------------------------

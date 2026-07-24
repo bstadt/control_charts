@@ -57,20 +57,21 @@ def main():
 
     fig, axes = plt.subplots(1, 2, figsize=(15, 6))
 
-    # Detection rate: darker = more detections (Greys maps high->black)
+    # Detection rate: red = undetected (danger), white = detected.
+    # Reds_r maps 0 -> dark red, 1 -> white.
     ax = axes[0]
-    im = ax.imshow(det_rate, origin="lower", aspect="auto", cmap="Greys",
+    im = ax.imshow(det_rate, origin="lower", aspect="auto", cmap="Reds_r",
                    vmin=0, vmax=1)
     ax.set_xticks(range(len(Ns))); ax.set_xticklabels(Ns)
     ax.set_yticks(range(len(ks))); ax.set_yticklabels([f"{k:g}" for k in ks])
     ax.set_xlabel("N (agents)"); ax.set_ylabel("mean degree (density axis)")
-    ax.set_title("Detections / replications  (darker = more detected)")
+    ax.set_title("Detections / replications  (red = undetected, white = detected)")
     for ik in range(len(ks)):
         for iN in range(len(Ns)):
             if det_lbl[ik, iN]:
                 v = det_rate[ik, iN]
                 ax.text(iN, ik, det_lbl[ik, iN], ha="center", va="center",
-                        color=("white" if v > 0.5 else "black"), fontsize=8)
+                        color=("white" if v < 0.5 else "black"), fontsize=8)
     cbar = fig.colorbar(im, ax=ax, ticks=[0, 0.5, 1])
     cbar.set_label("fraction of replications detected")
 

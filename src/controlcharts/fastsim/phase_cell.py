@@ -103,8 +103,10 @@ def main():
     cfg_path = out / "configs" / f"{name}.yaml"
     yaml.dump(cfg, open(cfg_path, "w"), sort_keys=False)
 
+    # Panel of 50 keeps each cell's TDKPS kernel small (~2 GB) so the sweep is
+    # memory-safe at parallelism; ample resolution for regime classification.
     run_dir = run_fastsim(str(cfg_path), data_path=args.data_path,
-                          output_base=str(out / "runs"))
+                          output_base=str(out / "runs"), panel_size=50)
 
     summ = json.load(open(run_dir / "results_summary.json"))
     hist = summ["history"]

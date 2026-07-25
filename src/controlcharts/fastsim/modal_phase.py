@@ -125,6 +125,10 @@ def _run_cell(N, k, seed):
         "seed": seed, "infected_frac": infected_frac,
         "intrusion": bool(intrusion), "detected": det,
         "undetected_intrusion": bool(intrusion and det is False),
+        # persist the iso-mirror trajectory so the detector can be re-scored
+        # (different chart / k) without re-running the simulation
+        "iso_steps": [int(s) for s in steps] if steps is not None else None,
+        "iso_values": [float(v) for v in iso] if iso is not None else None,
     }
 
 

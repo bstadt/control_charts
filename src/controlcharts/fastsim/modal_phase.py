@@ -167,15 +167,52 @@ def test_scale(n: int = 100000, k: str = "12", seed: int = 42):
 
 @app.function(volumes={VOL: vol, "/cache": hf_cache}, timeout=3600, memory=16384)
 def run_cell_long(args: tuple):
-    """Longer timeout / more memory for large-N cells (e.g. N=100k ~24min)."""
+    """Longer timeout / more memory for large-N cells (e.g. N=100k ~24min).
+
+    Persists the result to the Volume so a dropped local streaming connection
+    can't lose completed work — recover with the `collect` function.
+    """
     import time
+    from pathlib import Path
     N, k, seed = args
     t0 = time.time()
     r = _run_cell(N, k, seed)
     r["wall_seconds"] = round(time.time() - t0, 1)
+    rd = Path(f"{VOL}/results"); rd.mkdir(parents=True, exist_ok=True)
+    nm = f"phase-N{r['N']}-k{r['k']}-s{r['seed']}"
+    json.dump(r, open(rd / f"{nm}.json", "w"))
+    vol.commit()
     print(f"{r['N']} k={r['k']} s={r['seed']}: inf={r['infected_frac']:.3f} "
           f"intr={r['intrusion']} det={r['detected']} ({r['wall_seconds']}s)")
     return r
+
+
+@app.function(volumes={VOL: vol}, timeout=600)
+def collect():
+    """Return every result persisted to the Volume (drop-proof recovery)."""
+    import glob
+    vol.reload()
+    out = []
+    for f in glob.glob(f"{VOL}/results/*.json"):
+        try:
+            out.append(json.load(open(f)))
+        except Exception:
+            pass
+    return out
+
+
+@app.local_entrypoint()
+def sync():
+    """Pull all Volume-persisted results into the local cells dir."""
+    from pathlib import Path
+    out = Path(os.path.join(REPO, "experiments", "phase_modal", "cells"))
+    out.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for r in collect.remote():
+        nm = f"phase-N{r['N']}-k{r['k']}-s{r['seed']}"
+        json.dump(r, open(out / f"{nm}.json", "w"))
+        n += 1
+    print(f"synced {n} results from Volume -> {out}")
 
 
 @app.local_entrypoint()

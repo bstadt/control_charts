@@ -252,13 +252,18 @@ def sweep_n(n: int = 100000, seeds: int = 30, out_dir: str = None):
     phase_modal cells dir so it merges with the existing N<=10000 grid."""
     from pathlib import Path
     ks = ["0.5", "1", "1.5", "2", "3", "4", "6", "8", "12", "14", "full"]
+    # drop degrees that can't exist on n nodes (mean degree must be < n)
+    ks = [k for k in ks if k == "full" or float(k) < n]
     seed_list = list(range(42, 42 + seeds))
-    setup.remote(seed_list)
-    combos = [(n, k, s) for k in ks for s in seed_list]
-    print(f"fanning out {len(combos)} cells at N={n} on Modal")
-
     out = Path(out_dir or os.path.join(REPO, "experiments", "phase_modal"))
     (out / "cells").mkdir(parents=True, exist_ok=True)
+    all_combos = [(n, k, s) for k in ks for s in seed_list]
+    combos = [c for c in all_combos
+              if not (out / "cells" / f"phase-N{c[0]}-k{c[1]}-s{c[2]}.json").exists()]
+    setup.remote(seed_list)
+    print(f"fanning out {len(combos)}/{len(all_combos)} cells at N={n} "
+          f"({len(all_combos) - len(combos)} already done) on Modal")
+
     done = 0
     for r in run_cell_long.map(combos, order_outputs=False, return_exceptions=True):
         if isinstance(r, Exception):

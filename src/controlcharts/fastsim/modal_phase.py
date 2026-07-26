@@ -161,7 +161,7 @@ def test_one(n: int = 1000, k: str = "6", seed: int = 42):
     print("RESULT:", json.dumps(r, indent=2))
 
 
-@app.function(volumes={VOL: vol, "/cache": hf_cache}, timeout=3600, memory=16384)
+@app.function(volumes={VOL: vol, "/cache": hf_cache}, timeout=21600, memory=32768)
 def run_search(spec: dict):
     """Run one cell with arbitrary N / degree / adversary params; return
     infected fraction + iso-mirror trajectory + accuracy for later scoring.
@@ -217,12 +217,25 @@ def run_search(spec: dict):
 
 
 @app.local_entrypoint()
-def detect_grid(reps: int = 3, out: str = "/tmp/detect_grid.json"):
+def test_n(n: int = 500000, degree: int = 99, seed: int = 42):
+    """Feasibility/timing probe for a single large-N attack cell."""
+    import time
+    setup.remote([seed])
+    t0 = time.time()
+    r = run_search.remote({"N": n, "degree": degree, "prop": 0.8, "duration": 1600,
+                           "adversary": True, "seed": seed})
+    print(f"N={n} deg={degree}: infected={r['infected_frac']:.3f} "
+          f"nt_acc_end={r['nontemporal_acc_end']:.3f} wall={time.time()-t0:.0f}s")
+
+
+@app.local_entrypoint()
+def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
+                out: str = "/tmp/detect_grid.json"):
     """Detectability vs empirical baseline over (N x mean-degree), d1600 slow
     schedule. Each cell runs BOTH noadv (baseline) and adv (attack) variants,
     reps each, and records iso-mirror + end-of-sim temporal/non-temporal acc.
     Degrees are only run where valid (degree < N)."""
-    Ns = [5, 10, 100, 1000, 10000, 100000]
+    Ns = [int(x) for x in ns.split(",")]
     degrees = [4, 9, 99, 999, 99999]
     seed_list = list(range(42, 42 + reps))
     setup.remote(seed_list)

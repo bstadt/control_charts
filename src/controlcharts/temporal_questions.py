@@ -28,6 +28,20 @@ TEMPORAL_QUESTION_DESCRIPTIONS = {
     "What is the current news headline number?": "News headline index at this iteration",
 }
 
+# Extend the pool to 100 for large-Q runs (question-count scaling experiments).
+# The first 10 canonical questions are unchanged, so existing configs with
+# n_temporal<=10 slice exactly the same questions as before. Answers are the
+# current iteration number regardless of text, so the generated wording only
+# appears in snapshot metadata.
+TEMPORAL_QUESTIONS += [
+    f"What is the current reading of sensor {i}?"
+    for i in range(len(TEMPORAL_QUESTIONS), 100)
+]
+TEMPORAL_QUESTION_DESCRIPTIONS.update({
+    q: "Live sensor reading at this iteration"
+    for q in TEMPORAL_QUESTIONS[10:]
+})
+
 
 def get_temporal_answer(question: str, iteration: int) -> str:
     """Get the correct answer for a temporal question at a given iteration.

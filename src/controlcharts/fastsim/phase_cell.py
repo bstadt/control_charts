@@ -54,13 +54,15 @@ def build_adv(duration=1600, max_p=0.75, shape=1.0):
 
 def make_config(N, mean_degree, seed, name, prop_prob=0.8, duration=1600,
                 max_p=0.75, shape=1.0, adversary=True, forget="decay",
-                decay_coefficient=0.05, n_temporal=10):
+                decay_coefficient=0.05, n_temporal=10, total_questions=50,
+                questions_per_agent=8):
     net = {"topology": "full_mesh"} if mean_degree is None else \
           {"topology": "er", "mean_degree": float(mean_degree)}
     custom = build_adv(duration, max_p, shape) if adversary else []
     return {
         "experiment": {"name": name, "description": f"phase cell N={N} k={mean_degree} s={seed}"},
-        "data": {"total_questions": 50, "questions_per_agent": 8, "n_temporal": n_temporal,
+        "data": {"total_questions": total_questions, "questions_per_agent": questions_per_agent,
+                 "n_temporal": n_temporal,
                  "temporal_change_probability": 0.04},
         "agents": {"count": N, "model": "gpt-4o-mini", "retrieval_k": 3,
                    "propagation_probability": prop_prob, "cross_question_propagation": 0.0,

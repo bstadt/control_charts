@@ -47,10 +47,11 @@ CACHE = f"{VOL}/embed_cache.pkl"
 
 @app.function(volumes={VOL: vol, "/cache": hf_cache}, timeout=3600,
               memory=8192)
-def setup(seeds: list[int]):
+def setup(seeds: list[int], total_questions: int = 50, n_temporal: int = 10):
     """Build the NQ (question, answer) parquet and the embed cache once."""
     import numpy as np
     import pandas as pd
+    import pickle
     from pathlib import Path
 
     if not Path(PARQUET).exists():
@@ -67,15 +68,24 @@ def setup(seeds: list[int]):
     from controlcharts.fastsim.core import QUINE_TEXT, IDK_TEXT
     df = pd.read_parquet(PARQUET, columns=["answer"])
     all_answers = df["answer"].astype(str).tolist()
-    n_nt = 50 - 10
+    n_nt = total_questions - n_temporal
     used = set()
     for s in seeds:
         rng = np.random.default_rng(s)
         idx = rng.choice(len(all_answers), size=n_nt, replace=False)
         used.update(all_answers[i] for i in idx)
     strings = sorted(used) + [QUINE_TEXT, IDK_TEXT] + [str(i) for i in range(401)]
-    strings = sorted(set(strings))
-    print(f"embedding {len(strings)} strings")
+    # Merge with the existing cache so runs at different Q / seed sets never
+    # invalidate each other's alphabet.
+    existing = {}
+    if Path(CACHE).exists():
+        with open(CACHE, "rb") as f:
+            existing = pickle.load(f)
+    strings = sorted(set(strings) - set(existing))
+    if not strings:
+        print(f"cache already covers all strings ({len(existing)} entries)")
+        return
+    print(f"embedding {len(strings)} new strings ({len(existing)} cached)")
 
     from sentence_transformers import SentenceTransformer
     from controlcharts.embedding import MODEL_ID, MODEL_REVISION
@@ -84,11 +94,11 @@ def setup(seeds: list[int]):
                                 trust_remote_code=True, cache_folder="/cache")
     embs = model.encode(strings, batch_size=128, convert_to_numpy=True,
                         normalize_embeddings=False).astype("float32")
-    import pickle
+    existing.update({s: embs[i] for i, s in enumerate(strings)})
     with open(CACHE, "wb") as f:
-        pickle.dump({s: embs[i] for i, s in enumerate(strings)}, f, protocol=4)
+        pickle.dump(existing, f, protocol=4)
     vol.commit()
-    print(f"wrote cache {len(strings)} -> {CACHE}")
+    print(f"wrote cache {len(existing)} total ({len(strings)} new) -> {CACHE}")
 
 
 def _run_cell(N, k, seed):
@@ -178,19 +188,23 @@ def run_search(spec: dict):
     s = spec
     N = s.get("N", 5)
     deg = s.get("degree", None)
+    tq = s.get("total_questions", 50)
     # degree >= N-1 (or None) is a complete graph -> use the full-mesh path
     # (an explicit CSR would be O(N^2) edges and blow up at large N)
     mean_degree = None if (deg is None or float(deg) >= N - 1) else float(deg)
     dstr = "full" if mean_degree is None else str(deg)
     name = (f"cell-N{N}-k{dstr}-p{s['prop']}-d{s['duration']}-"
-            f"{'adv' if s['adversary'] else 'noadv'}-s{s['seed']}")
+            f"{'adv' if s['adversary'] else 'noadv'}-s{s['seed']}"
+            + (f"-q{tq}" if tq != 50 else ""))
     work = Path(f"/tmp/{name}"); work.mkdir(parents=True, exist_ok=True)
     cfg = make_config(N, mean_degree, s["seed"], name, prop_prob=s["prop"],
                       duration=s["duration"], max_p=s.get("max_p", 0.75),
                       shape=s.get("shape", 1.0), adversary=s["adversary"],
                       forget=s.get("forget", "decay"),
                       decay_coefficient=s.get("decay_coefficient", 0.05),
-                      n_temporal=s.get("n_temporal", 10))
+                      n_temporal=s.get("n_temporal", 10),
+                      total_questions=tq,
+                      questions_per_agent=s.get("questions_per_agent", 8))
     cp = work / "cfg.yaml"; yaml.dump(cfg, open(cp, "w"), sort_keys=False)
     run_dir = run_fastsim(str(cp), data_path=PARQUET, output_base=str(work / "runs"),
                           panel_size=50)
@@ -223,28 +237,38 @@ def run_search(spec: dict):
 
 
 @app.local_entrypoint()
-def test_n(n: int = 500000, degree: int = 99, seed: int = 42):
+def test_n(n: int = 500000, degree: int = 99, seed: int = 42, qscale: int = 1):
     """Feasibility/timing probe for a single large-N attack cell."""
     import time
-    setup.remote([seed])
+    setup.remote([seed], 50 * qscale, 10 * qscale)
     t0 = time.time()
     r = run_search.remote({"N": n, "degree": degree, "prop": 0.8, "duration": 1600,
-                           "adversary": True, "seed": seed})
-    print(f"N={n} deg={degree}: infected={r['infected_frac']:.3f} "
+                           "adversary": True, "seed": seed,
+                           "total_questions": 50 * qscale, "n_temporal": 10 * qscale,
+                           "questions_per_agent": 8 * qscale})
+    print(f"N={n} deg={degree} Q={50*qscale}: infected={r['infected_frac']:.3f} "
           f"nt_acc_end={r['nontemporal_acc_end']:.3f} wall={time.time()-t0:.0f}s")
 
 
 @app.local_entrypoint()
 def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
-                out: str = "/tmp/detect_grid.json"):
+                out: str = "/tmp/detect_grid.json", qscale: int = 1):
     """Detectability vs empirical baseline over (N x mean-degree), d1600 slow
     schedule. Each cell runs BOTH noadv (baseline) and adv (attack) variants,
     reps each, and records iso-mirror + end-of-sim temporal/non-temporal acc.
-    Degrees are only run where valid (degree < N)."""
+    Degrees are only run where valid (degree < N).
+
+    qscale multiplies the question-set size (Q=50*qscale) while holding the
+    temporal:static composition (20%:80%), temporal_change_probability, and
+    questions_per_turn constant; questions_per_agent scales with Q so the
+    seeded fraction of the pool is unchanged."""
     Ns = [int(x) for x in ns.split(",")]
     degrees = [4, 9, 99, 999, 99999]
     seed_list = list(range(42, 42 + reps))
-    setup.remote(seed_list)
+    setup.remote(seed_list, 50 * qscale, 10 * qscale)
+    qkw = {} if qscale == 1 else {"total_questions": 50 * qscale,
+                                  "n_temporal": 10 * qscale,
+                                  "questions_per_agent": 8 * qscale}
     specs = []
     for N in Ns:
         for d in degrees:
@@ -253,9 +277,10 @@ def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
             for s in seed_list:
                 for adv in (False, True):
                     specs.append({"N": N, "degree": d, "prop": 0.8, "duration": 1600,
-                                  "adversary": adv, "seed": s})
+                                  "adversary": adv, "seed": s, **qkw})
     print(f"fanning out {len(specs)} cells "
-          f"({len(specs)//(reps*2)} (N,degree) pairs x {reps} reps x 2 variants)")
+          f"({len(specs)//(reps*2)} (N,degree) pairs x {reps} reps x 2 variants) "
+          f"Q={50*qscale}")
     results = []
     for r in run_search.map(specs, order_outputs=False, return_exceptions=True):
         if isinstance(r, Exception):

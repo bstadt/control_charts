@@ -45,19 +45,29 @@ ADV_CUSTOM = [{
 }]
 
 
-def make_config(N, mean_degree, seed, name):
+def build_adv(duration=1600, max_p=0.75, shape=1.0):
+    adv = dict(ADV_CUSTOM[0])
+    adv["defection_schedule"] = {"start": ATTACK, "duration": duration,
+                                 "max_p": max_p, "shape": shape}
+    return [adv]
+
+
+def make_config(N, mean_degree, seed, name, prop_prob=0.8, duration=1600,
+                max_p=0.75, shape=1.0, adversary=True, forget="decay",
+                decay_coefficient=0.05, n_temporal=10):
     net = {"topology": "full_mesh"} if mean_degree is None else \
           {"topology": "er", "mean_degree": float(mean_degree)}
+    custom = build_adv(duration, max_p, shape) if adversary else []
     return {
         "experiment": {"name": name, "description": f"phase cell N={N} k={mean_degree} s={seed}"},
-        "data": {"total_questions": 50, "questions_per_agent": 8, "n_temporal": 10,
+        "data": {"total_questions": 50, "questions_per_agent": 8, "n_temporal": n_temporal,
                  "temporal_change_probability": 0.04},
         "agents": {"count": N, "model": "gpt-4o-mini", "retrieval_k": 3,
-                   "propagation_probability": 0.8, "cross_question_propagation": 0.0,
-                   "custom": ADV_CUSTOM, "use_llm": False},
+                   "propagation_probability": prop_prob, "cross_question_propagation": 0.0,
+                   "custom": custom, "use_llm": False},
         "network": net,
         "simulation": {"max_iterations": 2000, "seed": seed, "questions_per_turn": 5,
-                       "forget_strategy": {"strategy": "decay", "decay_coefficient": 0.05,
+                       "forget_strategy": {"strategy": forget, "decay_coefficient": decay_coefficient,
                                            "decay_mode": "additive"},
                        "temporal_kernel": {"enabled": True, "interval": 10, "sample_size": 10,
                                            "n_nontemporal_sample": 10}},
@@ -92,11 +102,11 @@ def detected(steps, iso, k=K_SIGMA):
     window = max(1, WINDOW_ITERS // interval)
     burn_idx = int(np.searchsorted(steps, BURN))
     for i in range(len(steps)):
-        if i < burn_idx or i - burn_idx < 1:
+        # only evaluate once the sliding window is FULL and entirely
+        # post-burn-in -- the partial warm-up window (std~0) spuriously flags.
+        if i - window < burn_idx:
             continue
-        w = iso[max(burn_idx, i - window):i]
-        if len(w) < 2:
-            continue
+        w = iso[i - window:i]
         m, sd = w.mean(), w.std()
         if steps[i] >= ATTACK and (iso[i] > m + k * sd or iso[i] < m - k * sd):
             return True

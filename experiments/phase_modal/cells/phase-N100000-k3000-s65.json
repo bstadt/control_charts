@@ -1,0 +1,1 @@
+{"N": 100000, "k": "3000", "density": 0.03000030000300003, "mean_degree": 3000.0, "seed": 65, "infected_frac": 1.0, "intrusion": true, "detected": false, "undetected_intrusion": true, "wall_seconds": 1200.6}

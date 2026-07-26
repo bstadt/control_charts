@@ -246,13 +246,16 @@ class FastSim:
         codes = np.zeros(m, dtype=np.int8)
         values = np.full(m, -1, dtype=np.int64)
 
-        is_t = q >= self.Qnt
+        is_t = (q >= self.Qnt) if self.Qt else np.zeros(m, dtype=bool)
         tq = np.where(is_t, q - self.Qnt, 0)
 
         # 1. owned temporal -> live value (before the adversary check)
-        owned = is_t & (self.tq_owner[tq] == b)
-        codes[owned] = CORRECT
-        values[owned] = self.temporal_values[tq[owned]]
+        if self.Qt:
+            owned = is_t & (self.tq_owner[tq] == b)
+            codes[owned] = CORRECT
+            values[owned] = self.temporal_values[tq[owned]]
+        else:
+            owned = np.zeros(m, dtype=bool)
         todo = ~owned
 
         # 2. adversarial defection

@@ -161,6 +161,200 @@ def test_one(n: int = 1000, k: str = "6", seed: int = 42):
     print("RESULT:", json.dumps(r, indent=2))
 
 
+@app.function(volumes={VOL: vol, "/cache": hf_cache}, timeout=3600, memory=16384)
+def run_search(spec: dict):
+    """Run one cell with arbitrary N / degree / adversary params; return
+    infected fraction + iso-mirror trajectory + accuracy for later scoring.
+    spec keys: N (default 5), degree (mean degree; N-1 or None => full mesh),
+    seed, adversary, prop, duration, ..."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, "/app/src"); sys.path.insert(0, "/app/maps")
+    os.environ["HF_HOME"] = "/cache"
+    from controlcharts.fastsim import fast_tdkps  # noqa: F401
+    from controlcharts.fastsim.phase_cell import make_config, iso_mirror, INTRUSION_FRAC
+    from controlcharts.fastsim.runner import run_fastsim
+    import yaml
+    s = spec
+    N = s.get("N", 5)
+    deg = s.get("degree", None)
+    # degree >= N-1 (or None) is a complete graph -> use the full-mesh path
+    # (an explicit CSR would be O(N^2) edges and blow up at large N)
+    mean_degree = None if (deg is None or float(deg) >= N - 1) else float(deg)
+    dstr = "full" if mean_degree is None else str(deg)
+    name = (f"cell-N{N}-k{dstr}-p{s['prop']}-d{s['duration']}-"
+            f"{'adv' if s['adversary'] else 'noadv'}-s{s['seed']}")
+    work = Path(f"/tmp/{name}"); work.mkdir(parents=True, exist_ok=True)
+    cfg = make_config(N, mean_degree, s["seed"], name, prop_prob=s["prop"],
+                      duration=s["duration"], max_p=s.get("max_p", 0.75),
+                      shape=s.get("shape", 1.0), adversary=s["adversary"],
+                      forget=s.get("forget", "decay"),
+                      decay_coefficient=s.get("decay_coefficient", 0.05),
+                      n_temporal=s.get("n_temporal", 10))
+    cp = work / "cfg.yaml"; yaml.dump(cfg, open(cp, "w"), sort_keys=False)
+    run_dir = run_fastsim(str(cp), data_path=PARQUET, output_base=str(work / "runs"),
+                          panel_size=50)
+    summ = json.load(open(run_dir / "results_summary.json"))
+    hist = summ["history"]
+    inf = hist[-1]["infected_agents"] / N
+    steps, iso = iso_mirror(run_dir)
+    # temporal / non-temporal accuracy vs time (mean over agents)
+    from controlcharts.tdkps_analysis import _load_accuracy_from_snapshots
+    _, acc_steps, _, t_acc, nt_acc = _load_accuracy_from_snapshots(run_dir / "snapshots")
+    import numpy as _np
+    t_series = t_acc.mean(axis=1) if t_acc is not None else None
+    nt_series = nt_acc.mean(axis=1) if nt_acc is not None else None
+    # end-of-sim accuracy = mean over the final 10% of snapshots
+    end = (_np.asarray(acc_steps) >= 1800) if acc_steps is not None else None
+    return {**s, "N": N, "degree": deg, "infected_frac": inf,
+            "temporal_acc_end": float(t_series[end].mean()) if t_series is not None else None,
+            "nontemporal_acc_end": float(nt_series[end].mean()) if nt_series is not None else None,
+            "acc_steps": [int(x) for x in acc_steps] if acc_steps is not None else None,
+            "temporal_acc": [float(x) for x in t_series] if t_series is not None else None,
+            "nontemporal_acc": [float(x) for x in nt_series] if nt_series is not None else None,
+            "iso_steps": [int(x) for x in steps] if steps is not None else None,
+            "iso_values": [float(x) for x in iso] if iso is not None else None}
+
+
+@app.local_entrypoint()
+def detect_grid(reps: int = 3, out: str = "/tmp/detect_grid.json"):
+    """Detectability vs empirical baseline over (N x mean-degree), d1600 slow
+    schedule. Each cell runs BOTH noadv (baseline) and adv (attack) variants,
+    reps each, and records iso-mirror + end-of-sim temporal/non-temporal acc.
+    Degrees are only run where valid (degree < N)."""
+    Ns = [5, 10, 100, 1000, 10000, 100000]
+    degrees = [4, 9, 99, 999, 99999]
+    seed_list = list(range(42, 42 + reps))
+    setup.remote(seed_list)
+    specs = []
+    for N in Ns:
+        for d in degrees:
+            if d >= N:            # degree must be < N
+                continue
+            for s in seed_list:
+                for adv in (False, True):
+                    specs.append({"N": N, "degree": d, "prop": 0.8, "duration": 1600,
+                                  "adversary": adv, "seed": s})
+    print(f"fanning out {len(specs)} cells "
+          f"({len(specs)//(reps*2)} (N,degree) pairs x {reps} reps x 2 variants)")
+    results = []
+    for r in run_search.map(specs, order_outputs=False, return_exceptions=True):
+        if isinstance(r, Exception):
+            print("cell failed:", r); continue
+        results.append(r)
+    json.dump(results, open(out, "w"))
+    print(f"WROTE {len(results)} cells -> {out}")
+
+
+@app.local_entrypoint()
+def accuracy_trace(reps: int = 15, out: str = "/tmp/accuracy_trace.json"):
+    """Temporal & non-temporal accuracy vs time at N=5 full mesh, for the
+    baseline (noadv) and d1600 (slow attack) for contrast."""
+    seed_list = list(range(42, 42 + reps))
+    setup.remote(seed_list)
+    specs = []
+    for s in seed_list:
+        specs.append({"prop": 0.8, "duration": 1600, "adversary": False, "seed": s})   # baseline
+        specs.append({"prop": 0.8, "duration": 1600, "adversary": True, "seed": s})    # d1600
+    results = []
+    for r in run_search.map(specs, order_outputs=False, return_exceptions=True):
+        if isinstance(r, Exception):
+            print("cell failed:", r); continue
+        results.append(r)
+    json.dump(results, open(out, "w"))
+    print(f"WROTE {len(results)} cells -> {out}")
+
+
+@app.local_entrypoint()
+def noise_sources(reps: int = 15, out: str = "/tmp/noise_sources.json"):
+    """Isolate what drives the noadv alarm floor at N=5 full mesh: forgetting
+    (decay) and/or the temporal questions. Runs noadv under 4 combinations."""
+    seed_list = list(range(42, 42 + reps))
+    setup.remote(seed_list)
+    variants = [
+        ("decay+temporal", "decay", 10),   # current baseline
+        ("none+temporal", "none", 10),     # no forgetting
+        ("decay+notemporal", "decay", 0),  # no temporal churn
+        ("none+notemporal", "none", 0),    # fully static
+    ]
+    specs = []
+    for label, forget, n_temp in variants:
+        for s in seed_list:
+            specs.append({"prop": 0.8, "duration": 1600, "adversary": False,
+                          "seed": s, "forget": forget, "n_temporal": n_temp,
+                          "label": label})
+    print(f"fanning out {len(specs)} noadv variant cells")
+    results = []
+    for r in run_search.map(specs, order_outputs=False, return_exceptions=True):
+        if isinstance(r, Exception):
+            print("cell failed:", r); continue
+        results.append(r)
+    json.dump(results, open(out, "w"))
+    print(f"WROTE {len(results)} cells -> {out}")
+
+
+@app.local_entrypoint()
+def fig4_conditions(reps: int = 20, out: str = "/tmp/fig4_conditions.json"):
+    """Paper's four Figure-4 conditions at N=5 full mesh (prop=0.8): noadv,
+    d100 (fast), d800, d1600 (slow). Returns iso-mirror trajectories for the
+    empirical-alarm-rate-vs-alpha analysis."""
+    seed_list = list(range(42, 42 + reps))
+    setup.remote(seed_list)
+    specs = []
+    for s in seed_list:
+        specs.append({"prop": 0.8, "duration": 1600, "adversary": False, "seed": s})  # noadv
+        for d in (100, 800, 1600):
+            specs.append({"prop": 0.8, "duration": d, "adversary": True, "seed": s})
+    print(f"fanning out {len(specs)} cells (4 conditions x {reps} reps)")
+    results = []
+    for r in run_search.map(specs, order_outputs=False, return_exceptions=True):
+        if isinstance(r, Exception):
+            print("cell failed:", r); continue
+        results.append(r)
+    json.dump(results, open(out, "w"))
+    print(f"WROTE {len(results)} cells -> {out}")
+
+
+@app.local_entrypoint()
+def config_search(seeds: int = 10, out: str = "/tmp/config_search.json"):
+    """Search near the Figure-5 family for an N=5 full-mesh config where the
+    slow attack infects everyone yet evades the adaptive chart. Sweeps
+    propagation probability (takeover speed) x duration, plus a noadv baseline."""
+    seed_list = list(range(42, 42 + seeds))
+    setup.remote(seed_list)
+    props = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    durations = [1600, 3200]
+    specs = [{"prop": p, "duration": d, "adversary": True, "seed": s}
+             for p in props for d in durations for s in seed_list]
+    specs += [{"prop": 0.8, "duration": 1600, "adversary": False, "seed": s}
+              for s in seed_list]   # noadv baseline
+    print(f"fanning out {len(specs)} search cells on Modal")
+    results = []
+    for r in run_search.map(specs, order_outputs=False, return_exceptions=True):
+        if isinstance(r, Exception):
+            print("cell failed:", r); continue
+        results.append(r)
+    json.dump(results, open(out, "w"))
+    print(f"WROTE {len(results)} search cells -> {out}")
+
+
+@app.local_entrypoint()
+def validate_full5(reps: int = 10, out: str = "/tmp/fig4_full5.json"):
+    """Paper Figure 4 d1600 validation: N=5, fully connected, slow schedule,
+    no-LLM path. Returns iso-mirror trajectories for all reps so the adaptive
+    control chart can be scored at any k locally."""
+    seed_list = list(range(42, 42 + reps))
+    setup.remote(seed_list)
+    combos = [(5, "full", s) for s in seed_list]
+    results = []
+    for r in run_cell.map(combos, order_outputs=False, return_exceptions=True):
+        if isinstance(r, Exception):
+            print("cell failed:", r); continue
+        results.append(r)
+    json.dump(results, open(out, "w"))
+    print(f"WROTE {len(results)} reps -> {out}")
+
+
 @app.local_entrypoint()
 def test_scale(n: int = 100000, k: str = "12", seed: int = 42):
     """Feasibility test for a very large network."""

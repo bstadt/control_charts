@@ -206,14 +206,20 @@ def run_search(spec: dict):
     nt_series = nt_acc.mean(axis=1) if nt_acc is not None else None
     # end-of-sim accuracy = mean over the final 10% of snapshots
     end = (_np.asarray(acc_steps) >= 1800) if acc_steps is not None else None
-    return {**s, "N": N, "degree": deg, "infected_frac": inf,
-            "temporal_acc_end": float(t_series[end].mean()) if t_series is not None else None,
-            "nontemporal_acc_end": float(nt_series[end].mean()) if nt_series is not None else None,
-            "acc_steps": [int(x) for x in acc_steps] if acc_steps is not None else None,
-            "temporal_acc": [float(x) for x in t_series] if t_series is not None else None,
-            "nontemporal_acc": [float(x) for x in nt_series] if nt_series is not None else None,
-            "iso_steps": [int(x) for x in steps] if steps is not None else None,
-            "iso_values": [float(x) for x in iso] if iso is not None else None}
+    result = {**s, "N": N, "degree": deg, "infected_frac": inf,
+              "temporal_acc_end": float(t_series[end].mean()) if t_series is not None else None,
+              "nontemporal_acc_end": float(nt_series[end].mean()) if nt_series is not None else None,
+              "acc_steps": [int(x) for x in acc_steps] if acc_steps is not None else None,
+              "temporal_acc": [float(x) for x in t_series] if t_series is not None else None,
+              "nontemporal_acc": [float(x) for x in nt_series] if nt_series is not None else None,
+              "iso_steps": [int(x) for x in steps] if steps is not None else None,
+              "iso_values": [float(x) for x in iso] if iso is not None else None}
+    # persist to the Volume so a dropped stream can't lose long runs (recover
+    # via `sync`/collect); results/ keys include N/degree/variant/seed.
+    rd = Path(f"{VOL}/results"); rd.mkdir(parents=True, exist_ok=True)
+    json.dump(result, open(rd / f"{name}.json", "w"))
+    vol.commit()
+    return result
 
 
 @app.local_entrypoint()

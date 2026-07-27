@@ -141,12 +141,11 @@ def main():
     fig.subplots_adjust(left=0.075, right=0.98, top=0.895, bottom=0.205,
                         hspace=0.40, wspace=0.22)
 
-    def rect(ax, x, y, color, outline=False, hatch=None):
+    def rect(ax, x, y, color, outline=False):
         ax.add_patch(plt.Rectangle((x + 0.04, y + 0.04), 0.92, 0.92,
                                    facecolor=color,
                                    edgecolor=INK if outline else "none",
-                                   linewidth=1.6 if outline else 0,
-                                   hatch=hatch))
+                                   linewidth=1.6 if outline else 0))
 
     for col, (label, g) in enumerate(grids.items()):
         ax = axes[0][col]; ax.set_facecolor(SURFACE)
@@ -167,22 +166,19 @@ def main():
                 e = g.get((N, dg))
                 if e is None or e["ratio"] is None:
                     continue
-                # A ratio above 1 that is NOT statistically significant is the
-                # +1 smoothing on a handful of alarms, not a detection: paint
-                # it at the undetectable end and hatch it.
-                shown = e["ratio"] if e["sig"] else min(e["ratio"], 1.0)
-                t = (np.clip(np.log10(shown), -LOGLIM, LOGLIM) + LOGLIM) / (2 * LOGLIM)
+                # Color is the ratio, full stop: <=1 red (undetectable), >1
+                # shading to blue, lower = hotter.
+                t = (np.clip(np.log10(e["ratio"]), -LOGLIM, LOGLIM) + LOGLIM) / (2 * LOGLIM)
                 taken = e["inf"] is not None and e["inf"] > 0.5
-                rect(ax2, xi, yi, cmap_div(t), outline=taken,
-                     hatch=None if e["sig"] else "///")
-                lbl = rfmt(e["ratio"]) if e["sig"] else f"({rfmt(e['ratio'])})"
-                ax2.text(xi + .5, yi + .62, lbl, ha="center", va="center",
-                         fontsize=8.5, color="#ffffff" if (t <= .53 or t > .82) else INK,
+                rect(ax2, xi, yi, cmap_div(t), outline=taken)
+                dark = t <= .53 or t > .82
+                ax2.text(xi + .5, yi + .62, rfmt(e["ratio"]), ha="center", va="center",
+                         fontsize=8.5, color="#ffffff" if dark else INK,
                          fontweight="bold" if taken else "normal")
                 ax2.text(xi + .5, yi + .30,
-                         f"{e['adv_alarms']}v{e['base_alarms']}/{e['evals']}",
+                         f"{e['adv_alarms']} v {e['base_alarms']} alarms",
                          ha="center", va="center", fontsize=6,
-                         color="#ffffff" if (t <= .53 or t > .82) else INK2)
+                         color="#ffffff" if dark else INK2)
         ax2.set_title(f"{label}\nattack alarm rate ÷ baseline alarm rate",
                       fontsize=10.5, color=INK, pad=8)
 
@@ -201,17 +197,15 @@ def main():
 
     legend = [Patch(facecolor="#d03b3b", label="≤ 1× — attack alarms no more than baseline (UNDETECTABLE)"),
               Patch(facecolor="#2a78d6", label="≫ 1× — attack alarms more (detectable)"),
-              Patch(facecolor="#c9c8c4", hatch="///",
-                    label="hatched, (n×) — difference NOT significant (p ≥ 0.05): no detection"),
               Line2D([0], [0], marker="s", linestyle="none", markersize=11,
                      markerfacecolor="none", markeredgecolor=INK, markeredgewidth=1.6,
                      label="outlined = takeover (victim infection > 0.5)")]
-    fig.legend(handles=legend, loc="lower center", ncol=2, frameon=False,
+    fig.legend(handles=legend, loc="lower center", ncol=3, frameon=False,
                fontsize=8.5, bbox_to_anchor=(0.5, 0.005))
-    fig.text(0.5, 0.098,
-             "Diagonal cells (mean degree = N−1) are the full-mesh runs. Small text = attack alarms v baseline alarms / evaluations per arm.\n"
-             "Alarm rate = share of adaptive-chart evaluations (3σ trailing window) out of band during steps ≥ 400; pooled over 10 seeds, +1-smoothed.\n"
-             "Significance: one-sided binomial on how the alarms split between the two arms (equal evaluations each).",
+    fig.text(0.5, 0.090,
+             "10 seeds per cell. Diagonal cells (mean degree = N−1) are the full-mesh runs. Small text = total alarming evaluations, attack v baseline,\n"
+             "out of 1600 per arm (160 chart evaluations × 10 runs). Alarm rate = share of adaptive-chart evaluations (3σ trailing window)\n"
+             "out of band during steps ≥ 400, pooled over the 10 runs, +1-smoothed.",
              ha="center", fontsize=7.5, color=INK2, style="italic", linespacing=1.5)
     fig.suptitle("Quine takeover and detectability vs question-pool size and adversary population",
                  fontsize=13.5, color=INK, y=0.972)

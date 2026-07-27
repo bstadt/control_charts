@@ -201,10 +201,12 @@ def run_search(spec: dict):
     mean_degree = None if (deg is None or float(deg) >= N - 1) else float(deg)
     dstr = "full" if mean_degree is None else str(deg)
     af = s.get("adv_frac") or None
+    an = s.get("adv_n") or None
     name = (f"cell-N{N}-k{dstr}-p{s['prop']}-d{s['duration']}-"
             f"{'adv' if s['adversary'] else 'noadv'}-s{s['seed']}"
             + (f"-q{tq}" if tq != 50 else "")
-            + (f"-af{af:g}" if af else ""))
+            + (f"-af{af:g}" if af else "")
+            + (f"-an{an:d}" if an else ""))
     work = Path(f"/tmp/{name}"); work.mkdir(parents=True, exist_ok=True)
     cfg = make_config(N, mean_degree, s["seed"], name, prop_prob=s["prop"],
                       duration=s["duration"], max_p=s.get("max_p", 0.75),
@@ -214,7 +216,7 @@ def run_search(spec: dict):
                       n_temporal=s.get("n_temporal", 10),
                       total_questions=tq,
                       questions_per_agent=s.get("questions_per_agent", 8),
-                      adv_frac=af)
+                      adv_frac=af, adv_n=an)
     cp = work / "cfg.yaml"; yaml.dump(cfg, open(cp, "w"), sort_keys=False)
     run_dir = run_fastsim(str(cp), data_path=PARQUET, output_base=str(work / "runs"),
                           panel_size=50)
@@ -279,7 +281,7 @@ def test_n(n: int = 500000, degree: int = 99, seed: int = 42, qscale: int = 1,
 @app.local_entrypoint()
 def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
                 out: str = "/tmp/detect_grid.json", qscale: int = 1,
-                adv_frac: float = 0.0):
+                adv_frac: float = 0.0, adv_n: int = 0):
     """Detectability vs empirical baseline over (N x mean-degree), d1600 slow
     schedule. Each cell runs BOTH noadv (baseline) and adv (attack) variants,
     reps each, and records iso-mirror + end-of-sim temporal/non-temporal acc.
@@ -292,7 +294,8 @@ def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
 
     adv_frac>0 scales the adversary population with the network (e.g. 0.2 =>
     20% of agents are adversarial at every N) instead of the paper's single
-    adversary."""
+    adversary. adv_n>0 instead fixes an ABSOLUTE cohort size (e.g. 10
+    adversaries at every N, so their share shrinks as N grows)."""
     Ns = [int(x) for x in ns.split(",")]
     degrees = [4, 9, 99, 999, 99999]
     seed_list = list(range(42, 42 + reps))
@@ -302,6 +305,8 @@ def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
                                   "questions_per_agent": 8 * qscale}
     if adv_frac:
         qkw["adv_frac"] = adv_frac
+    if adv_n:
+        qkw["adv_n"] = adv_n
     specs = []
     for N in Ns:
         for d in degrees:
@@ -313,7 +318,7 @@ def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
                                   "adversary": adv, "seed": s, **qkw})
     print(f"fanning out {len(specs)} cells "
           f"({len(specs)//(reps*2)} (N,degree) pairs x {reps} reps x 2 variants) "
-          f"Q={50*qscale} adv_frac={adv_frac or 'single'}")
+          f"Q={50*qscale} adversaries={adv_n or (adv_frac and f'{adv_frac:g}xN') or 'single'}")
     results = []
     for r in run_search.map(specs, order_outputs=False, return_exceptions=True):
         if isinstance(r, Exception):

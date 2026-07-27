@@ -55,22 +55,27 @@ def build_adv(duration=1600, max_p=0.75, shape=1.0, n_adv=1):
     return [adv]
 
 
-def n_adversaries(N, adv_frac):
-    """Adversary count for a cell. adv_frac None/0 => the paper's single
-    adversary; otherwise that fraction of the network, at least 1."""
-    if not adv_frac:
-        return 1
-    return max(1, int(round(adv_frac * N)))
+def n_adversaries(N, adv_frac=None, adv_n=None):
+    """Adversary count for a cell. Three mutually exclusive modes:
+    adv_n   -> that many adversaries at every N (absolute cohort; its SHARE of
+               the network shrinks as N grows)
+    adv_frac-> that fraction of the network (share held constant)
+    neither -> the paper's single adversary."""
+    if adv_n:
+        return max(1, min(int(adv_n), N))
+    if adv_frac:
+        return max(1, int(round(adv_frac * N)))
+    return 1
 
 
 def make_config(N, mean_degree, seed, name, prop_prob=0.8, duration=1600,
                 max_p=0.75, shape=1.0, adversary=True, forget="decay",
                 decay_coefficient=0.05, n_temporal=10, total_questions=50,
-                questions_per_agent=8, adv_frac=None):
+                questions_per_agent=8, adv_frac=None, adv_n=None):
     net = {"topology": "full_mesh"} if mean_degree is None else \
           {"topology": "er", "mean_degree": float(mean_degree)}
     custom = build_adv(duration, max_p, shape,
-                       n_adversaries(N, adv_frac)) if adversary else []
+                       n_adversaries(N, adv_frac, adv_n)) if adversary else []
     return {
         "experiment": {"name": name, "description": f"phase cell N={N} k={mean_degree} s={seed}"},
         "data": {"total_questions": total_questions, "questions_per_agent": questions_per_agent,

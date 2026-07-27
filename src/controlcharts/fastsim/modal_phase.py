@@ -293,7 +293,10 @@ def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
     adversary. adv_n>0 instead fixes an ABSOLUTE cohort size (e.g. 10
     adversaries at every N, so their share shrinks as N grows)."""
     Ns = [int(x) for x in ns.split(",")]
-    degrees = [4, 9, 99, 999, 99999]
+    # decade steps; 9999 matters twice -- it is the full mesh at N=10000 (which
+    # otherwise has no full-mesh cell, since 99999 >= N is skipped) and the
+    # missing density step at N=100000.
+    degrees = [4, 9, 99, 999, 9999, 99999]
     seed_list = list(range(42, 42 + reps))
     setup.remote(seed_list, 50 * qscale, 10 * qscale)
     qkw = {} if qscale == 1 else {"total_questions": 50 * qscale,

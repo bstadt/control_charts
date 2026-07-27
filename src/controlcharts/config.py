@@ -35,6 +35,10 @@ class CustomAgentConfig(BaseModel):
     adversarial_schedule: Optional[list[list[float]]] = None
     # Sigmoid defection schedule (preferred)
     defection_schedule: Optional[DefectionScheduleConfig] = None
+    # Apply this entry to `replicate` consecutive agents starting at `id`
+    # (ids id..id+replicate-1). Lets an adversary population scale with N
+    # without writing N/5 identical config entries.
+    replicate: int = Field(default=1, ge=1)
 
 
 class AgentsConfig(BaseModel):

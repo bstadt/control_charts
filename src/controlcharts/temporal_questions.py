@@ -28,14 +28,16 @@ TEMPORAL_QUESTION_DESCRIPTIONS = {
     "What is the current news headline number?": "News headline index at this iteration",
 }
 
-# Extend the pool to 100 for large-Q runs (question-count scaling experiments).
+# Extend the pool to 1000 for large-Q runs (question-count scaling experiments;
+# qscale=100 needs n_temporal=1000 to hold the 20% temporal composition).
 # The first 10 canonical questions are unchanged, so existing configs with
-# n_temporal<=10 slice exactly the same questions as before. Answers are the
-# current iteration number regardless of text, so the generated wording only
-# appears in snapshot metadata.
+# n_temporal<=10 slice exactly the same questions as before, and the 10..100
+# block is identical to the qscale=10 runs. Answers are the current iteration
+# number regardless of text, so the generated wording only appears in snapshot
+# metadata.
 TEMPORAL_QUESTIONS += [
     f"What is the current reading of sensor {i}?"
-    for i in range(len(TEMPORAL_QUESTIONS), 100)
+    for i in range(len(TEMPORAL_QUESTIONS), 1000)
 ]
 TEMPORAL_QUESTION_DESCRIPTIONS.update({
     q: "Live sensor reading at this iteration"

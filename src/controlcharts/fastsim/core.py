@@ -121,11 +121,26 @@ class FastSim:
         self.tq_owner = (np.arange(self.Qt) % N).astype(np.int64) if self.Qt else np.zeros(0, np.int64)
         self.temporal_values = np.zeros(self.Qt, dtype=np.int64)
 
-        # Adversaries
+        # Adversaries. Schedules are grouped by their parameters so a step
+        # costs one defection_probability call per DISTINCT schedule rather
+        # than one per adversary -- an adversary population that scales with N
+        # (e.g. 20% of agents) shares a single schedule.
         self.adv_sched = dict(defection_schedules)
         self.is_adv = np.zeros(N, dtype=bool)
-        for aid in self.adv_sched:
+        self.adv_groups: list[dict] = []
+        # group index per agent; -1 (= last row of the per-step p table, which
+        # is pinned to 0.0) for non-adversaries
+        self.adv_group = np.full(N, -1, dtype=np.int32)
+        _by_params: dict[tuple, int] = {}
+        for aid, sched in self.adv_sched.items():
             self.is_adv[aid] = True
+            key = (sched["start"], sched["duration"], sched["max_p"], sched["shape"])
+            gi = _by_params.get(key)
+            if gi is None:
+                gi = len(self.adv_groups)
+                _by_params[key] = gi
+                self.adv_groups.append(sched)
+            self.adv_group[aid] = gi
 
         # known bookkeeping (known = window non-empty OR owned temporal)
         self.known_count = np.zeros(N, dtype=np.int64)
@@ -260,9 +275,11 @@ class FastSim:
 
         # 2. adversarial defection
         if self.adv_sched:
-            adv_p = np.zeros(m)
-            for aid, sched in self.adv_sched.items():
-                adv_p[b == aid] = defection_probability(t, sched)
+            # p per schedule group, with a trailing 0.0 that group -1
+            # (non-adversary) indexes into.
+            p_by_group = np.append(
+                [defection_probability(t, s) for s in self.adv_groups], 0.0)
+            adv_p = p_by_group[self.adv_group[b]]
             defect = todo & (rng.random(m) < adv_p)
             codes[defect] = QUINE
             todo &= ~defect
@@ -387,6 +404,11 @@ class FastSim:
             "quine_responses": int((codes == QUINE).sum()),
             "mean_known": float(self.known_count.mean()),
             "infected_agents": int((self.inf_count > 0).sum()),
+            # victims only: with an adversary population that scales with N,
+            # the adversaries themselves would otherwise floor infected_agents
+            # at their own share of the network.
+            "infected_victims": int(((self.inf_count > 0) & ~self.is_adv).sum()),
+            "n_victims": int((~self.is_adv).sum()),
             "infected_pairs": int(self.inf_count.sum()),
         }
         self.history.append(rec)

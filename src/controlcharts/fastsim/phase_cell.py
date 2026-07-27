@@ -45,20 +45,32 @@ ADV_CUSTOM = [{
 }]
 
 
-def build_adv(duration=1600, max_p=0.75, shape=1.0):
+def build_adv(duration=1600, max_p=0.75, shape=1.0, n_adv=1):
+    """Adversary block. n_adv>1 replicates the same agent over ids 0..n_adv-1,
+    so the adversary population can scale with N (see `adv_frac`)."""
     adv = dict(ADV_CUSTOM[0])
     adv["defection_schedule"] = {"start": ATTACK, "duration": duration,
                                  "max_p": max_p, "shape": shape}
+    adv["replicate"] = int(n_adv)
     return [adv]
+
+
+def n_adversaries(N, adv_frac):
+    """Adversary count for a cell. adv_frac None/0 => the paper's single
+    adversary; otherwise that fraction of the network, at least 1."""
+    if not adv_frac:
+        return 1
+    return max(1, int(round(adv_frac * N)))
 
 
 def make_config(N, mean_degree, seed, name, prop_prob=0.8, duration=1600,
                 max_p=0.75, shape=1.0, adversary=True, forget="decay",
                 decay_coefficient=0.05, n_temporal=10, total_questions=50,
-                questions_per_agent=8):
+                questions_per_agent=8, adv_frac=None):
     net = {"topology": "full_mesh"} if mean_degree is None else \
           {"topology": "er", "mean_degree": float(mean_degree)}
-    custom = build_adv(duration, max_p, shape) if adversary else []
+    custom = build_adv(duration, max_p, shape,
+                       n_adversaries(N, adv_frac)) if adversary else []
     return {
         "experiment": {"name": name, "description": f"phase cell N={N} k={mean_degree} s={seed}"},
         "data": {"total_questions": total_questions, "questions_per_agent": questions_per_agent,

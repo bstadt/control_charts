@@ -193,9 +193,11 @@ def run_search(spec: dict):
     # (an explicit CSR would be O(N^2) edges and blow up at large N)
     mean_degree = None if (deg is None or float(deg) >= N - 1) else float(deg)
     dstr = "full" if mean_degree is None else str(deg)
+    af = s.get("adv_frac") or None
     name = (f"cell-N{N}-k{dstr}-p{s['prop']}-d{s['duration']}-"
             f"{'adv' if s['adversary'] else 'noadv'}-s{s['seed']}"
-            + (f"-q{tq}" if tq != 50 else ""))
+            + (f"-q{tq}" if tq != 50 else "")
+            + (f"-af{af:g}" if af else ""))
     work = Path(f"/tmp/{name}"); work.mkdir(parents=True, exist_ok=True)
     cfg = make_config(N, mean_degree, s["seed"], name, prop_prob=s["prop"],
                       duration=s["duration"], max_p=s.get("max_p", 0.75),
@@ -204,13 +206,23 @@ def run_search(spec: dict):
                       decay_coefficient=s.get("decay_coefficient", 0.05),
                       n_temporal=s.get("n_temporal", 10),
                       total_questions=tq,
-                      questions_per_agent=s.get("questions_per_agent", 8))
+                      questions_per_agent=s.get("questions_per_agent", 8),
+                      adv_frac=af)
     cp = work / "cfg.yaml"; yaml.dump(cfg, open(cp, "w"), sort_keys=False)
     run_dir = run_fastsim(str(cp), data_path=PARQUET, output_base=str(work / "runs"),
                           panel_size=50)
     summ = json.load(open(run_dir / "results_summary.json"))
     hist = summ["history"]
     inf = hist[-1]["infected_agents"] / N
+    # victims-only infection: with a scaled adversary population the
+    # adversaries themselves would floor infected_frac at adv_frac.
+    last = hist[-1]
+    inf_v = (last["infected_victims"] / last["n_victims"]
+             if last.get("n_victims") else None)
+    n_adv = int(N - last["n_victims"]) if last.get("n_victims") is not None else None
+    # infection trajectory (was previously discarded -- needed to tell a
+    # saturated attack from one still climbing when the sim ends)
+    inf_traj = [(h["step"], h["infected_agents"]) for h in hist[::10]]
     steps, iso = iso_mirror(run_dir)
     # temporal / non-temporal accuracy vs time (mean over agents)
     from controlcharts.tdkps_analysis import _load_accuracy_from_snapshots
@@ -221,6 +233,8 @@ def run_search(spec: dict):
     # end-of-sim accuracy = mean over the final 10% of snapshots
     end = (_np.asarray(acc_steps) >= 1800) if acc_steps is not None else None
     result = {**s, "N": N, "degree": deg, "infected_frac": inf,
+              "infected_frac_victims": inf_v, "n_adversaries": n_adv,
+              "infected_traj": inf_traj,
               "temporal_acc_end": float(t_series[end].mean()) if t_series is not None else None,
               "nontemporal_acc_end": float(nt_series[end].mean()) if nt_series is not None else None,
               "acc_steps": [int(x) for x in acc_steps] if acc_steps is not None else None,
@@ -237,7 +251,8 @@ def run_search(spec: dict):
 
 
 @app.local_entrypoint()
-def test_n(n: int = 500000, degree: int = 99, seed: int = 42, qscale: int = 1):
+def test_n(n: int = 500000, degree: int = 99, seed: int = 42, qscale: int = 1,
+           adv_frac: float = 0.0):
     """Feasibility/timing probe for a single large-N attack cell."""
     import time
     setup.remote([seed], 50 * qscale, 10 * qscale)
@@ -245,14 +260,19 @@ def test_n(n: int = 500000, degree: int = 99, seed: int = 42, qscale: int = 1):
     r = run_search.remote({"N": n, "degree": degree, "prop": 0.8, "duration": 1600,
                            "adversary": True, "seed": seed,
                            "total_questions": 50 * qscale, "n_temporal": 10 * qscale,
-                           "questions_per_agent": 8 * qscale})
-    print(f"N={n} deg={degree} Q={50*qscale}: infected={r['infected_frac']:.3f} "
+                           "questions_per_agent": 8 * qscale,
+                           **({"adv_frac": adv_frac} if adv_frac else {})})
+    v = r.get("infected_frac_victims")
+    vstr = f"victims={v:.3f} " if v is not None else ""
+    print(f"N={n} deg={degree} Q={50*qscale} adv={r.get('n_adversaries')}: "
+          f"infected={r['infected_frac']:.3f} {vstr}"
           f"nt_acc_end={r['nontemporal_acc_end']:.3f} wall={time.time()-t0:.0f}s")
 
 
 @app.local_entrypoint()
 def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
-                out: str = "/tmp/detect_grid.json", qscale: int = 1):
+                out: str = "/tmp/detect_grid.json", qscale: int = 1,
+                adv_frac: float = 0.0):
     """Detectability vs empirical baseline over (N x mean-degree), d1600 slow
     schedule. Each cell runs BOTH noadv (baseline) and adv (attack) variants,
     reps each, and records iso-mirror + end-of-sim temporal/non-temporal acc.
@@ -261,7 +281,11 @@ def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
     qscale multiplies the question-set size (Q=50*qscale) while holding the
     temporal:static composition (20%:80%), temporal_change_probability, and
     questions_per_turn constant; questions_per_agent scales with Q so the
-    seeded fraction of the pool is unchanged."""
+    seeded fraction of the pool is unchanged.
+
+    adv_frac>0 scales the adversary population with the network (e.g. 0.2 =>
+    20% of agents are adversarial at every N) instead of the paper's single
+    adversary."""
     Ns = [int(x) for x in ns.split(",")]
     degrees = [4, 9, 99, 999, 99999]
     seed_list = list(range(42, 42 + reps))
@@ -269,6 +293,8 @@ def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
     qkw = {} if qscale == 1 else {"total_questions": 50 * qscale,
                                   "n_temporal": 10 * qscale,
                                   "questions_per_agent": 8 * qscale}
+    if adv_frac:
+        qkw["adv_frac"] = adv_frac
     specs = []
     for N in Ns:
         for d in degrees:
@@ -280,7 +306,7 @@ def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
                                   "adversary": adv, "seed": s, **qkw})
     print(f"fanning out {len(specs)} cells "
           f"({len(specs)//(reps*2)} (N,degree) pairs x {reps} reps x 2 variants) "
-          f"Q={50*qscale}")
+          f"Q={50*qscale} adv_frac={adv_frac or 'single'}")
     results = []
     for r in run_search.map(specs, order_outputs=False, return_exceptions=True):
         if isinstance(r, Exception):

@@ -145,8 +145,15 @@ def run_fastsim(
     for c in config.agents.custom:
         if c.defection_schedule is not None:
             s = c.defection_schedule
-            defection[c.id] = {"start": s.start, "duration": s.duration,
-                               "max_p": s.max_p, "shape": s.shape}
+            sched = {"start": s.start, "duration": s.duration,
+                     "max_p": s.max_p, "shape": s.shape}
+            # `replicate` expands one entry over ids c.id..c.id+replicate-1, so
+            # an adversary population can scale with N (e.g. 20% of agents).
+            for aid in range(c.id, min(c.id + c.replicate, N)):
+                defection[aid] = sched
+    if defection:
+        logger.info(f"adversaries: {len(defection)} of {N} agents "
+                    f"({len(defection)/N:.1%})")
 
     # Contact graph: full mesh (default) or Erdos-Renyi by mean degree.
     nbr_indptr = nbr_indices = None

@@ -177,6 +177,13 @@ def run_search(spec: dict):
     infected fraction + iso-mirror trajectory + accuracy for later scoring.
     spec keys: N (default 5), degree (mean degree; N-1 or None => full mesh),
     seed, adversary, prop, duration, ..."""
+    import logging
+    # Without this the root logger sits at WARNING and every logger.info in the
+    # sim (ER graph build, 25/50/75/100% progress milestones with live
+    # infection counts) is dropped -- Modal logs show only the setup prints, so
+    # a long cell is completely opaque while it runs.
+    logging.basicConfig(level=logging.INFO, force=True,
+                        format="%(asctime)s %(name)s %(message)s")
     import sys
     from pathlib import Path
     sys.path.insert(0, "/app/src"); sys.path.insert(0, "/app/maps")

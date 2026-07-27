@@ -172,13 +172,9 @@ def main():
                 taken = e["inf"] is not None and e["inf"] > 0.5
                 rect(ax2, xi, yi, cmap_div(t), outline=taken)
                 dark = t <= .53 or t > .82
-                ax2.text(xi + .5, yi + .62, rfmt(e["ratio"]), ha="center", va="center",
-                         fontsize=8.5, color="#ffffff" if dark else INK,
+                ax2.text(xi + .5, yi + .5, rfmt(e["ratio"]), ha="center", va="center",
+                         fontsize=9, color="#ffffff" if dark else INK,
                          fontweight="bold" if taken else "normal")
-                ax2.text(xi + .5, yi + .30,
-                         f"{e['adv_alarms']} v {e['base_alarms']} alarms",
-                         ha="center", va="center", fontsize=6,
-                         color="#ffffff" if dark else INK2)
         ax2.set_title(f"{label}\nattack alarm rate ÷ baseline alarm rate",
                       fontsize=10.5, color=INK, pad=8)
 
@@ -203,9 +199,8 @@ def main():
     fig.legend(handles=legend, loc="lower center", ncol=3, frameon=False,
                fontsize=8.5, bbox_to_anchor=(0.5, 0.005))
     fig.text(0.5, 0.090,
-             "10 seeds per cell. Diagonal cells (mean degree = N−1) are the full-mesh runs. Small text = total alarming evaluations, attack v baseline,\n"
-             "out of 1600 per arm (160 chart evaluations × 10 runs). Alarm rate = share of adaptive-chart evaluations (3σ trailing window)\n"
-             "out of band during steps ≥ 400, pooled over the 10 runs, +1-smoothed.",
+             "10 seeds per cell. Diagonal cells (mean degree = N−1) are the full-mesh runs. Alarm rate = share of adaptive-chart\n"
+             "evaluations (3σ trailing window) out of band during steps ≥ 400, pooled over the 10 runs, +1-smoothed.",
              ha="center", fontsize=7.5, color=INK2, style="italic", linespacing=1.5)
     fig.suptitle("Quine takeover and detectability vs question-pool size and adversary population",
                  fontsize=13.5, color=INK, y=0.972)

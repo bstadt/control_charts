@@ -189,7 +189,8 @@ def run_search(spec: dict):
     sys.path.insert(0, "/app/src"); sys.path.insert(0, "/app/maps")
     os.environ["HF_HOME"] = "/cache"
     from controlcharts.fastsim import fast_tdkps  # noqa: F401
-    from controlcharts.fastsim.phase_cell import make_config, iso_mirror, INTRUSION_FRAC
+    from controlcharts.fastsim.phase_cell import (make_config, iso_mirror,
+                                                  cell_name, INTRUSION_FRAC)
     from controlcharts.fastsim.runner import run_fastsim
     import yaml
     s = spec
@@ -199,14 +200,9 @@ def run_search(spec: dict):
     # degree >= N-1 (or None) is a complete graph -> use the full-mesh path
     # (an explicit CSR would be O(N^2) edges and blow up at large N)
     mean_degree = None if (deg is None or float(deg) >= N - 1) else float(deg)
-    dstr = "full" if mean_degree is None else str(deg)
     af = s.get("adv_frac") or None
     an = s.get("adv_n") or None
-    name = (f"cell-N{N}-k{dstr}-p{s['prop']}-d{s['duration']}-"
-            f"{'adv' if s['adversary'] else 'noadv'}-s{s['seed']}"
-            + (f"-q{tq}" if tq != 50 else "")
-            + (f"-af{af:g}" if af else "")
-            + (f"-an{an:d}" if an else ""))
+    name = cell_name(s)
     work = Path(f"/tmp/{name}"); work.mkdir(parents=True, exist_ok=True)
     cfg = make_config(N, mean_degree, s["seed"], name, prop_prob=s["prop"],
                       duration=s["duration"], max_p=s.get("max_p", 0.75),
@@ -281,7 +277,7 @@ def test_n(n: int = 500000, degree: int = 99, seed: int = 42, qscale: int = 1,
 @app.local_entrypoint()
 def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
                 out: str = "/tmp/detect_grid.json", qscale: int = 1,
-                adv_frac: float = 0.0, adv_n: int = 0):
+                adv_frac: float = 0.0, adv_n: int = 0, resume: bool = False):
     """Detectability vs empirical baseline over (N x mean-degree), d1600 slow
     schedule. Each cell runs BOTH noadv (baseline) and adv (attack) variants,
     reps each, and records iso-mirror + end-of-sim temporal/non-temporal acc.
@@ -316,9 +312,20 @@ def detect_grid(reps: int = 3, ns: str = "5,10,100,1000,10000,100000",
                 for adv in (False, True):
                     specs.append({"N": N, "degree": d, "prop": 0.8, "duration": 1600,
                                   "adversary": adv, "seed": s, **qkw})
+    total = len(specs)
+    if resume:
+        # A detached map that loses its parent leaves the grid part-finished
+        # (Modal keeps only the last triggered function alive). Cells are
+        # written individually, so skip the ones already on the Volume.
+        from controlcharts.fastsim.phase_cell import cell_name
+        done = set(list_result_names.remote())
+        specs = [s for s in specs if cell_name(s) not in done]
+        print(f"resume: {total - len(specs)} of {total} cells already on the Volume")
     print(f"fanning out {len(specs)} cells "
-          f"({len(specs)//(reps*2)} (N,degree) pairs x {reps} reps x 2 variants) "
+          f"(of {total}; {total//(reps*2)} (N,degree) pairs x {reps} reps x 2 variants) "
           f"Q={50*qscale} adversaries={adv_n or (adv_frac and f'{adv_frac:g}xN') or 'single'}")
+    if not specs:
+        print("nothing to do"); return
     results = []
     for r in run_search.map(specs, order_outputs=False, return_exceptions=True):
         if isinstance(r, Exception):
@@ -465,6 +472,17 @@ def run_cell_long(args: tuple):
     print(f"{r['N']} k={r['k']} s={r['seed']}: inf={r['infected_frac']:.3f} "
           f"intr={r['intrusion']} det={r['detected']} ({r['wall_seconds']}s)")
     return r
+
+
+@app.function(volumes={VOL: vol}, timeout=600)
+def list_result_names():
+    """Names (stem, no .json) of every cell already persisted to the Volume.
+    Lets `detect_grid --resume` skip finished work after an interrupted map."""
+    from pathlib import Path
+    rd = Path(f"{VOL}/results")
+    if not rd.exists():
+        return []
+    return sorted(p.stem for p in rd.glob("*.json"))
 
 
 @app.function(volumes={VOL: vol}, timeout=600)

@@ -55,6 +55,23 @@ def build_adv(duration=1600, max_p=0.75, shape=1.0, n_adv=1):
     return [adv]
 
 
+def cell_name(spec):
+    """Volume filename (without .json) for a run_search spec. Shared by the
+    remote runner and by `detect_grid --resume`, so a resumed grid computes the
+    same key the writer used."""
+    N = spec.get("N", 5)
+    deg = spec.get("degree", None)
+    tq = spec.get("total_questions", 50)
+    dstr = "full" if (deg is None or float(deg) >= N - 1) else str(deg)
+    af = spec.get("adv_frac") or None
+    an = spec.get("adv_n") or None
+    return (f"cell-N{N}-k{dstr}-p{spec['prop']}-d{spec['duration']}-"
+            f"{'adv' if spec['adversary'] else 'noadv'}-s{spec['seed']}"
+            + (f"-q{tq}" if tq != 50 else "")
+            + (f"-af{af:g}" if af else "")
+            + (f"-an{an:d}" if an else ""))
+
+
 def n_adversaries(N, adv_frac=None, adv_n=None):
     """Adversary count for a cell. Three mutually exclusive modes:
     adv_n   -> that many adversaries at every N (absolute cohort; its SHARE of

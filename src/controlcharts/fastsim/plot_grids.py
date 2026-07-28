@@ -7,7 +7,7 @@ Row 2: alarm rate during the attack RELATIVE TO BASELINE (out-of-band rate of
        ATTACK, pooled over seeds, +1-smoothed). <= 1 renders red (undetectable);
        only ratios above 1 shade toward blue.
 Full-mesh cells sit at their true mean degree (N-1); no separate "full" row.
-Cells with takeover (victim infection > 0.5) are outlined.
+Cells with takeover AND alarm ratio <= 1 (total compromise, no alarm) are outlined.
 
 Usage: plot_grids.py <out.png> <label>=<glob-or-json> ...
 """
@@ -156,10 +156,11 @@ def main():
                         hspace=0.40, wspace=0.22)
 
     def rect(ax, x, y, color, outline=False):
+        # outline marks the claim cell: takeover with no alarm increase.
         ax.add_patch(plt.Rectangle((x + 0.04, y + 0.04), 0.92, 0.92,
                                    facecolor=color,
                                    edgecolor=INK if outline else "none",
-                                   linewidth=1.6 if outline else 0))
+                                   linewidth=2.8 if outline else 0))
 
     for col, (label, g) in enumerate(grids.items()):
         ax = axes[0][col]; ax.set_facecolor(SURFACE)
@@ -184,11 +185,12 @@ def main():
                 # shading to blue, lower = hotter.
                 t = (np.clip(np.log10(e["ratio"]), -LOGLIM, LOGLIM) + LOGLIM) / (2 * LOGLIM)
                 taken = e["inf"] is not None and e["inf"] > 0.5
-                rect(ax2, xi, yi, cmap_div(t), outline=taken)
+                blind = taken and e["ratio"] <= 1.0
+                rect(ax2, xi, yi, cmap_div(t), outline=blind)
                 dark = t <= .53 or t > .82
                 ax2.text(xi + .5, yi + .5, rfmt(e["ratio"]), ha="center", va="center",
                          fontsize=9, color="#ffffff" if dark else INK,
-                         fontweight="bold" if taken else "normal")
+                         fontweight="bold" if blind else "normal")
         ax2.set_title(f"{label}\nattack alarm rate ÷ baseline alarm rate",
                       fontsize=10.5, color=INK, pad=8)
 
@@ -208,8 +210,8 @@ def main():
     legend = [Patch(facecolor="#d03b3b", label="≤ 1× — attack alarms no more than baseline (UNDETECTABLE)"),
               Patch(facecolor="#2a78d6", label="≫ 1× — attack alarms more (detectable)"),
               Line2D([0], [0], marker="s", linestyle="none", markersize=11,
-                     markerfacecolor="none", markeredgecolor=INK, markeredgewidth=1.6,
-                     label="outlined = takeover (victim infection > 0.5)")]
+                     markerfacecolor="none", markeredgecolor=INK, markeredgewidth=2.8,
+                     label="outlined = takeover (victim infection > 0.5) AND alarm ratio ≤ 1×")]
     fig.legend(handles=legend, loc="lower center", ncol=3, frameon=False,
                fontsize=8.5, bbox_to_anchor=(0.5, 0.005))
     ns = len(seeds_seen)

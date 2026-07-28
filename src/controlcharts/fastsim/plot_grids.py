@@ -118,6 +118,7 @@ def rfmt(r):
 def main():
     out_png = sys.argv[1]
     grids = {}
+    seeds_seen = set()
     for arg in sys.argv[2:]:
         # rsplit: labels themselves contain '=' (e.g. "Q=500, 20% adversarial")
         label, src = arg.rsplit("=", 1)
@@ -125,7 +126,8 @@ def main():
         if not cells:
             print(f"WARN: no cells for {label} ({src})"); continue
         grids[label] = agg(cells)
-        print(f"{label}: {len(cells)} cells")
+        seeds_seen.update(r["seed"] for r in cells)
+        print(f"{label}: {len(cells)} cells, {len({r['seed'] for r in cells})} seeds")
     if not grids:
         sys.exit("no data")
 
@@ -198,9 +200,10 @@ def main():
                      label="outlined = takeover (victim infection > 0.5)")]
     fig.legend(handles=legend, loc="lower center", ncol=3, frameon=False,
                fontsize=8.5, bbox_to_anchor=(0.5, 0.005))
+    ns = len(seeds_seen)
     fig.text(0.5, 0.090,
-             "10 seeds per cell. Diagonal cells (mean degree = N−1) are the full-mesh runs. Alarm rate = share of adaptive-chart\n"
-             "evaluations (3σ trailing window) out of band during steps ≥ 400, pooled over the 10 runs, +1-smoothed.",
+             f"{ns} seeds per cell. Diagonal cells (mean degree = N−1) are the full-mesh runs. Alarm rate = share of adaptive-chart\n"
+             f"evaluations (3σ trailing window) out of band during steps ≥ 400, pooled over the {ns} runs, +1-smoothed.",
              ha="center", fontsize=7.5, color=INK2, style="italic", linespacing=1.5)
     fig.suptitle("Quine takeover and detectability vs question-pool size and adversary population",
                  fontsize=13.5, color=INK, y=0.972)
@@ -208,4 +211,5 @@ def main():
     print(out_png)
 
 
-main()
+if __name__ == "__main__":
+    main()

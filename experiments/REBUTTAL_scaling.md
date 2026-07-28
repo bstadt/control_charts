@@ -9,7 +9,7 @@ adversarial agents, and **(iv)** the mean degree of the contact graph. Concretel
 `{1, 10, 20, 50, 100}` agents, and mean degree `k ∈ {4, 9, 99, 999, 9999, N−1}` (the last
 being the fully-connected case), holding the defection schedule fixed at the one used in
 the paper (sigmoid onset at step 400, `duration = 1600`, `max_p = 0.75`, `shape = 1.0`).
-Every cell is **10 independent seeds**, and each configuration is run twice — once with the
+Every cell is **30 independent seeds**, and each configuration is run twice — once with the
 adversary cohort and once without — so that every attack run has a matched clean baseline.
 Question-pool composition is held constant as `Q` grows (20% temporally-varying, 80% static,
 with each static question seeded exactly once across the network), so that `Q` isolates
@@ -30,9 +30,9 @@ Because the adaptive control chart has a non-zero false-positive rate that itsel
 with `N` and `k`, a raw "was an alarm raised" statistic is not interpretable across the
 grid. We therefore report the **alarm-rate ratio**: the fraction of post-attack chart
 evaluations that fall outside the 3σ band in the attack runs, divided by the same fraction
-in the matched clean runs, pooled over the 10 seeds. A ratio of ≤ 1 means the attack raises
+in the matched clean runs, pooled over the 30 seeds. A ratio of ≤ 1 means the attack raises
 no more alarms than an uncompromised network of identical size and topology — i.e. the
-attack is invisible to the monitor. Values are Laplace-smoothed; each arm contributes 1,600
+attack is invisible to the monitor. Values are Laplace-smoothed; each arm contributes 4,800
 chart evaluations per cell.
 
 ## Results
@@ -46,22 +46,22 @@ chart evaluations per cell.
 | 999 | — | — | — | 1.00 | 1.00 | 1.00 |
 | 99 | — | — | 1.00 | 1.00 | 1.00 | 1.00 |
 | 9 | — | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
-| 4 | 1.00 | 1.00 | 0.99 | 0.98 | 0.98 | 0.98 |
+| 4 | 1.00 | 1.00 | 0.96 | 0.98 | 0.98 | 0.98 |
 
 ### B. Single adversary, Q = 50 — alarm-rate ratio
 
 | mean degree | 5 | 10 | 100 | 1,000 | 10,000 | 100,000 |
 |---|---|---|---|---|---|---|
-| 99,999 | — | — | — | — | — | 1.48× |
-| 9,999 | — | — | — | — | 1.82× | 1.67× |
-| 999 | — | — | — | 2.27× | 1.71× | 1.54× |
-| 99 | — | — | 0.86× | 1.47× | 1.20× | 1.72× |
-| 9 | — | 1.26× | 0.75× | 1.54× | 1.21× | 2.08× |
-| 4 | 0.94× | 1.20× | 1.08× | 0.97× | 1.10× | 0.95× |
+| 99,999 | — | — | — | — | — | 1.47× |
+| 9,999 | — | — | — | — | 1.76× | 1.56× |
+| 999 | — | — | — | 1.50× | 1.43× | 1.58× |
+| 99 | — | — | 0.84× | 1.83× | 1.44× | 1.43× |
+| 9 | — | 0.92× | 0.79× | 1.43× | 1.53× | 1.60× |
+| 4 | 1.03× | 1.00× | 0.95× | 1.20× | 1.27× | 1.24× |
 
 A single adversary achieves complete takeover at **every** `(N, k)` combination tested, up to
 `N = 100,000` — a network 20,000× larger than the configuration in the paper — while the
-monitor's alarm rate never rises above ~2× that of an uncompromised network, and in 9 of the
+monitor's alarm rate never rises above 1.83× that of an uncompromised network, and in 6 of the
 21 takeover cells does not rise above 1.2×. Takeover in this regime is scale-invariant.
 
 ### C. Single adversary, Q = 500 (10× information diversity) — victim infection
@@ -72,8 +72,8 @@ monitor's alarm rate never rises above ~2× that of an uncompromised network, an
 | 9,999 | — | — | — | — | 0.11 | 0.01 |
 | 999 | — | — | — | 0.70 | 0.08 | 0.01 |
 | 99 | — | — | 1.00 | 0.26 | 0.03 | 0.00 |
-| 9 | — | 1.00 | 0.64 | 0.10 | 0.01 | 0.00 |
-| 4 | 1.00 | 0.99 | 0.33 | 0.04 | 0.00 | 0.00 |
+| 9 | — | 1.00 | 0.62 | 0.10 | 0.01 | 0.00 |
+| 4 | 1.00 | 0.99 | 0.30 | 0.03 | 0.00 | 0.00 |
 
 This is the case where the attack **does not** scale. With ten times the information in the
 network and only a single adversary, the payload is diluted: takeover survives at small `N`
@@ -85,8 +85,8 @@ as the effective defence.
 
 | N | mean degree | 10 | 20 | 50 | 100 |
 |---|---|---|---|---|---|
-| 1,000 | 4 | 0.29 | 0.48 | 0.79 | 0.93 |
-| 1,000 | 9 | 0.63 | 0.86 | 0.99 | 1.00 |
+| 1,000 | 4 | 0.28 | 0.48 | 0.79 | 0.93 |
+| 1,000 | 9 | 0.62 | 0.85 | 0.99 | 1.00 |
 | 1,000 | 99 | 0.95 | 1.00 | 1.00 | 1.00 |
 | 1,000 | 999 (full mesh) | 1.00 | 1.00 | 1.00 | 1.00 |
 | 10,000 | 4 | 0.04 | 0.07 | 0.16 | 0.30 |
@@ -105,30 +105,35 @@ as the effective defence.
 
 | N | mean degree | 10 | 20 | 50 | 100 |
 |---|---|---|---|---|---|
-| 1,000 | 4 | 1.00× | 1.00× | 2.00× | 1.00× |
-| 1,000 | 9 | 1.00× | 1.00× | 4.00× | 1.00× |
-| 1,000 | 99 | 1.00× | 1.00× | 1.00× | 4.00× |
-| 1,000 | 999 (full mesh) | 3.00× | 0.50× | 0.50× | 1.00× |
-| 10,000 | 4 | 1.56× | 1.22× | 1.56× | 1.33× |
+| 1,000 | 4 | 1.00× | 1.00× | 6.00× | 5.00× |
+| 1,000 | 9 | 1.00× | 4.00× | 5.00× | 3.00× |
+| 1,000 | 99 | 1.00× | 3.00× | 1.00× | 4.00× |
+| 1,000 | 999 (full mesh) | 5.00× | 2.00× | 2.00× | 2.50× |
+| 10,000 | 4 | 2.23× | 1.77× | 1.85× | 2.23× |
 | 10,000 | 9 | 0.50× | 0.50× | 1.00× | 1.00× |
-| 10,000 | 99 | 1.00× | 1.00× | 1.00× | 1.00× |
+| 10,000 | 99 | 1.00× | 1.00× | 2.00× | 2.00× |
 | 10,000 | 999 | 1.00× | 1.00× | 1.00× | 2.00× |
-| 10,000 | 9,999 (full mesh) | 1.00× | 2.00× | 1.00× | 1.00× |
-| 100,000 | 4 | 0.90× | 0.94× | 0.94× | 0.95× |
-| 100,000 | 9 | 0.86× | 0.94× | 1.20× | 0.74× |
-| 100,000 | 99 | 0.66× | 0.72× | 0.45× | 0.62× |
-| 100,000 | 999 | 1.06× | 1.19× | 0.94× | 1.12× |
-| 100,000 | 9,999 | 2.54× | 1.85× | 2.00× | 2.00× |
-| 100,000 | 99,999 (full mesh) | 1.17× | 0.94× | 1.17× | 1.39× |
+| 10,000 | 9,999 (full mesh) | 2.00× | 2.00× | 1.00× | 1.00× |
+| 100,000 | 4 | 0.92× | 0.97× | 0.91× | 0.89× |
+| 100,000 | 9 | 0.59× | 0.62× | 0.76× | 0.63× |
+| 100,000 | 99 | 0.71× | 0.78× | 0.63× | 0.63× |
+| 100,000 | 999 | 0.61× | 0.84× | 0.69× | 0.65× |
+| 100,000 | 9,999 | 1.32× | 0.95× | 1.02× | 1.02× |
+| 100,000 | 99,999 (full mesh) | 0.65× | 0.56× | 0.68× | 0.70× |
+
+The ratios above 1 in this table are concentrated in the small-`N` cells, where they rest on
+very few absolute alarms (typically 2–9 out of 4,800 evaluations per arm); the `N = 100,000`
+rows, where the absolute counts are large enough to be stable, sit at or below 1 almost
+without exception.
 
 **The dilution defence is defeated by a very small number of adversaries.** The same
 defection schedule degrades a far larger network carrying ten times the information
 diversity with **far fewer than 20% of agents adversarial**. In particular, **100 adversaries
 in a 100,000-agent network with mean degree 999 — 0.1% of the population — infect 57% of the
-non-adversarial agents while raising alarms at only 1.1× the rate of an uncompromised network
-of the same size and topology.** At the same cohort size and `N`, the fully-connected case
-reaches 70% infection at a 1.4× alarm ratio, and 50 adversaries (0.5%) fully compromise a
-10,000-agent fully-connected network.
+non-adversarial agents while raising alarms at 0.65× the rate of an uncompromised network
+of the same size and topology — that is, fewer alarms than the clean network.** At the same
+cohort size and `N`, the fully-connected case reaches 70% infection at a 0.70× alarm ratio,
+and 50 adversaries (0.5%) fully compromise a 10,000-agent fully-connected network.
 
 Marginal returns to cohort size are diminishing but only mildly so: at `N = 100,000` and full
 connectivity, infection per adversary falls from 11.5 to 7.0 (×10⁻³) as the cohort grows from
@@ -151,6 +156,6 @@ uncompromised network.
 
 ## Reproducibility
 
-All cells reported above are 10 seeds per configuration with matched adversary-present and
-adversary-absent runs (2,040 simulations in total). Per-cell results, the sweep driver, and
+All cells reported above are 30 seeds per configuration with matched adversary-present and
+adversary-absent runs (6,120 simulations in total). Per-cell results, the sweep driver, and
 the plotting code are included in the supplementary material.

@@ -503,6 +503,19 @@ def collect():
 
 
 @app.local_entrypoint()
+def warm_cache(reps: int = 30, qscale: int = 1):
+    """Build the embed cache for seeds 42..42+reps at one Q, on its own.
+
+    `setup` is a read-modify-write of a single pickle, so grids launched
+    concurrently with seeds not yet cached can drop each other's strings; the
+    losers then fall back to embedding in-cell, loading a SentenceTransformer
+    per container. Warm each Q the grids will use first and their own setup
+    calls become no-ops.
+    """
+    setup.remote(list(range(42, 42 + reps)), 50 * qscale, 10 * qscale)
+
+
+@app.local_entrypoint()
 def sync():
     """Pull all Volume-persisted results into the local cells dir."""
     from pathlib import Path

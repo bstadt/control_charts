@@ -116,10 +116,22 @@ def rfmt(r):
 
 
 def main():
-    out_png = sys.argv[1]
+    # --ns / --degs restrict the axes (e.g. --ns 100,1000,10000,100000 drops the
+    # N=5 and N=10 columns). Stripped before the label=glob positionals.
+    argv, ns_sel, degs_sel = [], None, None
+    it = iter(sys.argv[1:])
+    for a in it:
+        if a == "--ns":
+            ns_sel = [int(x) for x in next(it).split(",")]
+        elif a == "--degs":
+            degs_sel = [int(x) for x in next(it).split(",")]
+        else:
+            argv.append(a)
+
+    out_png = argv[0]
     grids = {}
     seeds_seen = set()
-    for arg in sys.argv[2:]:
+    for arg in argv[1:]:
         # rsplit: labels themselves contain '=' (e.g. "Q=500, 20% adversarial")
         label, src = arg.rsplit("=", 1)
         cells = load(src)
@@ -131,9 +143,9 @@ def main():
     if not grids:
         sys.exit("no data")
 
-    NS = [5, 10, 100, 1000, 10000, 100000]
+    NS = ns_sel or [5, 10, 100, 1000, 10000, 100000]
     present = {k_[1] for g in grids.values() for k_ in g}
-    DEGS = [d for d in [4, 9, 99, 999, 9999, 99999] if d in present]
+    DEGS = [d for d in (degs_sel or [4, 9, 99, 999, 9999, 99999]) if d in present]
     nfmt = {5: "5", 10: "10", 100: "100", 1000: "1k", 10000: "10k", 100000: "100k"}
     dfmt = {4: "4", 9: "9", 99: "99", 999: "999", 9999: "9,999", 99999: "99,999"}
 

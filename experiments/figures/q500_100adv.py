@@ -24,7 +24,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "q500_100adv.png"
 NS = [1000, 10000, 100000]            # x axis (no an100 data at N=100)
 DEGS = [9, 99, 999, 9999, 99999]      # y axis (degree 4 trimmed, as in the 3-col figure)
 FIGSIZE = (11.0, 5.6)                 # wide: two panels side by side
-TITLE = "100 adversaries"
+TITLE = "100 Sleeper Agents Defecting Gradually"
 CELL_FONT, LABEL_FONT, TITLE_FONT = 10, 10, 12
 # -----------------------------------------------------------------------------
 

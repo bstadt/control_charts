@@ -24,7 +24,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "q500_100adv.png"
 NS = [1000, 10000, 100000]            # x axis (no an100 data at N=100)
 DEGS = [9, 99, 999, 9999, 99999]      # y axis (degree 4 trimmed, as in the 3-col figure)
 FIGSIZE = (11.0, 5.6)                 # wide: two panels side by side
-TITLE = "Q=500, 100 adversaries"
+TITLE = "100 adversaries"
 CELL_FONT, LABEL_FONT, TITLE_FONT = 10, 10, 12
 # -----------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ cells = {(c["N"], c["degree"]): c for c in data["cells"]}
 seeds = data["seeds"]
 
 fig, (ax, ax2) = plt.subplots(1, 2, figsize=FIGSIZE, facecolor=SURFACE)
-fig.subplots_adjust(left=0.09, right=0.98, top=0.83, bottom=0.26, wspace=0.28)
+fig.subplots_adjust(left=0.09, right=0.98, top=0.83, bottom=0.21, wspace=0.28)
 
 
 def rect(a, x, y, color, outline=False):
@@ -80,8 +80,10 @@ for xi, N in enumerate(NS):
         if e is None or e["ratio"] is None:
             continue
         t = (np.clip(np.log10(e["ratio"]), -LOGLIM, LOGLIM) + LOGLIM) / (2 * LOGLIM)
+        # threshold 1.05, not 1.0: any cell that DISPLAYS as "1.0x" should box —
+        # (100k, 9999) is 1.024 only via +1 smoothing on a dead-even 41v40 split
         taken = e["inf"] is not None and e["inf"] > 0.5
-        blind = taken and e["ratio"] <= 1.0
+        blind = taken and e["ratio"] <= 1.05
         rect(ax2, xi, yi, cmap_div(t), outline=blind)
         dark = t <= .53 or t > .82
         ax2.text(xi + .5, yi + .5, rfmt(e["ratio"]), ha="center", va="center",
@@ -110,10 +112,6 @@ legend = [Patch(facecolor="#d03b3b", label="≤ 1× — attack alarms no more th
                  label="outlined = takeover (victim infection > 0.5) AND alarm ratio ≤ 1×")]
 fig.legend(handles=legend, loc="lower center", ncol=2, frameon=False,
            fontsize=8.5, bbox_to_anchor=(0.5, 0.005))
-fig.text(0.5, 0.130,
-         f"{seeds} seeds per cell. Diagonal cells (mean degree = N−1) are the full-mesh runs. Alarm rate = share of adaptive-chart\n"
-         f"evaluations (3σ trailing window) out of band during steps ≥ 400, pooled over the {seeds} runs, +1-smoothed.",
-         ha="center", fontsize=7.5, color=INK2, style="italic", linespacing=1.5)
 fig.suptitle(TITLE, fontsize=TITLE_FONT + 2, color=INK, y=0.955)
 fig.savefig(OUT, dpi=170, facecolor=SURFACE)
 print(OUT)
